@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import Generators.CLI
+import Generators.CLIGeneratorCommands
 import click
 import click_completion
 import click_log
@@ -47,9 +47,10 @@ def validate(file):
 # Register first level subcommand
 #cli.add_command(Rosetta.rosetta)
 #cli.add_command(Vega.vega)
-cli.add_command(Generators.CLI.generate)
+cli.add_command(Generators.CLIGeneratorCommands.generate)
 
 # For debugging purposes only
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
-    cli(['generate', 'rtl', '../../examples/sample_padframe.yaml'])
+    cli(['generate', 'rtl',  '-v' 'DEBUG', '../../examples/sample_padframe.yaml'])
+    #cli(['generate', 'rtl', '-h'])

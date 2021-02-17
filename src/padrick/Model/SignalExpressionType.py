@@ -1,8 +1,11 @@
-from typing import Set
+from copy import deepcopy
+from typing import Set, Mapping
 
+from lark import Token
 from lark.exceptions import UnexpectedInput
 from lark.lark import Lark
 from lark.tree import Tree
+from lark.visitors import Transformer
 
 expression_language = r"""
 ?start: expression
@@ -75,41 +78,64 @@ BINARY_OP: /\+|-|\*|\/|%|==|!=|===|!==|==?|!=\?|&&|\|\||\*\*|<|<=|>|>=|&|\||\^|\
 
 simple_expression_parser = Lark(expression_language)
 
+class ExprToStringTransformer(Transformer):
+    def __default__(self, data, children, meta):
+        return "".join(children)
+    def __default_token__(self, token):
+        return str(token)
+
+class SignalNameRemapTransformer(Transformer):
+    def __init__(self, signal_name_mapping: Mapping[str,str]):
+        self._map = signal_name_mapping
+
+    def CNAME(self, name):
+        return self._map.get(name, name)
+
+
 class SignalExpressionType:
-    _is_literal: bool
-    _signal_collection: Set[str]
     _expression: str
-    _is_empty: bool = False
     ast: Tree
 
     def __init__(self, expression: str):
         if expression == None:
             expression = ""
-            self._is_empty = True
         self._ast = simple_expression_parser.parse(str(expression))
-        self._expression = str(expression)
-        self._signal_collection = set()
-        for signal_name in self.ast.find_data('signal_name'):
-            self._signal_collection.add(signal_name.children[0].value)
+
+
+    def __str__(self):
+        return ExprToStringTransformer().transform(self._ast)
+
+    def get_mapped_expr(self, signal_name_mapping: Mapping[str, str]) -> 'SignalExpressionType':
+        clone = deepcopy(self)
+        clone._ast = SignalNameRemapTransformer(signal_name_mapping).transform(clone._ast)
+        return clone
 
     @property
-    def expression(self):
-        return self._expression
+    def expression(self) -> str:
+        return str(self)
 
     @property
     def ast(self):
         return self._ast
+
     @property
     def is_empty(self):
-        return self._is_empty
+        return str(self) == ""
 
     @property
     def is_const_expr(self):
-        return len(self._signal_collection) == 0
+        return len(self.signal_collection) == 0
+
+    @property
+    def is_single_signal(self):
+        return self.ast.data == "signal_expression"
 
     @property
     def signal_collection(self):
-        return self._signal_collection
+        signal_collection = set()
+        for signal_name in self.ast.find_data('signal_name'):
+            signal_collection.add(signal_name.children[0])
+        return signal_collection
 
     @classmethod
     def __get_validators__(cls):
@@ -127,7 +153,8 @@ class SignalExpressionType:
         return self.expression
 
 if __name__ == "__main__":
-    expr = SignalExpressionType.validate("45*44+clk_i")
+    expr = SignalExpressionType.validate("clk_i+1")
     print(expr.expression)
     print(expr.signal_collection)
     print(expr.is_const_expr)
+    print(expr.is_single_signal)

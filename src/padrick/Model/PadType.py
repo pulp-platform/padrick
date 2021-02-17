@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from Model.ParseContext import PARSE_CONTEXT
-from Model.PadSignal import PadSignal
+from Model.PadSignal import PadSignal, PadSignalKind
 from mako import exceptions
 from mako.template import Template
 from pydantic import BaseModel, constr, validator, conlist, Extra
@@ -36,6 +36,12 @@ class PadType(BaseModel):
             raise ValueError(f"Double declaration of pad_type {v}. PadType names must be unique.")
         else:
             return v
+
+    @validator('pad_signals')
+    def must_contain_at_least_one_landing_pad(cls, v: List[PadSignal]) ->List[PadSignal]:
+        if not [pad_signal for pad_signal in v if pad_signal.kind == PadSignalKind.pad]:
+            raise ValueError("Each IO Pad Type must contain at least one Pad Signal of kind 'pad'")
+        return v
 
     def get_pad_signal(self, name: str) -> PadSignal:
         for pad_signal in self.pad_signals:

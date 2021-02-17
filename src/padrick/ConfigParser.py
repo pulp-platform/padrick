@@ -5,7 +5,7 @@ from typing import List, Union
 import click_log
 from pydantic import ValidationError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("padrick.Configparser")
 click_log.basic_config(logger)
 import yaml
 

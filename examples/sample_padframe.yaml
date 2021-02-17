@@ -14,12 +14,13 @@ pad_domains:
         # beginning is YAML syntax to allow multiline strings without the need
         # for manual character escaping
         template: |
-          PDDW04808 ${name} (
-          .PAD(${pad_signals["pad"]}),
-          .IE(${pad_signals["rx_en"]}),
-          .DS(${pad_signals["driving_strength"]}),
-          .I(${pad_signals["chip2pad"]}),
-          .O(${pad_signals["pad2chip"]})
+          PDDW04808 ${instance_name} (
+            .PAD(${pad_signal_connection["pad"]}),
+            .IE(${pad_signal_connection["rx_en"]}),
+            .OE(${pad_signal_connection["output_en"]},
+            .DS(${pad_signal_connection["driving_strength"]}),
+            .I(${pad_signal_connection["chip2pad"]}),
+            .O(${pad_signal_connection["pad2chip"]})
           );
 
         pad_signals: &default_pad_signals #This is a YAML anchor to reuse a subblock somewhere else. Use it to avoid copy paste hell!
@@ -44,9 +45,13 @@ pad_domains:
             and_override_signal: s_enable_all_outputs # Optional override signal
                                                       # that is and-gated with
                                                       # the control signal
-            default_reset_value: 0 # The default reset value of the pad signal
-                                   # if not overriden in the "connections"
-                                   # section of a particular pad instance
+            default_reset_value: 1'b0 # The default reset value of the pad
+                                      # signal if not overriden in the
+                                      # "connections" section of a particular
+                                      # pad instance
+            default_static_value: 1'b0 # The default static value of the signal
+                                       # if not overriden in the "connections"
+                                       # section of a particular pad instance
           - name: driving_strength
             description: "Driving strength of the output driver"
             size: 3
@@ -61,15 +66,15 @@ pad_domains:
                               # is defined individually for each pad in the
                               # padlist or described globally with the
                               # default_static_value.
-            default_static_value: 0 # The default static value of the signal if
-                                    # not overriden in the "connections" section
-                                    # of a particular pad instance
+            default_reset_value: 1'b0
+            default_static_value: 1'b0
           - name: rx_en
             description: "Input buffer enable"
             size: 1
             kind: input
             conn_type: dynamic
-            default_reset_value: 1
+            default_reset_value: 1'b0
+            default_static_value: 1'b0
           - name: pad2chip
             description: "The signal that connects to the pads RX buffer"
             size: 1
@@ -79,12 +84,14 @@ pad_domains:
                                # is not drivable from the outside. Only the name
                                # for a dedicated padframe output signal can be
                                # specified.
+            default_static_value: ~
           - name: chip2pad
             description: "The signal that connects to the pads TX driver"
             size: 1
             kind: input
             conn_type: dynamic
-            default_reset_value: 1
+            default_reset_value: 1'b1
+            default_static_value: 1'b0
           - name: pad # The name of the signal can be chosen arbitrarily but for
                       # the actual pad signal (the signal that connects to the
                       # bonding pads) the name "pad" is a good choice. It is
@@ -102,11 +109,11 @@ pad_domains:
       - name: low_leakage_pad
         description: Low leakage pad used for low-speed, low poewer applications
         template: |
-          //This is a System Verilog comment for pad instance ${name}
-          PDLL0206 ${name} (
-            .Z(${pad_signals["pad"]}),
-            .I(${pad_signals["pad2chip"]}),
-            .O(${pad_signals["chip2pad"]})
+          //This is a System Verilog comment for pad instance ${instance_name}
+          PDLL0206 ${instance_name} (
+          \  .Z(${pad_signal_connection["pad"]}),
+          \  .I(${pad_signal_connection["pad2chip"]}),
+          \  .O(${pad_signal_connection["chip2pad"]})
           );
         pad_signals: *default_pad_signals #Use YAML reference to avoid cumbersome duplication of common pad_signal lists
     pad_list:
@@ -122,13 +129,12 @@ pad_domains:
           pad2chip: ref_clk
           chip2pad: ~ #Leave unconnected, only legal for pad signals of kind
                       #"input"
-          pad: pad_ref_clk # The name of the bidirection pad signal
           rx_en: 1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0
       - name: pad_gpio
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
-        multiple: 32 #Generate 32 instances of this pad. Each instance will have
+        multiple: 5 #Generate 5 instances of this pad. Each instance will have
                      #its signal and instance names postfixed with the index
                      #number.
         pad_type: pull_down_pad
@@ -170,7 +176,7 @@ pad_domains:
               # signal connection.
           - name: spi0_miso
             connections:
-              pad2chip: miso
+              miso: pad2chip
               rx_en: 1 # You can also use static values for port signals. In that
               # case, the pad_signal is internally tied to the given value
               # whenever that particular port is connected to the pad. Any
@@ -185,13 +191,16 @@ pad_domains:
           - name: i2c_sda
             description: "Bidirectional I2C SDA signal"
             connections:
-              chip2pad: sda
-              pad2chip: sda
+              chip2pad: sda_o
+              sda_i: pad2chip
               output_en: out_en
               rx_en: ~out_en
+
           - name: i2c_scl
             description: "I2C clock signal"
             connections:
               chip2pad: scl
               rx_en: 0
               output_en: 1
+        output_defaults:
+          sda_i: 1'b0

@@ -18,6 +18,3 @@ class Padframe(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     pad_domains: conlist(PadDomain, min_items=1)
-
-
-
