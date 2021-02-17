@@ -50,8 +50,11 @@ class PadDomain(BaseModel):
                     raise ValueError(f"Found static signal {signal.name} that is used for both, input and output "
                                      f"pad_signals. "
                                      f"Bi-directional static connection signals are not supported.")
-                else:
-                    seen[signal.name] = signal
+                if seen[signal.name].size != signal.size:
+                    raise ValueError(f"Found static signal whith ambiguous size. static signals must only be "
+                                     f"connected to pad signals of same size and direction.")
+            else:
+                seen[signal.name] = signal
         return v
 
     @property
