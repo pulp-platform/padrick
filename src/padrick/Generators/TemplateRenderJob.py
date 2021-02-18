@@ -17,7 +17,7 @@ class TemplateRenderJob:
     template: str
 
     def render(self, output_dir: Path, logger: logging.Logger, padframe: Padframe, **kwargs):
-        logger.debug(f"Generating {self.name} for padframe {padframe.name}")
+        logger.debug(f"Generating {self.name}")
         pkg_pads_path = output_dir / self.target_file_name.format(padframe=padframe, **kwargs)
         with pkg_pads_path.open(mode='w') as f:
             tp = Template(self.template)
