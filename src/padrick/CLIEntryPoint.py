@@ -52,5 +52,6 @@ cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 # For debugging purposes only
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
-    cli(['generate', 'rtl',  '-v' 'DEBUG', '../../examples/sample_padframe.yaml'])
+    cli(['generate', 'rtl',  '-v' 'DEBUG', '-o', '/home/meggiman/garbage/test_padrick',
+         '../../examples/sample_padframe.yaml'])
     #cli(['generate', 'rtl', '-h'])
