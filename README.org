@@ -43,7 +43,12 @@
   over the IO Pads.
 * Getting Started
   Installation of padrick is straight forward:
-  
+
+  #+BEGIN_SRC bash
+    pip install git+ssh://git@iis-git.ee.ethz.ch/utilities/padrick.git
+  #+END_SRC
+
+  Or if you prefer an https connection over SSH:
   #+BEGIN_SRC bash
     pip install git+https://iis-git.ee.ethz.ch/utilities/padrick
   #+END_SRC
