@@ -1,11 +1,11 @@
+import logging
 from pathlib import Path
 
-import Generators.CLIGeneratorCommands
+import padrick.Generators.CLIGeneratorCommands
 import click
 import click_completion
 import click_log
-import logging
-from ConfigParser import parse_config
+from padrick.ConfigParser import parse_config
 
 logger = logging.getLogger("padrick")
 click_log.basic_config(logger)
@@ -47,7 +47,7 @@ def validate(file):
 # Register first level subcommand
 #cli.add_command(Rosetta.rosetta)
 #cli.add_command(Vega.vega)
-cli.add_command(Generators.CLIGeneratorCommands.generate)
+cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 
 # For debugging purposes only
 if __name__ == '__main__':

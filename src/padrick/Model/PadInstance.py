@@ -1,10 +1,10 @@
 from typing import Optional, Mapping, List, Union, Set
 
-from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
-from Model.ParseContext import PARSE_CONTEXT
-from Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
-from Model.PadType import PadType
-from Model.SignalExpressionType import SignalExpressionType
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
+from padrick.Model.PadType import PadType
+from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint
 
 
@@ -14,6 +14,7 @@ class PadInstance(BaseModel):
     multiple: conint(ge=1) = 1
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
+    package_pad_nr: Optional[int]
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
 
     #pydantic model config
@@ -124,6 +125,14 @@ class PadInstance(BaseModel):
             return []
         else:
             return [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad and pad_signal.conn_type == ConnectionType.dynamic]
+
+    @property
+    def dynamic_pad_signals_soc2pad(self) -> List[PadSignal]:
+        return [pad_signal for pad_signal in self.dynamic_pad_signals if pad_signal.kind == PadSignalKind.input]
+
+    @property
+    def dynamic_pad_signals_pad2soc(self) -> List[PadSignal]:
+        return [pad_signal for pad_signal in self.dynamic_pad_signals if pad_signal.kind == PadSignalKind.output]
 
     @property
     def static_pad_signals(self):

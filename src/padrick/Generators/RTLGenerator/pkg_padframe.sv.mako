@@ -5,17 +5,12 @@ package pkg_${padframe.name};
   // Landing pad signals
   typedef struct packed {
  % for pad_inst in pad_domain.pad_list:
-  % if pad_inst.multiple != 1:
+  % for i in range(pad_inst.multiple):
+<% pad_suffix = i if pad_inst.multiple > 1 else "" %> \
    % for signal in pad_inst.landing_pads:
-    % for i in range(pad_inst.multiple):
-     logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${pad_inst.name}${i}_${signal.name};
-    % endfor
+     logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${pad_inst.name}${pad_suffix}_${signal.name};
    % endfor
-  % else:
-   % for signal in pad_inst.landing_pads:
-     logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${pad_inst.name}_${signal.name};
-   % endfor
-  % endif
+  % endfor
  % endfor
   } pad_domain_${pad_domain.name}_landing_pads_t;
 
@@ -143,6 +138,6 @@ package pkg_${padframe.name};
   % endif
  % endfor
   } port_signals_soc2pad_t;
-% endif
-
+   % endif
+     
 endpackage : pkg_${padframe.name}

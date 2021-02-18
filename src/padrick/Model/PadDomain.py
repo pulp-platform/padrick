@@ -1,11 +1,11 @@
 from typing import List, Optional, Set, Mapping
 
-from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
-from Model.PadInstance import PadInstance
-from Model.PadSignal import Signal, SignalDirection
-from Model.PadType import PadType
-from Model.ParseContext import PARSE_CONTEXT
-from Model.PortGroup import PortGroup
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.PadInstance import PadInstance
+from padrick.Model.PadSignal import Signal, SignalDirection
+from padrick.Model.PadType import PadType
+from padrick.Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.PortGroup import PortGroup
 from pydantic import BaseModel, constr, conlist, root_validator, validator
 
 

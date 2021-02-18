@@ -1,9 +1,9 @@
 from typing import Optional, List, Set, Mapping, Union
 
-from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
-from Model.PadSignal import Signal, SignalDirection
-from Model.Port import Port
-from Model.SignalExpressionType import SignalExpressionType
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.PadSignal import Signal, SignalDirection
+from padrick.Model.Port import Port
+from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, conlist, validator
 
 

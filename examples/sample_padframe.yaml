@@ -1,4 +1,3 @@
----
 name: low_power_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
@@ -17,7 +16,7 @@ pad_domains:
           PDDW04808 ${instance_name} (
             .PAD(${pad_signal_connection["pad"]}),
             .IE(${pad_signal_connection["rx_en"]}),
-            .OE(${pad_signal_connection["output_en"]},
+            .OE(${pad_signal_connection["output_en"]}),
             .DS(${pad_signal_connection["driving_strength"]}),
             .I(${pad_signal_connection["chip2pad"]}),
             .O(${pad_signal_connection["pad2chip"]})
@@ -45,7 +44,7 @@ pad_domains:
             and_override_signal: s_enable_all_outputs # Optional override signal
                                                       # that is and-gated with
                                                       # the control signal
-            default_reset_value: 1'b0 # The default reset value of the pad
+            default_reset_value: 0 # The default reset value of the pad
                                       # signal if not overriden in the
                                       # "connections" section of a particular
                                       # pad instance
@@ -66,14 +65,14 @@ pad_domains:
                               # is defined individually for each pad in the
                               # padlist or described globally with the
                               # default_static_value.
-            default_reset_value: 1'b0
+            default_reset_value: 0
             default_static_value: 1'b0
           - name: rx_en
             description: "Input buffer enable"
             size: 1
             kind: input
             conn_type: dynamic
-            default_reset_value: 1'b0
+            default_reset_value: 0
             default_static_value: 1'b0
           - name: pad2chip
             description: "The signal that connects to the pads RX buffer"
@@ -90,7 +89,7 @@ pad_domains:
             size: 1
             kind: input
             conn_type: dynamic
-            default_reset_value: 1'b1
+            default_reset_value: 1
             default_static_value: 1'b0
           - name: pad # The name of the signal can be chosen arbitrarily but for
                       # the actual pad signal (the signal that connects to the

@@ -1,12 +1,14 @@
 import logging
 from dataclasses import dataclass
-from os import PathLike
 from pathlib import Path
 
-import click_log
-from Model.Padframe import Padframe
+from padrick.Model.Padframe import Padframe
 from mako import exceptions
 from mako.template import Template
+
+
+class TemplateRenderException(Exception):
+    pass
 
 @dataclass
 class TemplateRenderJob:
@@ -22,6 +24,7 @@ class TemplateRenderJob:
             try:
                 f.write(tp.render(padframe=padframe, **kwargs))
                 logger.debug(tp.render(padframe=padframe, **kwargs))
-            except:
+            except Exception as e:
                 logger.error(f"Error while rendering {self.name} template for padframe {padframe.name}:\
                 n{exceptions.text_error_template().render()}")
+                raise TemplateRenderException(f"Rendering of template {self.name} failed") from e

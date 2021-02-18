@@ -1,8 +1,8 @@
 from typing import Optional, List
 
-from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
-from Model.ParseContext import PARSE_CONTEXT
-from Model.PadSignal import PadSignal, PadSignalKind
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.PadSignal import PadSignal, PadSignalKind
 from mako import exceptions
 from mako.template import Template
 from pydantic import BaseModel, constr, validator, conlist, Extra

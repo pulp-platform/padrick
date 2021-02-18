@@ -1,14 +1,13 @@
+import logging
 from pathlib import Path
 
 import click
 import click_log
-import yaml
-from ConfigParser import parse_config
-from Generators.RTLGenerator import RTLGenerator
-from Generators.RTLGenerator.RTLGenerator import generate_rtl
-import logging
-
-from click import UsageError
+from padrick.ConfigParser import parse_config
+from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl, RTLGenException
+from padrick.Generators.TemplateRenderJob import TemplateRenderException
+from click import UsageError, ClickException
+import os
 
 logger = logging.getLogger("padrick")
 click_log.basic_config(logger)
@@ -29,6 +28,17 @@ def rtl(config_file, output):
     """
     logger.info("Parsing configuration file...")
     padframe = parse_config(Path(config_file))
+    logger.info("Parsing successful. Generating RTL...")
+    if not Path(output).exists():
+        logger.debug("Output directory does not exist. Creating new one.")
+        os.makedirs(output, exist_ok=True)
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
-    generate_rtl(padframe, Path(output))
+    try:
+        generate_rtl(padframe, Path(output))
+    except (RTLGenException, TemplateRenderException) as e:
+        raise ClickException("RTL Generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating RTL :-(")
+        raise e
+    logger.info(f"Successfully generated RTL files in {output}")

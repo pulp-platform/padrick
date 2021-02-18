@@ -13,7 +13,7 @@ from ruamel.yaml import YAML, YAMLError
 
 yaml = YAML()
 
-from Model.Padframe import Padframe
+from padrick.Model.Padframe import Padframe
 
 def get_error_context(config_file: Path, line, column, context_before = 4, context_after = 4):
     lines_to_return = []

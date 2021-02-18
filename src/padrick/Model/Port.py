@@ -1,10 +1,10 @@
 from functools import reduce
 from typing import Optional, Mapping, Union, Set
 
-from Model.Constants import SYSTEM_VERILOG_IDENTIFIER
-from Model.ParseContext import PARSE_CONTEXT
-from Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
-from Model.SignalExpressionType import SignalExpressionType
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
+from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, Extra, PrivateAttr
 
 

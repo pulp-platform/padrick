@@ -1,4 +1,7 @@
-module ${padframe.name}_${pad_domain.name} (
+module ${padframe.name}_${pad_domain.name}
+  import pkg_${padframe.name}::*;
+  import pkg_internal_${padframe.name}_${pad_domain.name}::*;
+ (
   input logic clk_i,
   input logic rst_ni,
 % if pad_domain.override_signals:
@@ -18,6 +21,34 @@ module ${padframe.name}_${pad_domain.name} (
 % endif
   inout pad_domain_${pad_domain.name}_landing_pads_t pads
 );
+
+% if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
+   mux_to_pads_t s_mux_to_pads;
+% endif
+% if any([pad.dynamic_pad_signals_pad2soc for pad in pad_domain.pad_list]):
+   pads_to_mux_t s_pads_to_mux;
+
+% endif
+   ${padframe.name}_${pad_domain.name}_pads i_${pad_domain.name}_pads (
+     .clk_i,
+     .rst_ni,
+% if pad_domain.override_signals:
+     .override_signals_i,
+% endif
+% if pad_domain.static_connection_signals_pad2soc:
+     .static_connection_signals_pad2soc,
+% endif
+% if pad_domain.static_connection_signals_soc2pad:
+     .static_connection_signals_soc2pad,
+% endif
+% if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
+     .mux_to_pads_i(s_mux_to_pads),
+% endif
+% if any([pad.dynamic_pad_signals_pad2soc for pad in pad_domain.pad_list]):
+     .pads_to_mux_o(s_pads_to_mux),
+% endif
+     .pads
+   );
 
 
 
