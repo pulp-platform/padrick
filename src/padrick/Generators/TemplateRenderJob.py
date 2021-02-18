@@ -23,7 +23,7 @@ class TemplateRenderJob:
             tp = Template(self.template)
             try:
                 f.write(tp.render(padframe=padframe, **kwargs))
-                logger.debug(tp.render(padframe=padframe, **kwargs))
+                #logger.debug(tp.render(padframe=padframe, **kwargs))
             except Exception as e:
                 logger.error(f"Error while rendering {self.name} template for padframe {padframe.name}:\
                 n{exceptions.text_error_template().render()}")
