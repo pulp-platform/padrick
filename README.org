@@ -1,6 +1,10 @@
 #+title: Padrick - A flexible Padframe Generator for SoCs
+#+author: Manuel Eggimann
 #+OPTIONS: ^:nil toc:5
-
+* State of Development
+  *WARNING* Padrick is still in it's very early stage of development and not yet
+   ready for production. Do not yet use it for actual tapeouts without asking
+   the author about the current state of development.
 * Purpose of this Tool
   Modern SoCs contain a large number of peripherals and functional blocks that
   need to communicate with the outside world. Most of the time, the number of IO
@@ -42,6 +46,8 @@
   interface to be attached to the SoC configuration bus for at-runtime control
   over the IO Pads.
 * Getting Started
+
+** Installation  
   Installation of padrick is straight forward:
 
   #+BEGIN_SRC bash
@@ -63,6 +69,38 @@
   #+END_SRC
 
   Both installation schemes will automatically install all the required
-  dependencies.
+  dependencies. This will install the new command line tool ~padrick~.
 
+** Write the Padframe Configuration File  
+  Now that you installed padrick, you can start writing your padframe
+  configuration file. Have a look at some of the examples in the ~examples~
+  folder to become familiar with the syntax and read the [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick][documentation]].
 
+** Generating the Padframe
+   With your padframe configuration file ready you can now invoke the ~padrick~
+   command to generate the padframe project:
+
+   #+BEGIN_SRC bash
+     padrick generate rtl -output my_padframe my_padframe_config.yml
+   #+END_SRC
+
+   This command will first parse your configuration file and pass it through a
+   number of sanity checks to ensure it has the proper format. If there is a
+   mistake in the config file, you will see an error message with hints to where
+   the error occured.
+
+   After successfully parsing the config file, padrick will generate a complete
+   RTL project in the subdirectory ~my_padframe~. If the folder doesn't exist,
+   it will be created for you. Amongst the various SystemVerilog RTL files, the
+   folder will also be populated with appropriate Bender and IPApprox IP
+   configuration file to simplify the integration of the auto-generated
+   padframe.
+   
+** Instantiating the Padframe within your Design
+   Now that your padframe IP is generated you can instantiate it within your
+   design. The toplevel module for user instantiation is called
+   ~<padframe.name>_top.sv~. The structs that make up the interface of this
+   SystemVerilog module are defined in ~pkg_<padframe.name>.sv~.
+* Documentation
+  For more in-depth documentatin of Padrick, visit the project Documentation
+  site at [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick]].
