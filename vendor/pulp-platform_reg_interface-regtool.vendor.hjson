@@ -1,0 +1,14 @@
+// Copyright 2020 ETH Zurich and University of Bologna.
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+{
+  name: "regtool_register_interface_patches",
+  target_dir: "lowrisc_opentitan"
+
+  
+  upstream: {
+    url: "https://github.com/pulp-platform/register_interface.git",
+    rev: "master",
+    only_subdir: "vendor/lowrisc_opentitan/util"
+  },
+}
