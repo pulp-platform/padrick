@@ -1,5 +1,6 @@
 import logging
 import time
+import traceback
 from pathlib import Path
 
 import padrick.Generators.CLIGeneratorCommands
@@ -63,7 +64,7 @@ if __name__ == '__main__':
             generate_rtl(padframe, Path(output))
             print("Generated RTL")
         except Exception as e:
-            print(e)
+            traceback.print_exc()
             pass
         time.sleep(5)
 

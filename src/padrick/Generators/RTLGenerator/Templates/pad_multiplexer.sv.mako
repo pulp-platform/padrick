@@ -113,6 +113,7 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
   logic [${dynamic_pad_count-1}:0] port_mux_sel_req_${port_group.name}_${port_signal.name};
   logic [PORT_MUX_SEL_WIDTH-1:0] port_mux_sel_${port_group.name}_${port_signal.name};
   logic port_mux_sel_${port_group.name}_${port_signal.name}_no_connection;
+
 % for pad in dynamic_pads:
 % for i in range(pad.multiple):
 <%
@@ -122,6 +123,7 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
    assign port_mux_sel_req_${port_group.name}_${port_signal.name}[PORT_MUX_SEL_${pad.name.upper()}${pad_suffix}] = s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q == PAD_MUX_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
 % endfor
 % endfor
+
    lzc #(
      .WIDTH(PORT_MUX_SEL_WIDTH,
      .MODE(1'b0)
@@ -138,16 +140,23 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
         unique case (port_mux_sel_${port_group.name}_${port_signal.name})
 % for pad in dynamic_pads:
 % for i in range(pad.multiple):
-<% pad_suffix = i if pad.multiple > 1 else "" %>\
+<%
+  pad_suffix = i if pad.multiple > 1 else ""
+  pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{pad.name}{pad_suffix}.{pad_signal.name}" for pad_signal in pad.dynamic_pad_signals_pad2soc}
+%>\
           PORT_MUX_SEL_${pad.name}${pad_suffix}: begin
-            ports_pad2soc_o.${port_group.name}.${port_signal.name} = pad_signal_xy;
+% if port_signal in port.connections:
+            ports_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping).expression};
+% else:
+            ports_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
+% endif
           end
 % endfor
 % endfor
           default: begin
             ports_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
           end
-     end  
+     end
    end
 
 % endfor
