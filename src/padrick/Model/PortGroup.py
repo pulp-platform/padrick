@@ -70,6 +70,11 @@ class PortGroup(BaseModel):
                 seen[signal.name] = signal
         return v
 
+    @validator('ports')
+    def check_pad2soc_port_are_not_multiple_connected(cls, v):
+        port_signals
+        return v
+
 
     @property
     def port_signals(self) -> Set[Signal]:

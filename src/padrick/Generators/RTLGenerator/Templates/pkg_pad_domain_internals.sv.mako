@@ -1,7 +1,7 @@
 package pkg_internal_${padframe.name}_${pad_domain.name};
 % for pad in pad_domain.pad_list:
-  % for i in range(pad.multiple):
-  <% pad_suffix = i if pad.multiple > 1 else "" %>
+% for i in range(pad.multiple):
+<% pad_suffix = i if pad.multiple > 1 else "" %>
     % if pad.dynamic_pad_signals_soc2pad:
   typedef struct {
       % for signal in pad.dynamic_pad_signals_soc2pad:

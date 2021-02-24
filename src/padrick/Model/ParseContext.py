@@ -7,6 +7,7 @@ class ParseContext:
 
     def set_context(self, ctx: 'PadDomain'):
         self._current_pad_domain = ctx
+        self._pad_types = {}
 
     def register_pad_type(self, pad_type: 'PadType'):
         self._pad_types[pad_type.name] = pad_type

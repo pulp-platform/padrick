@@ -1,10 +1,13 @@
 import logging
+import time
 from pathlib import Path
 
 import padrick.Generators.CLIGeneratorCommands
 import click
 import click_completion
 import click_log
+from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
+from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
 
 logger = logging.getLogger("padrick")
@@ -52,6 +55,18 @@ cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 # For debugging purposes only
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
-    cli(['generate', 'rtl',  '-v' 'DEBUG', '-o', '/home/meggiman/garbage/test_padrick',
-         '../../examples/sample_padframe.yaml'])
+    while True:
+        config_file = '../../examples/sample_padframe.yaml'
+        output = '/home/meggiman/garbage/test_padrick'
+        try:
+            padframe = parse_config(Path(config_file))
+            generate_rtl(padframe, Path(output))
+            print("Generated RTL")
+        except Exception as e:
+            print(e)
+            pass
+        time.sleep(1)
+
+    cli(['generate', 'rtl',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick',
+             '../../examples/sample_padframe.yaml'])
     #cli(['generate', 'rtl', '-h'])

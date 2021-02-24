@@ -22,7 +22,7 @@ def generate():
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
 @click.option('-o', '--output', type=click.Path(dir_okay=True, file_okay=False), default=".", help="Location where to save the RTL")
 @click_log.simple_verbosity_option(logger)
-def rtl(config_file, output):
+def rtl(config_file: str, output: str):
     """
     Generate SystemVerilog implementation from the padframe configuration.
     """

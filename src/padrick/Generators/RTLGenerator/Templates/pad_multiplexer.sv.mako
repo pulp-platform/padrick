@@ -1,6 +1,7 @@
 module pad_multiplexer
-  import pkg_internal_${padframe.name}_${pad_domain.name}::**;
+  import pkg_internal_${padframe.name}_${pad_domain.name}::*;
   import pkg_${padframe.name}::*;
+  import pkg_${padframe.name}_${pad_domain.name}_config_reg_pkg::*;
 #(
   parameter type              req_t  = logic, // reg_interface request type
   parameter type             resp_t  = logic, // reg_interface response type
@@ -23,8 +24,82 @@ module pad_multiplexer
   input req_t config_req_i,
   output resp_t config_rsp_o
 );
+   // Connections between register file and pads
+% if pad_domain.dynamic_pad_signals_soc2pad:
+     ${padframe.name}_${pad_domain.name}_config_reg2hw_t s_reg2hw;
+% endif
+% if pad_domain.dynamic_pad_signals_pad2soc:
+     ${padframe.name}_${pad_domain.name}_config_hw2reg_t s_hw2reg;
+% endif
 
-  // Register File
-  
+  // Register File Instantiation
+  ${padframe.name}_${pad_domain.name}_config_reg_top #(
+    .reg_req_t(req_t),
+    .reg_rsp_t(resp_t)
+    ) i_regfile (
+    .clk_i,
+    .rst_ni,
+% if pad_domain.dynamic_pad_signals_soc2pad:
+    .reg2hw(s_reg2hw),
+% endif
+% if pad_domain.dynamic_pad_signals_pad2soc:
+    .hw2reg(s_hw2reg),
+% endif
+    .reg_req_i(config_req_i),
+    .reg_rsp_o(config_rsp_o)
+  );
 
+<%
+all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
+%>
+   // SoC -> Pad Multiplex Logic
+% for pad in pad_domain.pad_list:
+% for i in range(pad.multiple):
+<%
+   import math
+   pad_suffix = i if pad.multiple > 1 else ""
+   pad_subscript = f"[{i}]" if pad.multiple > 1 else ""
+   sel_bitwidth = round(math.log2(len(all_ports)+1))
+%>\
+% if pad.dynamic_pad_signals_soc2pad:
+   // Pad ${pad.name}${pad_suffix}
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
+   // Pad Signal ${pad_signal.name}
+   always_comb begin
+     unique case (s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q)
+       ${sel_bitwidth}'d0: begin
+         mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+       end
+<% port_idx = 1 %>\
+% for port_group in pad_domain.port_groups:
+<%
+   # Remap the port signal names to the hierarchical identifier for index the signal from the struct
+   signal_name_remap = {port_signal.name : f"ports_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
+%>\
+% for port in port_group.ports:
+       ${sel_bitwidth}'d${port_idx}: begin
+% if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
+          mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap).expression};
+% else:
+          mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+% endif
+<% port_idx += 1 %>\
+       end
+% endfor
+% endfor
+       default: begin
+         mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+       end
+     endcase
+   end // always_comb
+
+% endfor
+% endif
+% endfor
+% endfor
+
+  // Pad -> SoC Multiplex Logic
+% if any(port_group.port_signals_pads2soc for port_group in pad_domain.port_groups):
+
+% endif
 endmodule : pad_multiplexer

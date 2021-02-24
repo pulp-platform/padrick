@@ -41,14 +41,20 @@ def generate_rtl(padframe: Padframe, dir: Path):
                           target_file_name=f'pkg_internal_{padframe.name}_{pad_domain.name}.sv',
                           template=resources.read_text(template_package, 'pkg_pad_domain_internals.sv.mako')
                           ).render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain)
+        TemplateRenderJob(name=f'Pad Multiplexer for {pad_domain.name}',
+                          target_file_name=f'{padframe.name}_{pad_domain.name}_muxer.sv',
+                          template=resources.read_text(template_package, 'pad_multiplexer.sv.mako')
+                          ).render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain,
+                                   debug_render=True)
         TemplateRenderJob(name=f'Register File Specification for {pad_domain.name}',
-                          target_file_name=f'{padframe.name}_regs.hjson',
+                          target_file_name=f'{padframe.name}_{pad_domain.name}_regs.hjson',
                           template=resources.read_text(template_package, 'regfile.hjson.mako')
                           ).render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain)
 
+
         # Generate Register file using lowRisc reg_tool
         logger.debug("Invoking reggen to generate register file from Register file description")
-        hjson_reg_file = dir/"src"/f"{padframe.name}_regs.hjson"
+        hjson_reg_file = dir/"src"/f"{padframe.name}_{pad_domain.name}_regs.hjson"
         try:
             obj = hjson.loads(hjson_reg_file.read_text(), use_decimal=True,
                               object_pairs_hook=reggen_validate.checking_dict)
@@ -60,7 +66,7 @@ def generate_rtl(padframe: Padframe, dir: Path):
             logger.error(f"Validation of auto generated register file configuration failed.")
             raise RTLGenException("Reggen Validation failed")
         return_code = reggen_gen_rtl.gen_rtl(obj, (dir/"src").as_posix())
-        if return_code != 0:
+        if return_code != 0 and not (return_code is None):
             logger.error(f"Regtool template rendering of register file for pad domain {pad_domain.name} failed")
             raise RTLGenException("Reggen Rendering failed")
 

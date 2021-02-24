@@ -80,3 +80,18 @@ class PadDomain(BaseModel):
     def static_connection_signals_pad2soc(self) -> Set[Signal]:
         return set([signal for signal in self.static_connection_signals if signal.direction ==
                     SignalDirection.pads2soc])
+
+    @property
+    def dynamic_pad_signals(self) -> Set[Signal]:
+        dynamic_pad_signals = set()
+        for pad in self.pad_list:
+            dynamic_pad_signals.update(pad.dynamic_pad_signals)
+        return dynamic_pad_signals
+
+    @property
+    def dynamic_pad_signals_soc2pad(self) -> Set[Signal]:
+        return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.soc2pads])
+
+    @property
+    def dynamic_pad_signals_pad2soc(self):
+        return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.pads2soc])

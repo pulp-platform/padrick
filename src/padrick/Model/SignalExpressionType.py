@@ -1,7 +1,6 @@
 from copy import deepcopy
 from typing import Set, Mapping
 
-from lark import Token
 from lark.exceptions import UnexpectedInput
 from lark.lark import Lark
 from lark.tree import Tree
