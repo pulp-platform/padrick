@@ -4,7 +4,7 @@ from typing import List, Union, Tuple, Mapping
 
 import click
 import click_log
-from Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.ParseContext import PARSE_CONTEXT
 from pydantic import ValidationError
 from ruamel.yaml.comments import CommentedMap
 

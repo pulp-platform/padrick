@@ -71,8 +71,16 @@ class PortGroup(BaseModel):
         return v
 
     @validator('ports')
-    def check_pad2soc_port_are_not_multiple_connected(cls, v):
-        port_signals
+    def check_pad2soc_ports_are_not_multiple_connected(cls, v):
+        port_signals = set()
+        for port in v:
+            for port_signal in port.port_signals_pad2chip:
+                if port_signal in port_signals:
+                    raise ValueError(f"Cannot connect pad2soc signal {port_signal.name} to multiple pad_signals. "
+                                     f"Within a single port_group a port signal with direction pad2soc must only be"
+                                     f"referenced in at most one port connection list. (Otherwise we would have driving conflicts).")
+                else:
+                    port_signals.add(port_signal)
         return v
 
 
