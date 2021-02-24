@@ -65,7 +65,7 @@ if __name__ == '__main__':
         except Exception as e:
             print(e)
             pass
-        time.sleep(1)
+        time.sleep(5)
 
     cli(['generate', 'rtl',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick',
              '../../examples/sample_padframe.yaml'])

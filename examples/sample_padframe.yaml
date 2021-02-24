@@ -148,6 +148,8 @@ pad_domains:
       # master peripheral exposes the SCK, MOSI, MISO and CS ports. These ports
       # can be routed to an arbitrary pad within the same pad_domain.
       - name: spi0
+        output_defaults:
+          miso: 1'b0
         ports:
           - name: spi0_mosi
             description: "MOSI port of the SPI master peripheral" # An optional description of the signal
@@ -186,6 +188,8 @@ pad_domains:
               rx_en: 0
               output_en: 1
       - name: i2c
+        output_defaults:
+          sda_i: 1'b0
         ports:
           - name: i2c_sda
             description: "Bidirectional I2C SDA signal"
@@ -201,5 +205,3 @@ pad_domains:
               chip2pad: scl
               rx_en: 0
               output_en: 1
-        output_defaults:
-          sda_i: 1'b0

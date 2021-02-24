@@ -4,23 +4,23 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conlist, validator
+from pydantic import BaseModel, constr, conlist, validator, root_validator
 
 
 class PortGroup(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     ports: List[Port]
-    connection_defaults: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
+    output_defaults: Mapping[Union[Signal, str], Optional[SignalExpressionType]] = {}
 
 
-    @validator('connection_defaults')
+    @validator('output_defaults')
     def validate_and_link_output_defaults(cls, v: Mapping[str, SignalExpressionType], values):
         """Make sure the signals specified in connection_defaults are actually pad2chip port signals and make sure
         the associated expression is static."""
         linked_connection_defaults: Mapping[Signal, SignalExpressionType] = {}
-        for signal_name, expression in v:
-            port_signals = set.union(*[port for port in values['ports']])
+        for signal_name, expression in v.items():
+            port_signals = set.union(*[port.port_signals for port in values['ports']])
             # Try to find the port signal in the implicitly declared port signal list (a name used in the connections
             # section declares a new port signal)
             signal_found = False
@@ -48,9 +48,15 @@ class PortGroup(BaseModel):
 
         return linked_connection_defaults
 
-
-
-
+    @root_validator(skip_on_failure=True)
+    def check_all_pad2soc_ports_have_default(cls, values):
+        port_signals_pad2soc = set()
+        for port in values['ports']:
+            port_signals_pad2soc.update(port.port_signals_pad2chip)
+        for port in port_signals_pad2soc:
+            if port not in values['output_defaults'] and port.name not in values['output_defaults']:
+                raise ValueError(f"Found port signal {port.name} with direction pad2soc that does not specify a connection default.")
+        return values
 
 
     @validator('ports')
