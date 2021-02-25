@@ -93,7 +93,7 @@ module ${padframe.name}
        .dec_error_o(),
        .idx_o(pad_domain_sel),
        .en_default_idx_i(1'b1),
-       .default_idx_i(${num_pad_domains}) // The last entry is the error slave
+       .default_idx_i(${math.ceil(math.log2(num_pad_domains+1))}'d${num_pad_domains}) // The last entry is the error slave
      );
 
      req_t error_slave_req;

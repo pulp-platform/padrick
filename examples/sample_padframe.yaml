@@ -127,7 +127,7 @@ pad_domains:
                      # pad signals)
           pad2chip: ref_clk
           chip2pad: 1'b0
-          rx_en: 1 #pad signals of kind "input" any SystemVerilog literal is
+          rx_en: 1'b1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0
       - name: pad_gpioa
@@ -176,7 +176,7 @@ pad_domains:
               # the right-hand side of the 'connections' connection dictionary. Each
               # of those inferred signals is of same bitwidth as the first
               # pad_signal connection it is referenced on the right-hand-side.
-              chip2pad: mosi
+              chip2pad: mosi & spi_en
               output_en: ~oen
               rx_en: oen # A port signal may be connected to multiple pad signals, but
               # every pad signal defined in the pad_signals section must be
@@ -187,15 +187,16 @@ pad_domains:
           - name: spi0_miso
             connections:
               miso: pad2chip
-              rx_en: 1 # You can also use static values for port signals. In that
+              rx_en: 1'b1 # You can also use static values for port signals. In that
               # case, the pad_signal is internally tied to the given value
               # whenever that particular port is connected to the pad. Any
               # Verilog literal can be used for this purpose.
+              output_en: 1'b0
           - name: spi0_sck
             connections:
               chip2pad: sck
-              rx_en: 0
-              output_en: 1
+              rx_en: 1'b0
+              output_en: 1'b1
       - name: i2c
         mux_group: gpio_setb
         output_defaults:
@@ -213,5 +214,5 @@ pad_domains:
             description: "I2C clock signal"
             connections:
               chip2pad: scl
-              rx_en: 0
-              output_en: 1
+              rx_en: 1'b0
+              output_en: 1'b1
