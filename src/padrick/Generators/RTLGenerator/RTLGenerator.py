@@ -67,6 +67,7 @@ def generate_rtl(padframe: Padframe, dir: Path):
         error_count = reggen_validate.validate(obj)
         address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj["gennextoffset"])
         next_pad_domain_reg_offset = obj["gennextoffset"]
+        address_space_size = next_pad_domain_reg_offset-4
         if error_count != 0:
             logger.error(f"Validation of auto generated register file configuration failed.")
             raise RTLGenException("Reggen Validation failed")
@@ -78,7 +79,8 @@ def generate_rtl(padframe: Padframe, dir: Path):
     TemplateRenderJob(name='Padframe Top Module',
                       target_file_name='{padframe.name}.sv',
                       template=resources.read_text(template_package, 'padframe.sv.mako')
-                      ).render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges)
+                      ).render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges,
+                               address_space_size=address_space_size)
 
     TemplateRenderJob(name=f'Bender.yml Project file',
                       target_file_name="Bender.yml",

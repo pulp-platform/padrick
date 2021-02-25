@@ -1,8 +1,11 @@
 module ${padframe.name}
   import pkg_${padframe.name}::*;
 #(
-  parameter type              req_t  = logic, // reg_interface request type
-  parameter type             resp_t  = logic // reg_interface response type
+  parameter int unsigned   AW = 32,
+  parameter int unsigned   DW = 32,
+  parameter type req_t = logic, // reg_interface request type
+  parameter type resp_t = logic, // reg_interface response type
+  parameter logic [DW-1:0] DecodeErrRespData = 32'hdeadda7a
 )(
   input logic                                clk_i,
   input logic                                rst_ni,
@@ -28,6 +31,8 @@ module ${padframe.name}
 
 
 % for pad_domain in padframe.pad_domains:
+  req_t ${pad_domain.name}_config_req;
+  resp_t ${pad_domain.name}_config_resp;
   ${padframe.name}_${pad_domain.name} #(
     .req_t(req_t),
     .resp_t(resp_t)
@@ -50,27 +55,67 @@ module ${padframe.name}
    .port_signals_soc2pad_i(port_signals_soc2pad.${pad_domain.name}),
 % endif
    .pads(pads.${pad_domain.name}),
-   .config_req_i (),
-   .config_rsp_o ()
+   .config_req_i(${pad_domain.name}_config_req),
+   .config_rsp_o(${pad_domain.name}_config_resp)
   );
 
- % endfor
+% endfor
+<%
+  import math
+  config_req_o_collection    = ",".join([f"{pad_domain.name}_config_req"])
+  config_resp_i_collection = ",".join([f"{pad_domain.name}_config_resp"])
+  reg_addr_width = math.ceil(math.log2(address_space_size))
+  num_pad_domains = len(padframe.pad_domains)
+%>
+   localparam int unsigned NUM_PAD_DOMAINS = ${num_pad_domains};
+   localparam int unsigned REG_ADDR_WIDTH = ${reg_addr_width};
+   typedef struct packed {
+      int unsigned idx;
+      logic [REG_ADDR_WIDTH-1:0] start_addr;
+      logic [REG_ADDR_WIDTH-1:0] end_addr;
+   } addr_rule_t;
+
+   localparam addr_rule_t[NUM_PAD_DOMAINS-1:0] ADDR_DEMUX_RULES = '{
+% for idx, pad_domain in enumerate(padframe.pad_domains):
+     '{ idx: ${idx}, start_addr: ${reg_addr_width}'d${address_ranges[pad_domain.name][0]},  end_addr: ${reg_addr_width}'d${address_ranges[pad_domain.name][1]}}${"," if idx != num_pad_domains-1 else ""}
+% endfor
+     };
+   logic[$clog2(NUM_PAD_DOMAINS+1)-1:0] pad_domain_sel; // +1 since there is an additional error slave
+   addr_decode #(
+       .NoIndices(NUM_PAD_DOMAINS+1),
+       .NoRules(NUM_PAD_DOMAINS),
+       .addr_t(logic[REG_ADDR_WIDTH-1:0]),
+       .rule_t(addr_rule_t)
+     ) i_addr_decode(
+       .addr_i(config_req_i.addr[REG_ADDR_WIDTH-1:0]),
+       .addr_map_i(ADDR_DEMUX_RULES),
+       .dec_valid_o(),
+       .dec_error_o(),
+       .idx_o(pad_domain_sel),
+       .en_default_idx_i(1'b1),
+       .default_idx_i(${num_pad_domains}) // The last entry is the error slave
+     );
+
+     req_t error_slave_req;
+     resp_t error_slave_rsp;
 
      // Config Interface demultiplexing
      reg_demux #(
-       .NoPorts(${len(padframe.pad_domains)}),
+       .NoPorts(NUM_PAD_DOMAINS+1), //+1 for the error slave
        .req_t(req_t),
        .rsp_t(resp_t)
      ) i_config_demuxer (
        .clk_i,
        .rst_ni,
-       .in_select_i(),
+       .in_select_i(pad_domain_sel),
        .in_req_i(config_req_i),
        .in_rsp_o(config_rsp_o),
-       .out_req_o(),
-       .out_rsp_i()
+       .out_req_o({error_slave_req, ${config_req_o_collection}}),
+       .out_rsp_i({error_slave_rsp, ${config_resp_i_collection}})
      );
 
-
+     assign error_slave_rsp.error = 1'b1;
+     assign error_slave_rsp.rdata = DecodeErrRespData;
+     assign error_slave_rsp.ready = 1'b1;
 
 endmodule
