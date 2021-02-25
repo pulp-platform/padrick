@@ -1,6 +1,9 @@
 module ${padframe.name}
   import pkg_${padframe.name}::*;
-(
+#(
+  parameter type              req_t  = logic, // reg_interface request type
+  parameter type             resp_t  = logic // reg_interface response type
+)(
   input logic                                clk_i,
   input logic                                rst_ni,
 % if any([pad_domain.override_signals for pad_domain in padframe.pad_domains]):
@@ -9,7 +12,7 @@ module ${padframe.name}
 % if any([pad_domain.static_connection_signals_pad2soc for pad_domain in padframe.pad_domains]):
   output static_connection_signals_pad2soc_t static_connection_signals_pad2soc,
 % endif
-% if any([pad_domain.static_connection_signals_soc2pad for pad_domain in padframe.pad_domains]):  
+% if any([pad_domain.static_connection_signals_soc2pad for pad_domain in padframe.pad_domains]):
   input  static_connection_signals_soc2pad_t static_connection_signals_soc2pad,
 % endif
 % if any([port_group.port_signals_soc2pads for pad_domain in padframe.pad_domains for port_group in pad_domain.port_groups]):
@@ -25,7 +28,10 @@ module ${padframe.name}
 
 
 % for pad_domain in padframe.pad_domains:
-  ${padframe.name}_${pad_domain.name} i_${pad_domain.name} (
+  ${padframe.name}_${pad_domain.name} #(
+    .req_t(req_t),
+    .resp_t(resp_t)
+  ) i_${pad_domain.name} (
    .clk_i,
    .rst_ni,
 % if pad_domain.override_signals:
@@ -38,10 +44,10 @@ module ${padframe.name}
    .static_connection_signals_soc2pad(static_connection_signals_soc2pad.${pad_domain.name}),
 % endif
 % if any([port_group.port_signals_pads2soc for port_group in pad_domain.port_groups]):
-   .port_signals_pad2soc(port_signals_pad2soc.${pad_domain.name}),
+   .port_signals_pad2soc_o(port_signals_pad2soc.${pad_domain.name}),
 % endif
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
-   .port_signals_soc2pad(port_signals_soc2pad.${pad_domain.name}),
+   .port_signals_soc2pad_i(port_signals_soc2pad.${pad_domain.name}),
 % endif
    .pads(pads.${pad_domain.name}),
    .config_req_i (),
@@ -61,7 +67,8 @@ module ${padframe.name}
        .in_select_i(),
        .in_req_i(config_req_i),
        .in_rsp_o(config_rsp_o),
-       .out_req_o()
+       .out_req_o(),
+       .out_rsp_i()
      );
 
 

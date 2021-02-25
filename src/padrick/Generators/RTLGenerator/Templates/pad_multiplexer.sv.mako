@@ -40,7 +40,8 @@ module ${padframe.name}_${pad_domain.name}_muxer
     .reg2hw(s_reg2hw),
 % endif
     .reg_req_i(config_req_i),
-    .reg_rsp_o(config_rsp_o)
+    .reg_rsp_o(config_rsp_o),
+    .devmode_i(1'b1)
   );
 
 <%
@@ -123,7 +124,7 @@ dynamic_pad_count = sum([pad.multiple for pad in dynamic_pads])
 % endfor
 
    lzc #(
-     .WIDTH(PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_WIDTH),
+     .WIDTH(${dynamic_pad_count}),
      .MODE(1'b0)
    ) i_port_muxsel_${port_group.name}_${port_signal.name}_arbiter (
      .in_i(port_mux_sel_req_${port_group.name}_${port_signal.name}),

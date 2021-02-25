@@ -41,7 +41,7 @@ pad_domains:
                                # configuration register or (at runtime
                                # configurable) an IO signal (if any IO signal
                                # within the pad_domain is referencing it).
-            and_override_signal: s_enable_all_outputs # Optional override signal
+            or_override_signal: s_enable_all_outputs # Optional override signal
                                                       # that is and-gated with
                                                       # the control signal
             default_reset_value: 0 # The default reset value of the pad
@@ -66,7 +66,7 @@ pad_domains:
                               # padlist or described globally with the
                               # default_static_value.
             default_reset_value: 0
-            default_static_value: 1'b0
+            default_static_value: 0
           - name: rx_en
             description: "Input buffer enable"
             size: 1
@@ -126,8 +126,7 @@ pad_domains:
                      # signals) or default config register values (for dynamic
                      # pad signals)
           pad2chip: ref_clk
-          chip2pad: ~ #Leave unconnected, only legal for pad signals of kind
-                      #"input"
+          chip2pad: 1'b0
           rx_en: 1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0

@@ -15,6 +15,7 @@ sources:
   - src/${padframe.name}_${pad_domain.name}_config_reg_pkg.sv
   - src/${padframe.name}_${pad_domain.name}_config_reg_top.sv
   - src/${padframe.name}_${pad_domain.name}_pads.sv
+  - src/${padframe.name}_${pad_domain.name}_muxer.sv
   - src/${padframe.name}_${pad_domain.name}.sv
 % endfor
   - src/${padframe.name}.sv

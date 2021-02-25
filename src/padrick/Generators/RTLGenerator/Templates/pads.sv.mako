@@ -24,36 +24,38 @@ module ${padframe.name}_${pad_domain.name}_pads
 
    // Pad instantiations
 % for pad in pad_domain.pad_list:
-  % for i in range(pad.multiple):
-  <%
-    from padrick.Model.PadSignal import SignalDirection
-    pad_suffix = i if pad.multiple > 1 else ""
-    instance_name = f"i_{pad.name}{pad_suffix}"
-    connections = {}
-    static_signal_name_mapping = {signal.name: f'static_connection_signals_pad2soc.{signal.name}' for signal in pad.static_connection_signals if signal.direction == SignalDirection.pads2soc}
-    static_signal_name_mapping.update({signal.name: f'static_connection_signals_soc2pad.{signal.name}' for signal in pad.static_connection_signals if signal.direction == SignalDirection.soc2pads})
-    override_signal_name_mapping = {signal.name: f'override_signals_i.{signal.name}' for signal in pad.override_signals}
-    for ps in pad.static_pad_signals:
-      if ps in pad.static_pad_signal_connections:
-        connections[ps] = pad.static_pad_signal_connections[ps].get_mapped_expr(static_signal_name_mapping).expression
-      else:
-        connections[ps] = " "
-    for ps in pad.dynamic_pad_signals:
-      connections[ps] = "42"
-    for ps in pad.landing_pads:
-      connections[ps] = f"pads.{pad.name}{pad_suffix}_pad"
-    for ps, expr in connections.items():
-      if not ps.or_override_signal.is_empty:
-        connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
-      if not ps.and_override_signal.is_empty:
-        connections[ps] = f'({expr})&({ps.and_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
-    pad_signal_connection = {signal.name: expr for signal, expr in connections.items()}
-    # print(pad_signal_connection)
-  %> \
-   % for line in pad.pad_type.template.render(instance_name=instance_name, pad_signal_connection=pad_signal_connection).splitlines():
+% for i in range(pad.multiple):
+<%
+  from padrick.Model.PadSignal import SignalDirection
+  pad_suffix = i if pad.multiple > 1 else ""
+  instance_name = f"i_{pad.name}{pad_suffix}"
+  connections = {}
+  static_signal_name_mapping = {signal.name: f'static_connection_signals_pad2soc.{signal.name}' for signal in pad.static_connection_signals if signal.direction == SignalDirection.pads2soc}
+  static_signal_name_mapping.update({signal.name: f'static_connection_signals_soc2pad.{signal.name}' for signal in pad.static_connection_signals if signal.direction == SignalDirection.soc2pads})
+  override_signal_name_mapping = {signal.name: f'override_signals_i.{signal.name}' for signal in pad.override_signals}
+  for ps in pad.static_pad_signals:
+    if ps in pad.static_pad_signal_connections:
+      connections[ps] = pad.static_pad_signal_connections[ps].get_mapped_expr(static_signal_name_mapping).expression
+    else:
+      connections[ps] = " "
+  for ps in pad.dynamic_pad_signals_soc2pad:
+    connections[ps] = f"mux_to_pads_i.{pad.name}{pad_suffix}.{ps.name}"
+  for ps in pad.dynamic_pad_signals_pad2soc:
+    connections[ps] = f"pads_to_mux_o.{pad.name}{pad_suffix}.{ps.name}"
+  for ps in pad.landing_pads:
+    connections[ps] = f"pads.{pad.name}{pad_suffix}_pad"
+  for ps, expr in connections.items():
+    if not ps.or_override_signal.is_empty:
+      connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
+    if not ps.and_override_signal.is_empty:
+      connections[ps] = f'({expr})&({ps.and_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
+  pad_signal_connection = {signal.name: expr for signal, expr in connections.items()}
+  # print(pad_signal_connection)
+%> \
+% for line in pad.pad_type.template.render(instance_name=instance_name, pad_signal_connection=pad_signal_connection).splitlines():
   ${line}
-   % endfor
-  % endfor
+% endfor
+% endfor
 % endfor
 
 endmodule : ${padframe.name}_${pad_domain.name}_pads

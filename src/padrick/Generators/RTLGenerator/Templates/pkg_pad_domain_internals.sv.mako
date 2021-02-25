@@ -50,7 +50,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
 <%
 import math
 all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports if port.mux_group == mux_group]
-sel_bitwidth = max(1,math.ceil(math.log2(len(all_ports)+1)))
+sel_bitwidth = max(1,math.ceil(math.log2(len(all_ports)+1))) # +1 since the sel == 0 in this case means "use config register value" which is the default
 idx = 1
 %>\
   parameter PAD_MUX_GROUP_${mux_group.upper()}_SEL_WIDTH = ${sel_bitwidth};
@@ -69,7 +69,7 @@ idx = 1
 % for mux_group in pad_domain.port_mux_groups:
 <%
   dynamic_pads = [pad for pad in pad_domain.pad_list if pad.dynamic_pad_signals_pad2soc and pad.mux_group == mux_group]
-  sel_bitwidth = max(1, math.ceil(math.log2(sum([pad.multiple for pad in dynamic_pads])+1)))
+  sel_bitwidth = max(1, math.ceil(math.log2(sum([pad.multiple for pad in dynamic_pads])))) # no +1 here since the default is activate if the empty_o signal of the leading zero counter is asserted.
   idx = 0
 %>
   parameter PORT_MUX_GROUP_${mux_group.upper()}_SEL_WIDTH = ${sel_bitwidth};
