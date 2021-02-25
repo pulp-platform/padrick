@@ -5,7 +5,7 @@ from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
 from padrick.Model.PadType import PadType
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, root_validator, Extra, conint
+from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field
 
 
 class PadInstance(BaseModel):
@@ -21,6 +21,11 @@ class PadInstance(BaseModel):
     #pydantic model config
     class Config:
         extra = Extra.forbid
+
+    @validator("mux_group")
+    def normalize_mux_groups (cls, mux_group):
+        return mux_group.strip().lower()
+
 
     @validator('pad_type')
     def lookup_pad_type(cls, v: Union[PadType, str]) -> PadType:

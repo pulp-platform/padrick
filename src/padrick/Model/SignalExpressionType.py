@@ -84,7 +84,8 @@ class ExprToStringTransformer(Transformer):
         return str(token)
 
 class SignalNameRemapTransformer(Transformer):
-    def __init__(self, signal_name_mapping: Mapping[str,str]):
+    def __init__(self, signal_name_mapping: Mapping[str, str]):
+        super().__init__()
         self._map = signal_name_mapping
 
     def CNAME(self, name):

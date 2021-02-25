@@ -22,7 +22,9 @@ module ${padframe.name}_${pad_domain.name}
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
   input pad_domain_${pad_domain.name}_ports_soc2pad_t port_signals_soc2pad_i,
 % endif
-  inout pad_domain_${pad_domain.name}_landing_pads_t pads
+  inout pad_domain_${pad_domain.name}_landing_pads_t pads,
+  input req_t config_req_i,
+  output resp_t config_rsp_o
 );
 
 % if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
@@ -70,10 +72,8 @@ module ${padframe.name}_${pad_domain.name}
      .pads_to_mux_i(s_pads_to_mux),
 % endif
      // Configuration interface using register_interface protocol
-     input req_t config_req_i,
-     output resp_t config_rsp_o
+     .config_req_i,
+     .config_rsp_o
    );
-
-
 
 endmodule : ${padframe.name}_${pad_domain.name}

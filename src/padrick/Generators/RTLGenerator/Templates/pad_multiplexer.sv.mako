@@ -28,9 +28,6 @@ module ${padframe.name}_${pad_domain.name}_muxer
 % if pad_domain.dynamic_pad_signals_soc2pad:
      ${padframe.name}_${pad_domain.name}_config_reg2hw_t s_reg2hw;
 % endif
-% if pad_domain.dynamic_pad_signals_pad2soc:
-     ${padframe.name}_${pad_domain.name}_config_hw2reg_t s_hw2reg;
-% endif
 
   // Register File Instantiation
   ${padframe.name}_${pad_domain.name}_config_reg_top #(
@@ -41,9 +38,6 @@ module ${padframe.name}_${pad_domain.name}_muxer
     .rst_ni,
 % if pad_domain.dynamic_pad_signals_soc2pad:
     .reg2hw(s_reg2hw),
-% endif
-% if pad_domain.dynamic_pad_signals_pad2soc:
-    .hw2reg(s_hw2reg),
 % endif
     .reg_req_i(config_req_i),
     .reg_rsp_o(config_rsp_o)

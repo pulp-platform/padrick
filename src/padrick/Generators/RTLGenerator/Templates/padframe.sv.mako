@@ -18,7 +18,9 @@ module ${padframe.name}
 % if any([port_group.port_signals_soc2pads for pad_domain in padframe.pad_domains for port_group in pad_domain.port_groups]):
   input port_signals_soc2pad_t               port_signals_soc2pad,
 % endif
-  inout landing_pads_t                       pads
+  inout landing_pads_t                       pads,
+  input req_t                                config_req_i,
+  output resp_t                              config_rsp_o
   );
 
 
@@ -40,10 +42,28 @@ module ${padframe.name}
 % endif
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
    .port_signals_soc2pad(port_signals_soc2pad.${pad_domain.name}),
- % endif
-   .pads(pads.${pad_domain.name})
+% endif
+   .pads(pads.${pad_domain.name}),
+   .config_req_i (),
+   .config_rsp_o ()
   );
 
-% endfor
+ % endfor
+
+     // Config Interface demultiplexing
+     reg_demux #(
+       .NoPorts(${len(padframe.pad_domains)}),
+       .req_t(req_t),
+       .rsp_t(resp_t)
+     ) i_config_demuxer (
+       .clk_i,
+       .rst_ni,
+       .in_select_i(),
+       .in_req_i(config_req_i),
+       .in_rsp_o(config_rsp_o),
+       .out_req_o()
+     );
+
+
 
 endmodule

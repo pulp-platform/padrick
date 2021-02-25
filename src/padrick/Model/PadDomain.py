@@ -29,6 +29,17 @@ class PadDomain(BaseModel):
         PARSE_CONTEXT.set_context(self)
         super().__init__(*args, **kwargs)
 
+    @validator('pad_list')
+    def check_each_pad_instance_name_is_unique(cls, pads: List[PadInstance]):
+        pad_names_seen = set()
+        for pad in pads:
+            if pad.name in pad_names_seen:
+                raise ValueError(f"Duplicate pad instance name {pad.name}. Pad instance names must be unique.")
+            else:
+                pad_names_seen.add(pad.name)
+        return pads
+
+
     @root_validator(skip_on_failure=True)
     def check_padsignal_with_same_name_have_same_size_and_direction(cls, values):
         pad_signal_names_seen = set()
@@ -62,7 +73,22 @@ class PadDomain(BaseModel):
                 seen[signal.name] = signal
         return v
 
-    @root_validator()
+    # @validator('pad_list')
+    # def expand_multi_pads(cls, pads: List[PadInstance]):
+    #     pad_list = []
+    #     for pad in pads:
+    #         if pad.multiple > 1:
+    #             for i in range(pad.multiple):
+    #                 copy = pad.copy(update={'name': f"{pad.name.strip().lower()}{i}", 'multiple': 1})
+    #                 if copy.mux_group == "self":
+    #                     copy.mux_group = copy.name
+    #                 pad_list.append(copy)
+    #         else:
+    #             pad_list.append(pad)
+    #     return pad_list
+
+
+    @root_validator(skip_on_failure=True)
     def warn_about_orphan_mux_groups(cls, values):
         port_mux_groups = set([port.mux_group for port_group in values['port_groups'] for port in port_group.ports])
         pad_mux_groups = set([pad.mux_group for pad in values['pad_list'] if pad.dynamic_pad_signals])

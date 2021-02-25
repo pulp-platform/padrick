@@ -2,6 +2,7 @@ import importlib.resources as resources
 import logging
 import os
 from pathlib import Path
+from typing import Tuple, Mapping
 
 import click_log
 import hjson
@@ -24,10 +25,11 @@ def generate_rtl(padframe: Padframe, dir: Path):
                       target_file_name='pkg_{padframe.name}.sv',
                       template=resources.read_text(template_package, 'pkg_padframe.sv.mako')
                       ).render(dir/"src", logger=logger, padframe=padframe)
-    TemplateRenderJob(name='Padframe module',
-                      target_file_name='{padframe.name}.sv',
-                      template=resources.read_text(template_package, 'padframe.sv.mako')
-                      ).render(dir/"src", logger=logger, padframe=padframe)
+
+    next_pad_domain_reg_offset = 0 # Offset of the first register of the current pad_frame's register file. All
+    address_ranges: Mapping[str, Tuple[int, int]] = {} # dictionary of pad_domain to start- end-address tupple
+    # mappings. The end address is inclusive
+    # registers in the padframe are mapped to a contiguous address space.
     for pad_domain in padframe.pad_domains:
         TemplateRenderJob(name=f'Paddomain module {pad_domain.name}',
                           target_file_name=f'{padframe.name}_{pad_domain.name}.sv',
@@ -49,7 +51,8 @@ def generate_rtl(padframe: Padframe, dir: Path):
         TemplateRenderJob(name=f'Register File Specification for {pad_domain.name}',
                           target_file_name=f'{padframe.name}_{pad_domain.name}_regs.hjson',
                           template=resources.read_text(template_package, 'regfile.hjson.mako')
-                          ).render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain)
+                          ).render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain,
+                                   start_address_offset=hex(next_pad_domain_reg_offset))
 
 
         # Generate Register file using lowRisc reg_tool
@@ -62,6 +65,8 @@ def generate_rtl(padframe: Padframe, dir: Path):
             logger.error(f"Fatal error while parsing auto generated register file for pad_domain {pad_domain.name}.")
             raise RTLGenException(f"Error parsing regfile.") from e
         error_count = reggen_validate.validate(obj)
+        address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj["gennextoffset"])
+        next_pad_domain_reg_offset = obj["gennextoffset"]
         if error_count != 0:
             logger.error(f"Validation of auto generated register file configuration failed.")
             raise RTLGenException("Reggen Validation failed")
@@ -69,6 +74,11 @@ def generate_rtl(padframe: Padframe, dir: Path):
         if return_code != 0 and not (return_code is None):
             logger.error(f"Regtool template rendering of register file for pad domain {pad_domain.name} failed")
             raise RTLGenException("Reggen Rendering failed")
+
+    TemplateRenderJob(name='Padframe Top Module',
+                      target_file_name='{padframe.name}.sv',
+                      template=resources.read_text(template_package, 'padframe.sv.mako')
+                      ).render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges)
 
     TemplateRenderJob(name=f'Bender.yml Project file',
                       target_file_name="Bender.yml",
