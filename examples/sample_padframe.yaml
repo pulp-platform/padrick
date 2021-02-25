@@ -131,15 +131,25 @@ pad_domains:
           rx_en: 1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0
-      - name: pad_gpio
+      - name: pad_gpioa
+        mux_group: all # The mux group is an arbitrary identifier that declares
+                       # the possible connectivities between ports and pads. All
+                       # ports and pads within the same mux_group can be
+                       # connected with each other in an any<->any fashion. By
+                       # default, all ports and pads are in the "all" mux_group.
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
-        multiple: 5 #Generate 5 instances of this pad. Each instance will have
+        multiple: 32 #Generate 32 instances of this pad. Each instance will have
                      #its signal and instance names postfixed with the index
                      #number.
         pad_type: pull_down_pad
         is_static: false #False is the default value, thus explicitly specifying
                          #static as false is optional. With this option, each
                          #pad_signal assumes the declared conn_type.
+      - name: pad_gpiob
+        mux_group: gpio_setb
+        multiple: 32
+        pad_type: pull_down_pad
+        is_static: false
 
     port_groups:
       # A port is a collection of signals intended to be multiplexed to one
@@ -188,6 +198,7 @@ pad_domains:
               rx_en: 0
               output_en: 1
       - name: i2c
+        mux_group: gpio_setb
         output_defaults:
           sda_i: 1'b0
         ports:

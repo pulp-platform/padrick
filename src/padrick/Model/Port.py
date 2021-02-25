@@ -12,10 +12,12 @@ class Port(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
+    mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
 
     #pydantic model config
     class Config:
         extra = Extra.forbid
+
 
     @validator('connections')
     def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):

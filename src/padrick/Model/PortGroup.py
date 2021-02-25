@@ -10,9 +10,9 @@ from pydantic import BaseModel, constr, conlist, validator, root_validator
 class PortGroup(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
+    mux_group: Optional[constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER)]
     ports: List[Port]
     output_defaults: Mapping[Union[Signal, str], Optional[SignalExpressionType]] = {}
-
 
     @validator('output_defaults')
     def validate_and_link_output_defaults(cls, v: Mapping[str, SignalExpressionType], values):
@@ -89,6 +89,12 @@ class PortGroup(BaseModel):
                     port_signals.add(port_signal)
         return v
 
+    @validator('ports', each_item=True)
+    def override_port_mux_group(cls, port, values):
+        if values.get('mux_group', None):
+            port.mux_group = values['mux_group']
+        return port
+
 
     @property
     def port_signals(self) -> Set[Signal]:
@@ -101,3 +107,14 @@ class PortGroup(BaseModel):
     @property
     def port_signals_pads2soc(self) -> Set[Signal]:
         return set([signal for signal in self.port_signals if signal.direction == SignalDirection.pads2soc])
+
+    def get_port_signals_for_mux_group(self, mux_group: str) -> Set[Signal]:
+        return set.union(*[port.port_signals for port in self.ports if port.mux_group == mux_group])
+
+    def get_port_signals_soc2pads_for_mux_group(self, mux_group: str) -> Set[Signal]:
+        return set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.soc2pads])
+
+    def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> Set[Signal]:
+        return set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.pads2soc])

@@ -97,14 +97,16 @@ ${multireg_preamble}{
           resval: 0
           fields: [
               {
-                  bits: "${round(math.log2(len(all_ports)+1))-1}:0"
+                  bits: "${max(0,math.ceil(math.log2(len([port for port in all_ports if port.mux_group == pad.mux_group])+1))-1)}:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register. This is the default value."}
 <% idx = 0 %>\
                       % for port_group in pad_domain.port_groups:
                           % for port in port_group.ports:
+                            % if port.mux_group == pad.mux_group:
                       { value: "${idx+1}", name: "port_${port_group.name}_${port.name.lower()}", desc: "Connect port ${port.name} from port group ${port_group.name} to this pad." }
-<% idx += 1 %>\
+                          <% idx += 1 %>\
+                            % endif
                           % endfor
                       % endfor
                   ]

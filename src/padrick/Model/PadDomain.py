@@ -1,5 +1,7 @@
+import logging
 from typing import List, Optional, Set, Mapping
 
+import click_log
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.PadSignal import Signal, SignalDirection
@@ -7,6 +9,9 @@ from padrick.Model.PadType import PadType
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PortGroup import PortGroup
 from pydantic import BaseModel, constr, conlist, root_validator, validator
+
+logger = logging.getLogger("padrick.Configparser")
+click_log.basic_config(logger)
 
 
 class PadDomain(BaseModel):
@@ -57,6 +62,32 @@ class PadDomain(BaseModel):
                 seen[signal.name] = signal
         return v
 
+    @root_validator()
+    def warn_about_orphan_mux_groups(cls, values):
+        port_mux_groups = set([port.mux_group for port_group in values['port_groups'] for port in port_group.ports])
+        pad_mux_groups = set([pad.mux_group for pad in values['pad_list'] if pad.dynamic_pad_signals])
+        orphan_port_mux_groups = port_mux_groups.difference(pad_mux_groups)
+        orphan_pad_mux_groups = pad_mux_groups.difference(port_mux_groups)
+        for mux_group in orphan_pad_mux_groups:
+            pads_in_group = [pad for pad in values['pad_list'] if pad.mux_group ==
+                             mux_group]
+            if any([pad.dynamic_pad_signals for pad in pads_in_group]):
+                logger.warning(
+                    f"Found mux_group '{mux_group}' with pads {[pad.name for pad in pads_in_group]} without any ports to "
+                    f"connect to. Did you mispell the mux_group in one of the ports?.")
+
+        for mux_group in orphan_port_mux_groups:
+            ports_in_group = [port for port_group in values['port_groups'] for port in port_group.ports if
+                              port.mux_group ==
+                             mux_group]
+            if ports_in_group:
+                logger.warning(f"Found mux_group '{mux_group}' with ports {[port.name for port in ports_in_group]} "
+                               f"without any "
+                               f"pads to "
+                               f"connect to. Did you mispell the mux_group in one of the pads?.")
+        return values
+
+
     @property
     def override_signals(self) -> Set[Signal]:
         override_signals = set()
@@ -88,10 +119,33 @@ class PadDomain(BaseModel):
             dynamic_pad_signals.update(pad.dynamic_pad_signals)
         return dynamic_pad_signals
 
+    def get_dynamic_pad_signals_for_mux_group(self, mux_group: str) -> Set[Signal]:
+        dynamic_pad_signals = set()
+        for pad in self.pad_list:
+            if pad.mux_group == mux_group:
+                dynamic_pad_signals.update(pad.dynamic_pad_signals)
+        return dynamic_pad_signals
+
     @property
     def dynamic_pad_signals_soc2pad(self) -> Set[Signal]:
         return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.soc2pads])
 
+    def get_dynamic_pad_signals_soc2pad_for_mux_group(self, mux_group: str) -> Set[Signal]:
+        return set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.soc2pads])
+
     @property
     def dynamic_pad_signals_pad2soc(self):
         return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.pads2soc])
+
+    def get_dynamic_pad_signals_pad2soc_for_mux_group(self, mux_group: str):
+        return set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.pads2soc])
+
+    @property
+    def port_mux_groups(self) -> Set[str]:
+        return set([port.mux_group for port_group in self.port_groups for port in port_group.ports])
+
+    @property
+    def pad_mux_groups(self) -> Set[str]:
+        return set([pad.mux_group for pad in self.pad_list if pad.dynamic_pad_signals])

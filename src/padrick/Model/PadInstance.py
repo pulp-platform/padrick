@@ -15,6 +15,7 @@ class PadInstance(BaseModel):
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
     package_pad_nr: Optional[int]
+    mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
 
     #pydantic model config
