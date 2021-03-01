@@ -64,6 +64,7 @@ def parse_config(config_file: Path) -> Union[Padframe,None]:
             config_data = yaml.load(file)
         except YAMLError as e:
             logger.error(f"Error while parsing config_file:\n{e}")
+            return None
         try:
             padframe_model = Padframe.parse_obj(config_data)
             return padframe_model

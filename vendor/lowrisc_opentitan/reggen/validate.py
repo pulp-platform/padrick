@@ -39,7 +39,7 @@ def check_count(top, mreg, err_prefix):
                          err_prefix + " default")
     except ValueError:
         # cannot find entry in the param list
-        log.warning(err_prefix + " is integer. " +
+        log.debug(err_prefix + " is integer. " +
                     "It is recommended to use Parameter.")
         mcount, ierr = check_int(mreg["count"], err_prefix)
         if ierr != 0:

@@ -14,12 +14,12 @@ pad_domains:
         # for manual character escaping
         template: |
           PDDW04808 ${instance_name} (
-            .PAD(${pad_signal_connection["pad"]}),
-            .IE(${pad_signal_connection["rx_en"]}),
-            .OE(${pad_signal_connection["output_en"]}),
-            .DS(${pad_signal_connection["driving_strength"]}),
-            .I(${pad_signal_connection["chip2pad"]}),
-            .O(${pad_signal_connection["pad2chip"]})
+            .PAD(${conn["pad"]}),
+            .IE(${conn["rx_en"]}),
+            .OE(${conn["output_en"]}),
+            .DS(${conn["driving_strength"]}),
+            .I(${conn["chip2pad"]}),
+            .O(${conn["pad2chip"]})
           );
 
         pad_signals: &default_pad_signals #This is a YAML anchor to reuse a subblock somewhere else. Use it to avoid copy paste hell!
@@ -110,9 +110,9 @@ pad_domains:
         template: |
           //This is a System Verilog comment for pad instance ${instance_name}
           PDLL0206 ${instance_name} (
-          \  .Z(${pad_signal_connection["pad"]}),
-          \  .I(${pad_signal_connection["pad2chip"]}),
-          \  .O(${pad_signal_connection["chip2pad"]})
+          \  .Z(${conn["pad"]}),
+          \  .I(${conn["pad2chip"]}),
+          \  .O(${conn["chip2pad"]})
           );
         pad_signals: *default_pad_signals #Use YAML reference to avoid cumbersome duplication of common pad_signal lists
     pad_list:

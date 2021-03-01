@@ -49,9 +49,9 @@ class PadInstance(BaseModel):
                                                                                    # the # pad signal does not exist
             if values['is_static']: pad_signal.conn_type = ConnectionType.static
 
-            # Only for input pad_signals it is allowed to have an empty expression (-> leave unconnected) as the
+            # Only for output pad_signals it is allowed to have an empty expression (-> leave unconnected) as the
             # expression
-            if pad_signal.kind != PadSignalKind.input and not expression:
+            if pad_signal.kind != PadSignalKind.output and not expression:
                 raise ValueError(f"Cannot leave pad_signal {pad_signal.name} of kind {pad_signal.kind} unconnected. "
                                  f"Please provide a connection expression")
 

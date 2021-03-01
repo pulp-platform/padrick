@@ -43,7 +43,7 @@ module ${padframe.name}_${pad_domain.name}_pads
   for ps in pad.dynamic_pad_signals_pad2soc:
     connections[ps] = f"pads_to_mux_o.{pad.name}{pad_suffix}.{ps.name}"
   for ps in pad.landing_pads:
-    connections[ps] = f"pads.{pad.name}{pad_suffix}_pad"
+    connections[ps] = f"pads.{pad.name}{pad_suffix}_{ps.name}"
   for ps, expr in connections.items():
     if not ps.or_override_signal.is_empty:
       connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
@@ -52,7 +52,7 @@ module ${padframe.name}_${pad_domain.name}_pads
   pad_signal_connection = {signal.name: expr for signal, expr in connections.items()}
   # print(pad_signal_connection)
 %> \
-% for line in pad.pad_type.template.render(instance_name=instance_name, pad_signal_connection=pad_signal_connection).splitlines():
+% for line in pad.pad_type.template.render(instance_name=instance_name, conn=pad_signal_connection).splitlines():
   ${line}
 % endfor
 % endfor

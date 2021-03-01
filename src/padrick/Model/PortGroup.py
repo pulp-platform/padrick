@@ -20,7 +20,7 @@ class PortGroup(BaseModel):
         the associated expression is static."""
         linked_connection_defaults: Mapping[Signal, SignalExpressionType] = {}
         for signal_name, expression in v.items():
-            port_signals = set.union(*[port.port_signals for port in values['ports']])
+            port_signals = set.union(*[port.port_signals for port in values.get('ports', [])])
             # Try to find the port signal in the implicitly declared port signal list (a name used in the connections
             # section declares a new port signal)
             signal_found = False

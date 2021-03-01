@@ -1,3 +1,9 @@
+<%
+  import math
+  import string
+  from padrick.Model.PadSignal import SignalDirection
+
+%>
 {
     name: "${padframe.name}_${pad_domain.name}_config"
     clock_primary: "clk_i"
@@ -10,9 +16,6 @@
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
 <%
-  import math
-  import string
-  from padrick.Model.PadSignal import SignalDirection
   multireg_preamble = "{ multireg: " if pad.multiple > 1 else ""
   multireg_postamble = "}" if pad.multiple > 1 else ""
   # Calculate how many config registers we need to accomodate all dynamic
@@ -62,14 +65,12 @@ ${multireg_preamble}{
             {
                 bits: "${str(msb)+':'+str(lsb) if msb != lsb else lsb}"
                 name: ${pad_signal.name}
-% if pad_signal.description:
                 desc: '''
-                     ${pad_signal.description}
+                     ${pad_signal.description if pad_signal.description else ""}
                 '''
-% endif
                 swaccess: "rw"
                 hwaccess: "hro"
-                resval: "${pad_signal.default_reset_value}"
+                resval: "${pad.connections.get(pad_signal, pad_signal.default_reset_value) if pad.connections else pad_signal.default_reset_value}"
             },
 % endfor
           ]
@@ -77,7 +78,11 @@ ${multireg_preamble}{
 % endfor
 % endif
 % if pad.dynamic_pad_signals:
-<% all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports] %>
+<%
+  all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
+  multireg_preamble = "{ multireg: " if pad.multiple > 1 else ""
+  multireg_postamble = "}" if pad.multiple > 1 else ""
+%>
       ${multireg_preamble}{
           name: ${pad.name.upper()}_MUX_SEL
           desc: '''

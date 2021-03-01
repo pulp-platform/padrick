@@ -28,6 +28,10 @@ class Port(BaseModel):
                 # Check if it is a pad2chip signal in this case, the right hand side must contain only pad-signal
                 # references with kind pad2chip
                 referenced_pad_signals = []
+                if not expression.signal_collection:
+                    raise ValueError(f"Found illegal port connection {signal_name}:{expression}. You either "
+                                     f"misspelled the name of a pad_signal or you tried to assign a static or empty "
+                                     f"expression to a port signal.")
                 for name in expression.signal_collection:
                     pad_signal_instances = PARSE_CONTEXT.find_pad_signal_instances(name)
                     if len(pad_signal_instances) == 0:
