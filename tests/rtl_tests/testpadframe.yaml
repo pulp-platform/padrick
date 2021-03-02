@@ -1,0 +1,367 @@
+name: testpadframe
+manifest_version: 1
+pad_domains:
+  - name: domain0
+    pad_types: 
+      - name: pull_down_pad
+        description: TSCM65 pad with controllable integrated 1kOhm pull down resistor
+        template: |
+          PDDW04808 ${instance_name} (
+            .PAD(${conn["pad"]}),
+            .IE(${conn["rx_en"]}),
+            .OE(${conn["output_en"]}),
+            .DS(${conn["driving_strength"]}),
+            .I(${conn["chip2pad"]}),
+            .O(${conn["pad2chip"]})
+          );
+
+        pad_signals: &default_pad_signals
+          - name: output_en
+            description: "Enables the output driver of the pad"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            or_override_signal: s_enable_all_outputs
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: driving_strength
+            description: "Driving strength of the output driver"
+            size: 3
+            kind: input
+            conn_type: static
+            default_reset_value: 0
+            default_static_value: 0
+          - name: rx_en
+            description: "Input buffer enable"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pad2chip
+            description: "The signal that connects to the pads RX buffer"
+            size: 1
+            kind: output
+            conn_type: dynamic
+            default_static_value: ~
+          - name: chip2pad
+            description: "The signal that connects to the pads TX driver"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 1
+            default_static_value: 1'b0
+          - name: pad
+            size: 1
+            kind: pad
+
+      - name: low_leakage_pad
+        description: Low leakage pad used for low-speed, low poewer applications
+        template: |
+          //This is a System Verilog comment for pad instance ${instance_name}
+          PDLL0206 ${instance_name} (
+            .Z(${conn["pad"]}),
+            .I(${conn["pad2chip"]}),
+            .O(${conn["chip2pad"]}),
+            .TXEN($conn["out_en"]})
+          );
+        pad_signals: *default_pad_signals
+
+      - name: multifunction_pad
+        description: A jack of all trades IO pad with many different function signals
+        template: |
+          // Multi function IO Pad ${instance_name}
+          SUPER_PAD ${instance_name} (
+            .PAD(${conn["io_pad"]}),
+            .IE(${conn["ie_en"]}),
+            .OEN(~${conn["out_en"]}),
+            .DS(${conn["strength"]}),
+            .I(${conn["chip2pad"]}),
+            .O(${conn["pad2chip"]}),
+            .PULLD_EN(${conn["pull_down_en"]}),
+            .PULLU_EN(${conn["pull_up_en"]}),
+            .SHMT_EN(${conn["schmitt_en"]})
+          );
+        pad_signals:
+          - name: io_pad
+            size: 1
+            kind: pad
+          - name: ie_en
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: out_en
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: strength
+            size: 4
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 2
+            default_static_value: 4'd2
+          - name: chip2pad
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pad2chip
+            kind: output
+            size: 1
+            conn_type: dynamic
+          - name: pull_down_en
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pull_up_en
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 1
+            default_static_value: 1'b1
+          - name: schmitt_en
+            kind: input
+            size: 1
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          
+      - name: diff_input_pad
+        description: A differential input pad
+        template: |
+          CRYSTAL_PAD ${instance_name} (
+            .PAD_A(${conn["pad_a"]}),
+            .PAD_B(${conn["pad_b"]}),
+            .O(${conn["pad2chip"]})
+          );
+        pad_signals:
+          - name: pad_a
+            kind: pad
+            size: 1
+          - name: pad_b
+            kind: pad
+            size: 1
+          - name: pad2chip
+            kind: output
+            size: 1
+            conn_type: dynamic
+
+    pad_list:
+      - name: pad_ref_clk
+        description: "32kHz reference clock"
+        pad_type: pull_down_pad
+        is_static: true
+        connections:
+          pad2chip: ref_clk
+          chip2pad: 1'b0
+          rx_en: 1'b1
+          driving_strength: 0
+      - name: pad_hs_input
+        description: "Highspeed clock signal"
+        pad_type: diff_input_pad
+
+        
+      - name: pad_ll
+        description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
+        multiple: 10 
+        pad_type: pull_down_pad
+        is_static: false
+
+      - name: pad_multifunction
+        multiple: 10
+        pad_type: multifunction_pad
+        is_static: false
+        connections:
+          schmitt_en: 1
+
+      - name: pad_gpio0
+        pad_type: pull_down_pad
+        mux_group: pad_gpio0
+
+      - name: pad_gpio1
+        pad_type: pull_down_pad
+        mux_group: pad_gpio1
+
+      - name: pad_gpio2
+        pad_type: pull_down_pad
+        mux_group: pad_gpio2
+
+      - name: pad_gpio3
+        pad_type: pull_down_pad
+        mux_group: pad_gpio3
+
+      - name: pad_gpio4
+        pad_type: pull_down_pad
+        mux_group: pad_gpio4
+
+      - name: pad_gpio5
+        pad_type: pull_down_pad
+        mux_group: pad_gpio5
+
+      - name: pad_gpio6
+        pad_type: pull_down_pad
+        mux_group: pad_gpio6
+
+      - name: pad_gpio7
+        pad_type: pull_down_pad
+        mux_group: pad_gpio7
+
+      - name: pad_gpio8
+        pad_type: pull_down_pad
+        mux_group: pad_gpio8
+
+      - name: pad_gpio9
+        pad_type: pull_down_pad
+        mux_group: pad_gpio9
+
+    port_groups:
+      - name: spi0
+        output_defaults:
+          miso: 1'b0
+        ports:
+          - name: spi0_mosi
+            description: "MOSI port of the SPI master peripheral"
+            connections:
+              chip2pad: mosi & spi_en
+              output_en: ~oen
+              rx_en: oen
+          - name: spi0_miso
+            connections:
+              miso: pad2chip
+              rx_en: 1'b1
+              output_en: 1'b0
+          - name: spi0_sck
+            connections:
+              chip2pad: sck
+              rx_en: 1'b0
+              output_en: 1'b1
+      - name: i2c0
+        output_defaults:
+          sda_i: 1'b0
+        ports: &i2c_ports
+          - name: i2c_sda
+            description: "Bidirectional I2C SDA signal"
+            connections:
+              chip2pad: sda_o
+              sda_i: pad2chip
+              output_en: out_en
+              rx_en: ~out_en
+              pull_down_en: 1'b1
+          - name: i2c_scl
+            description: "I2C clock signal"
+            connections:
+              chip2pad: scl
+              rx_en: 1'b0
+              output_en: 1'b1
+      - name: gpios
+        output_defaults:
+          in0: 1'b0
+          in1: 1'b0
+          in2: 1'b0
+          in3: 1'b0
+          in4: 1'b0
+          in5: 1'b0
+          in6: 1'b0
+          in7: 1'b0
+          in8: 1'b0
+          in9: 1'b0
+        ports:
+          - name: gpio0
+            mux_group: pad_gpio0
+            connections:
+              chip2pad: out0
+              in0: pad2chip
+              output_en: dir0
+              rx_en: ~dir0
+          - name: gpio1
+            mux_group: pad_gpio1
+            connections:
+              chip2pad: out1
+              in1: pad2chip
+              output_en: dir1
+              rx_en: ~dir1
+          - name: gpio2
+            mux_group: pad_gpio2
+            connections:
+              chip2pad: out2
+              in2: pad2chip
+              output_en: dir2
+              rx_en: ~dir2
+          - name: gpio3
+            mux_group: pad_gpio3
+            connections:
+              chip2pad: out3
+              in3: pad2chip
+              output_en: dir3
+              rx_en: ~dir3
+          - name: gpio4
+            mux_group: pad_gpio4
+            connections:
+              chip2pad: out4
+              in4: pad2chip
+              output_en: dir4
+              rx_en: ~dir4
+          - name: gpio5
+            mux_group: pad_gpio5
+            connections:
+              chip2pad: out5
+              in5: pad2chip
+              output_en: dir5
+              rx_en: ~dir5
+          - name: gpio6
+            mux_group: pad_gpio6
+            connections:
+              chip2pad: out6
+              in6: pad2chip
+              output_en: dir6
+              rx_en: ~dir6
+          - name: gpio7
+            mux_group: pad_gpio7
+            connections:
+              chip2pad: out7
+              in7: pad2chip
+              output_en: dir7
+              rx_en: ~dir7
+          - name: gpio8
+            mux_group: pad_gpio8
+            connections:
+              chip2pad: out8
+              in8: pad2chip
+              output_en: dir8
+              rx_en: ~dir8
+          - name: gpio9
+            mux_group: pad_gpio9
+            connections:
+              chip2pad: out9
+              in9: pad2chip
+              output_en: dir9
+              rx_en: ~dir9
+      - name: i2c1
+        output_defaults:
+          sda_i: 1'b0
+        ports:
+          - name: i2c_sda
+            description: "Bidirectional I2C SDA signal"
+            mux_group: pad_gpio0
+            connections:
+              chip2pad: sda_o
+              sda_i: pad2chip
+              output_en: out_en
+              rx_en: ~out_en
+              pull_down_en: 1'b1
+          - name: i2c_scl
+            mux_group: pad_gpio1
+            description: "I2C clock signal"
+            connections:
+              chip2pad: scl
+              rx_en: 1'b0
+              output_en: 1'b1
+          
+

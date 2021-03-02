@@ -1,0 +1,9 @@
+package:
+  name: padframe_tests
+dependencies:
+  padframe: { path: "./padframe"}
+  common_verification: { git: "https://github.com/pulp-platform/common_verification.git", version: 0.2.0 }
+sources:
+  - common/tb_pads.sv
+  - tb_testpadframe.sv
+
