@@ -22,7 +22,7 @@ module ${padframe.name}_${pad_domain.name}
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
   input pad_domain_${pad_domain.name}_ports_soc2pad_t port_signals_soc2pad_i,
 % endif
-  inout pad_domain_${pad_domain.name}_landing_pads_t pads,
+  inout wire pad_domain_${pad_domain.name}_landing_pads_t pads,
   input req_t config_req_i,
   output resp_t config_rsp_o
 );

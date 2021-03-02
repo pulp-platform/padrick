@@ -19,7 +19,7 @@ module ${padframe.name}_${pad_domain.name}_pads
 % if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
   output pads_to_mux_t pads_to_mux_o,
 % endif
-  inout pad_domain_${pad_domain.name}_landing_pads_t pads
+  inout wire pad_domain_${pad_domain.name}_landing_pads_t pads
   );
 
    // Pad instantiations
