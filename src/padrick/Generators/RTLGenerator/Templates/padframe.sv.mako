@@ -24,7 +24,7 @@ module ${padframe.name}
 % if any([port_group.port_signals_soc2pads for pad_domain in padframe.pad_domains for port_group in pad_domain.port_groups]):
   input port_signals_soc2pad_t               port_signals_soc2pad,
 % endif
-  inout wire landing_pads_t                  pads,
+  inout landing_pads_t                       pads,
   input req_t                                config_req_i,
   output resp_t                              config_rsp_o
   );
