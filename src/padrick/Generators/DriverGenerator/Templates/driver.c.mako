@@ -9,7 +9,7 @@
 #define REG_WRITE32(addr, value) *((volatile uint32_t*) addr) = (uint32_t) value;
 #define REG_READ32(addr) *((volatile uint32_t*) addr)
 #define REG_SET(FIELD, v) ((v & FIELD##_MASK) << FIELD##_LSB)
-#define REG_GET(FIELD, v) (((v)&FIELD##_MASK) >> FIELD##_SHIFT)
+#define REG_GET(FIELD, v) ((v >> FIELD##_LSB) & FIELD##_MASK)
 
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
@@ -23,10 +23,11 @@
   else:
       field_type = "uint32_t"
   if pad.multiple > 1:
-      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_{pad.name.upper()}_CFG_0(0) + 4*idx"
+      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_0(0) + 4*idx"
+      field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_0_{ps.name.upper()}_0"
   else:
-      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_{pad.name.upper()}_CFG(0)"
-  field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_{pad.name.upper()}_CFG_0_{ps.name.upper()}"
+      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG(0)"
+      field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_0_{ps.name.upper()}"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${"uint32_t idx, " if pad.multiple > 1 else ""}${field_type} value) {
   uint32_t address = ${address};
@@ -46,9 +47,9 @@ ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get
       all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
       sel_size = max(1,math.ceil(math.log2(len([port for port in all_ports if port.mux_group == pad.mux_group])+1)))
       pads_per_register = 32//sel_size
-      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_{pad.name.upper()}_MUX_SEL_0(0)+idx/pads_per_register*4"
+      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_0(0)+idx/pads_per_register*4"
   else:
-      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_{pad.name.upper()}_MUX_SEL(0)"
+      address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL(0)"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${"uint32_t idx, " if pad.multiple > 1 else ""}${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
   const uint32_t pads_per_register = ${pads_per_register};
@@ -58,7 +59,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${"uint32_t idx, " 
   uint32_t field_offset = idx % pads_per_register * sel_size;
   uint32_t field_mask = 1<<sel_size-1;
   uint32_t v = REG_READ32(address);
-  v |= (value & field_mask) << field_offset;
+  v |= (mux_sel & field_mask) << field_offset;
   REG_WRITE32(address, v);
 % else:
   uint32_t field_mask = 1<<sel_size-1;
