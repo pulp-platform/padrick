@@ -29,6 +29,16 @@ class PadDomain(BaseModel):
         PARSE_CONTEXT.set_context(self)
         super().__init__(*args, **kwargs)
 
+    @validator('port_groups')
+    def check_port_group_names_are_unique(cls, port_groups: List[PortGroup]):
+        port_groups_seen = set()
+        for port_group in port_groups:
+            if port_group.name in port_groups_seen:
+                raise ValueError(f"Found duplicate port_group {port_group.name}. Port Group names must be unique.")
+            else:
+                port_groups_seen.add(port_group.name)
+        return port_groups
+
     @validator('pad_list')
     def check_each_pad_instance_name_is_unique(cls, pads: List[PadInstance]):
         pad_names_seen = set()
