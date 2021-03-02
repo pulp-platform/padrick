@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 import click_log
 from padrick.ConfigParser import parse_config
+from padrick.Generators.DriverGenerator.DriverGenerator import generate_driver
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl, RTLGenException
 from padrick.Generators.TemplateRenderJob import TemplateRenderException
 from click import UsageError, ClickException
@@ -42,3 +43,28 @@ def rtl(config_file: str, output: str):
         logger.error("Padrick crashed while generating RTL :-(")
         raise e
     logger.info(f"Successfully generated RTL files in {output}")
+
+@generate.command()
+@click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
+@click.option('-o', '--output', type=click.Path(dir_okay=True, file_okay=False), default=".", help="Location where to save the driver")
+@click_log.simple_verbosity_option(logger)
+def driver(config_file: str, output: str):
+    """
+    Generate C driver to interact with the padframe.
+    """
+    logger.info("Parsing configuration file...")
+    padframe = parse_config(Path(config_file))
+    logger.info("Parsing successful. Generating C-Driver...")
+    if not Path(output).exists():
+        logger.debug("Output directory does not exist. Creating new one.")
+        os.makedirs(output, exist_ok=True)
+    if not padframe:
+        raise UsageError("Failed to parse the configuration file")
+    try:
+        generate_driver(padframe, Path(output))
+    except (RTLGenException, TemplateRenderException) as e:
+        raise ClickException("C Driver Generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating the C Driver :-(")
+        raise e
+    logger.info(f"Successfully generated C driver files in {output}")

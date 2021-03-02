@@ -107,7 +107,7 @@ if __name__ == '__main__':
         #     pass
         # time.sleep(5)
 
-    #cli(['generate', 'rtl',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick',
-    #         '../../examples/sample_padframe.yaml'])
+    cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
+             '../../examples/sample_padframe.yaml'])
 
-    cli(['config', '../../examples/kraken_padframe.yml'])
+    #cli(['config', '../../examples/kraken_padframe.yml'])
