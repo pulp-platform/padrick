@@ -1,7 +1,14 @@
+import json
+
+from mako.template import Template
+
 from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadDomain import PadDomain
 from pydantic import BaseModel, constr, conint, conlist, validator
 from typing import List, Optional
+
+from padrick.Model.PadSignal import PadSignal, Signal
+from padrick.Model.SignalExpressionType import SignalExpressionType
 
 
 class Padframe(BaseModel):
@@ -18,6 +25,17 @@ class Padframe(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     pad_domains: conlist(PadDomain, min_items=1)
+
+    #Pydantic Model Config
+    class Config:
+        title =  "Padframe Config"
+        json_encoders = {
+            Template: lambda v: v.source,
+            SignalExpressionType: lambda v: v.expression,
+            PadSignal: lambda v: v.name,
+            Signal: lambda  v: v.name
+        }
+
 
     @validator('pad_domains')
     def ensure_package_pad_nr_uniqueness(cls, pad_domains):
