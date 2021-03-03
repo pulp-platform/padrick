@@ -3,6 +3,7 @@
 %>
 #include "${padframe.name}.h"
 % for pad_domain in padframe.pad_domains:
+#define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${padframe.name.upper()}_BASE_ADDRESS
 #include "${padframe.name}_${pad_domain.name}_regs.h"
 % endfor
 

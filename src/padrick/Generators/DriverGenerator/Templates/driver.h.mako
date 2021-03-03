@@ -5,6 +5,11 @@
 #define ${padframe.name.upper()}_H
 #include <stdint.h>
 
+#ifndef ${padframe.name.upper()}_BASE_ADDRESS
+#error "${padframe.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of your padframe before you include this header file."
+#endif
+
+
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
 % for ps in pad.dynamic_pad_signals_soc2pad:
