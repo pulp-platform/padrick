@@ -8,7 +8,7 @@ import logging as log
 
 from mako.template import Template
 from mako import exceptions
-from pkg_resources import resource_filename
+import importlib.resources as resources
 
 from .data import Field, Reg, MultiReg, Window, Block
 from .field_enums import HwAccess, SwRdAccess, SwWrAccess
@@ -190,9 +190,9 @@ def gen_rtl(obj, outdir):
 
     # Read Register templates
     reg_top_tpl = Template(
-        filename=resource_filename('reggen', 'reg_top.sv.tpl'))
+        resources.read_text('reggen', 'reg_top.sv.tpl'))
     reg_pkg_tpl = Template(
-        filename=resource_filename('reggen', 'reg_pkg.sv.tpl'))
+        resources.read_text('reggen', 'reg_pkg.sv.tpl'))
 
     # Generate pkg.sv with block name
     with open(outdir + "/" + block.name + "_reg_pkg.sv", 'w',

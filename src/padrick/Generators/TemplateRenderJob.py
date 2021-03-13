@@ -18,8 +18,8 @@ class TemplateRenderJob:
 
     def render(self, output_dir: Path, logger: logging.Logger, padframe: Padframe, debug_render=False, **kwargs):
         logger.debug(f"Generating {self.name}")
-        pkg_pads_path = output_dir / self.target_file_name.format(padframe=padframe, **kwargs)
-        with pkg_pads_path.open(mode='w') as f:
+        output_file_path = output_dir / self.target_file_name.format(padframe=padframe, **kwargs)
+        with output_file_path.open(mode='w') as f:
             tp = Template(self.template)
             try:
                 f.write(tp.render(padframe=padframe, **kwargs))

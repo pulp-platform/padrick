@@ -10,7 +10,7 @@ import sys
 
 from mako import exceptions
 from mako.template import Template
-from pkg_resources import resource_filename
+import importlib.resources as resources
 
 from .field_enums import HwAccess, SwAccess, SwRdAccess, SwWrAccess
 from .gen_rtl import json_to_reg
@@ -52,8 +52,7 @@ def gen_dv(obj, outdir):
 # function generate dv ral model using gen_rtl::Block specification
 def gen_ral(block, outdir):
     # Read Register templates
-    uvm_reg_tpl = Template(
-        filename=resource_filename('reggen', 'uvm_reg.sv.tpl'))
+    uvm_reg_tpl = Template(resources.read_text('reggen', 'uvm_reg.sv.tpl'))
 
     # Generate pkg.sv with block name
     with open(outdir + "/" + block.name + "_ral_pkg.sv", 'w') as fout:
