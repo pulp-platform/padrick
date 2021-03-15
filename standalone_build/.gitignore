@@ -1,3 +1,3 @@
 build
-appdir/usr/bin
+appdir/usr/bin/*
 Padrick-x86_64.AppImage
