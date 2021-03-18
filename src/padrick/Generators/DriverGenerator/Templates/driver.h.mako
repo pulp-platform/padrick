@@ -50,7 +50,9 @@ typedef enum {
 % for port_group in pad_domain.port_groups:
 % for port in port_group.ports:
 % if port.mux_group == pad.mux_group:
-  ${padframe.name.upper()}_${pad_domain.name.upper()}_${pad.name.upper()}_PORT_${port_group.name.upper()}_${port.name.upper()} = ${idx},
+
+${padframe.name.upper()}_${pad_domain.name.upper()}_${pad.name.upper()}_group_${port_group.name.upper()}_port_${port.name.upper()} = ${idx},
+
 <% idx += 1 %>\
 % endif
 % endfor
