@@ -19,7 +19,19 @@ module ${padframe.name}_${pad_domain.name}_pads
 % if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
   output pads_to_mux_t pads_to_mux_o,
 % endif
-  inout pad_domain_${pad_domain.name}_landing_pads_t pads
+<%
+  port_list = []
+  for pad in pad_domain.pad_list:
+      for i in range(pad.multiple):
+          pad_suffix = i if pad.multiple > 1 else ""
+          for signal in pad.landing_pads:
+              port_list.append(f"inout wire logic pad_{pad.name}{pad_suffix}_{signal.name}")
+  ports = ",\n".join(port_list)
+%>\
+  // Landing Pads
+% for line in ports.splitlines():
+  ${line}
+% endfor
   );
 
    // Pad instantiations
@@ -43,7 +55,7 @@ module ${padframe.name}_${pad_domain.name}_pads
   for ps in pad.dynamic_pad_signals_pad2soc:
     connections[ps] = f"pads_to_mux_o.{pad.name}{pad_suffix}.{ps.name}"
   for ps in pad.landing_pads:
-    connections[ps] = f"pads.{pad.name}{pad_suffix}_{ps.name}"
+    connections[ps] = f"pad_{pad.name}{pad_suffix}_{ps.name}"
   for ps, expr in connections.items():
     if not ps.or_override_signal.is_empty:
       connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'

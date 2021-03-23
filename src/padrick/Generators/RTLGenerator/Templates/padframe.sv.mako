@@ -24,7 +24,18 @@ module ${padframe.name}
 % if any([port_group.port_signals_soc2pads for pad_domain in padframe.pad_domains for port_group in pad_domain.port_groups]):
   input port_signals_soc2pad_t               port_signals_soc2pad,
 % endif
-  inout landing_pads_t                       pads,
+  // Landing Pads
+% for pad_domain in padframe.pad_domains:
+% for pad in pad_domain.pad_list:
+% for i in range(pad.multiple):
+<% pad_suffix = i if pad.multiple > 1 else "" %>\
+% for signal in pad.landing_pads:
+  inout wire logic                           pad_${pad_domain.name}_${pad.name}${pad_suffix}_${signal.name},
+% endfor
+% endfor
+% endfor
+% endfor
+  // Config Interface
   input req_t                                config_req_i,
   output resp_t                              config_rsp_o
   );
@@ -54,7 +65,14 @@ module ${padframe.name}
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
    .port_signals_soc2pad_i(port_signals_soc2pad.${pad_domain.name}),
 % endif
-   .pads(pads.${pad_domain.name}),
+% for pad in pad_domain.pad_list:
+% for i in range(pad.multiple):
+<% pad_suffix = i if pad.multiple > 1 else "" %>\
+% for signal in pad.landing_pads:
+   .pad_${pad.name}${pad_suffix}_${signal.name}(pad_${pad_domain.name}_${pad.name}${pad_suffix}_${signal.name}),
+% endfor
+% endfor
+% endfor
    .config_req_i(${pad_domain.name}_config_req),
    .config_rsp_o(${pad_domain.name}_config_resp)
   );

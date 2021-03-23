@@ -2,142 +2,126 @@ package pkg_${padframe.name};
 
 % for pad_domain in padframe.pad_domains:
   //Structs for ${pad_domain.name}
-  // Landing pad signals
-  typedef struct packed {
- % for pad_inst in pad_domain.pad_list:
-  % for i in range(pad_inst.multiple):
-<% pad_suffix = i if pad_inst.multiple > 1 else "" %> \
-   % for signal in pad_inst.landing_pads:
-     logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${pad_inst.name}${pad_suffix}_${signal.name};
-   % endfor
-  % endfor
- % endfor
-  } pad_domain_${pad_domain.name}_landing_pads_t;
 
- % if pad_domain.override_signals:
+% if pad_domain.override_signals:
   //Override signals
   typedef struct packed {
-  % for signal in pad_domain.override_signals:
+% for signal in pad_domain.override_signals:
      logic ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
-   % endfor
+% endfor
   } pad_domain_${pad_domain.name}_override_signals_t;
 
- % endif
-  % if pad_domain.static_connection_signals:
+% endif
+% if pad_domain.static_connection_signals:
   //Static connections signals
-   % if pad_domain.static_connection_signals_soc2pad:
+% if pad_domain.static_connection_signals_soc2pad:
    typedef struct packed {
-    % for signal in pad_domain.static_connection_signals_soc2pad:
+% for signal in pad_domain.static_connection_signals_soc2pad:
       logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
-    % endfor
+% endfor
      } pad_domain_${pad_domain.name}_static_connection_signals_soc2pad_t;
 
-   % endif
-   % if pad_domain.static_connection_signals_pad2soc:
+% endif
+% if pad_domain.static_connection_signals_pad2soc:
    typedef struct packed {
-    % for signal in pad_domain.static_connection_signals_pad2soc:
+% for signal in pad_domain.static_connection_signals_pad2soc:
       logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
-    % endfor
+% endfor
      } pad_domain_${pad_domain.name}_static_connection_signals_pad2soc_t;
 
-   % endif
-  % endif
-  % if pad_domain.port_groups:
+% endif
+% endif
+% if pad_domain.port_groups:
   // Port Group signals
-   % for port_group in pad_domain.port_groups:
-    % if port_group.port_signals_soc2pads:
+% for port_group in pad_domain.port_groups:
+% if port_group.port_signals_soc2pads:
    typedef struct packed {
-     % for signal in port_group.port_signals_soc2pads:
+% for signal in port_group.port_signals_soc2pads:
       logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
-     % endfor
+% endfor
      } pad_domain_${pad_domain.name}_port_group_${port_group.name}_soc2pad_t;
 
-    % endif
-    % if port_group.port_signals_pads2soc:
+% endif
+% if port_group.port_signals_pads2soc:
    typedef struct packed {
-    % for signal in port_group.port_signals_pads2soc:
+% for signal in port_group.port_signals_pads2soc:
       logic       ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
-    % endfor
+% endfor
      } pad_domain_${pad_domain.name}_port_group_${port_group.name}_pad2soc_t;
 
-   % endif
-  % endfor
-   % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
+% endif
+% endfor
+% if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
    typedef struct packed {
-    % for port_group in pad_domain.port_groups:
-     % if port_group.port_signals_soc2pads:
+% for port_group in pad_domain.port_groups:
+% if port_group.port_signals_soc2pads:
      pad_domain_${pad_domain.name}_port_group_${port_group.name}_soc2pad_t ${port_group.name};
-     % endif
-    % endfor
+% endif
+% endfor
      } pad_domain_${pad_domain.name}_ports_soc2pad_t;
 
-   % endif
-   % if any([port_group.port_signals_pads2soc for port_group in pad_domain.port_groups]):
+% endif
+% if any([port_group.port_signals_pads2soc for port_group in pad_domain.port_groups]):
    typedef struct packed {
-    % for port_group in pad_domain.port_groups:
-     % if port_group.port_signals_pads2soc:
+% for port_group in pad_domain.port_groups:
+% if port_group.port_signals_pads2soc:
      pad_domain_${pad_domain.name}_port_group_${port_group.name}_pad2soc_t ${port_group.name};
-     % endif
-    % endfor
+% endif
+% endfor
      } pad_domain_${pad_domain.name}_ports_pad2soc_t;
 
-   % endif
-  % endif
+% endif
+% endif
 % endfor
 
   //Toplevel structs
-  typedef struct packed {
-% for pad_domain in padframe.pad_domains:
-    pad_domain_${pad_domain.name}_landing_pads_t ${pad_domain.name};
-% endfor
-  } landing_pads_t;
 
 % if any([pad_domain.override_signals for pad_domain in padframe.pad_domains]):
   typedef struct packed{
- % for pad_domain in padframe.pad_domains:
+% for pad_domain in padframe.pad_domains:
     pad_domain_${pad_domain.name}_override_signals_t ${pad_domain.name};
- % endfor
+% endfor
   } override_signals_t;
 
 % endif
 % if any([pad_domain.static_connection_signals_pad2soc for pad_domain in padframe.pad_domains]):
   typedef struct packed {
- % for pad_domain in padframe.pad_domains:
-  % if pad_domain.static_connection_signals_pad2soc:
+% for pad_domain in padframe.pad_domains:
+% if pad_domain.static_connection_signals_pad2soc:
     pad_domain_${pad_domain.name}_static_connection_signals_pad2soc_t ${pad_domain.name};
-  % endif
- % endfor
+% endif
+% endfor
   } static_connection_signals_pad2soc_t;
 
 % endif
 % if any([pad_domain.static_connection_signals_soc2pad for pad_domain in padframe.pad_domains]):
   typedef struct packed {
- % for pad_domain in padframe.pad_domains:
-  % if pad_domain.static_connection_signals_soc2pad:
+% for pad_domain in padframe.pad_domains:
+% if pad_domain.static_connection_signals_soc2pad:
     pad_domain_${pad_domain.name}_static_connection_signals_soc2pad_t ${pad_domain.name};
-  % endif
- % endfor
+% endif
+% endfor
   } static_connection_signals_soc2pad_t;
 
 % endif
 % if any([port_group.port_signals_pads2soc for port_group in pad_domain.port_groups for pad_domain in padframe.pad_domains]):
   typedef struct packed {
- % for pad_domain in padframe.pad_domains:
-  % if any(port_group.port_signals_pads2soc):
+% for pad_domain in padframe.pad_domains:
+% if any(port_group.port_signals_pads2soc):
     pad_domain_${pad_domain.name}_ports_pad2soc_t ${pad_domain.name};
-  % endif
- % endfor
+% endif
+% endfor
   } port_signals_pad2soc_t;
 
 % endif
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups for pad_domain in padframe.pad_domains]):
   typedef struct packed {
- % for pad_domain in padframe.pad_domains:
-  % if any(port_group.port_signals_soc2pads):
+% for pad_domain in padframe.pad_domains:
+% if any(port_group.port_signals_soc2pads):
     pad_domain_${pad_domain.name}_ports_soc2pad_t ${pad_domain.name};
-  % endif
- % endfor
+% endif
+% endfor
   } port_signals_soc2pad_t;
-   % endif
-     
+% endif
+
 endpackage : pkg_${padframe.name}

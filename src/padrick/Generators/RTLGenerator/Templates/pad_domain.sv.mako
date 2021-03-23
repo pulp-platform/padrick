@@ -22,7 +22,14 @@ module ${padframe.name}_${pad_domain.name}
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
   input pad_domain_${pad_domain.name}_ports_soc2pad_t port_signals_soc2pad_i,
 % endif
-  inout pad_domain_${pad_domain.name}_landing_pads_t pads,
+% for pad in pad_domain.pad_list:
+% for i in range(pad.multiple):
+<% pad_suffix = i if pad.multiple > 1 else "" %>\
+% for signal in pad.landing_pads:
+  inout wire logic pad_${pad.name}${pad_suffix}_${signal.name},
+% endfor
+% endfor
+% endfor
   input req_t config_req_i,
   output resp_t config_rsp_o
 );
@@ -50,8 +57,20 @@ module ${padframe.name}_${pad_domain.name}
 % if any([pad.dynamic_pad_signals_pad2soc for pad in pad_domain.pad_list]):
      .pads_to_mux_o(s_pads_to_mux),
 % endif
-     .pads
-   );
+<%
+  port_list = []
+  for pad in pad_domain.pad_list:
+      for i in range(pad.multiple):
+          pad_suffix = i if pad.multiple > 1 else ""
+          for signal in pad.landing_pads:
+              port_list.append(f".pad_{pad.name}{pad_suffix}_{signal.name}")
+  ports = ",\n".join(port_list)
+%>\
+% for line in ports.splitlines():
+     ${line}
+% endfor
+
+  );
 
    ${padframe.name}_${pad_domain.name}_muxer #(
      .req_t(req_t),
