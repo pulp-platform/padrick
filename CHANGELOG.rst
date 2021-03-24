@@ -2,9 +2,20 @@
 Changelog
 =========
 
-Version 0.1
-===========
+All notable changes to this project will be documented in this file.
 
-- Feature A added
-- FIX: nasty bug #1729 fixed
-- add your changes here!
+The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
+and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
+
+
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
