@@ -12,7 +12,16 @@ class PortGroup(BaseModel):
     description: Optional[str]
     mux_group: Optional[constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER)]
     ports: List[Port]
-    output_defaults: Mapping[Union[Signal, str], Optional[SignalExpressionType]] = {}
+    output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
+
+    @validator('output_defaults')
+    def expand_default_value_for_connection_defaults(cls, output_defaults, values):
+        if isinstance(output_defaults, SignalExpressionType):
+            port_signals_pad2soc = set()
+            for port in values['ports']:
+                port_signals_pad2soc.update(port.port_signals_pad2chip)
+            output_defaults = {port_signal.name: output_defaults for port_signal in port_signals_pad2soc}
+        return output_defaults
 
     @validator('output_defaults')
     def validate_and_link_output_defaults(cls, v: Mapping[str, SignalExpressionType], values):
