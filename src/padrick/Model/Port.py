@@ -5,7 +5,7 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, Extra, PrivateAttr
+from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint
 
 
 class Port(BaseModel):
@@ -13,11 +13,12 @@ class Port(BaseModel):
     description: Optional[str]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
     mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
+    multiple: conint(ge=1) = 1
 
     #pydantic model config
     class Config:
         extra = Extra.forbid
-
+        validate_assignment = True
 
     @validator('connections')
     def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):

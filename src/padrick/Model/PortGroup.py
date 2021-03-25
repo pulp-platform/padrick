@@ -104,6 +104,39 @@ class PortGroup(BaseModel):
             port.mux_group = values['mux_group']
         return port
 
+    @validator('ports')
+    def expand_multi_ports(cls, ports, values):
+        """
+        Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
+        """
+        expanded_ports = []
+        for port in ports:
+            for i in range(port.multiple):
+                expanded_port : Port = port.copy()
+                replace_token = lambda s: s.replace('<>', str(i)) if isinstance(s, str) else s
+                expanded_port.name = replace_token(expanded_port.name)
+                expanded_port.description = replace_token(expanded_port.description)
+                expanded_port.mux_group = replace_token(expanded_port.mux_group)
+                expanded_port.multiple = 1
+                expanded_connections = {}
+                for key, value in expanded_port.connections.items():
+                    if isinstance(key, SignalExpressionType):
+                        key = replace_token(key.expression)
+                    elif isinstance(key, Signal):
+                        key = replace_token(key.name)
+                    elif isinstance(key, str):
+                        key = replace_token(str)
+                    if isinstance(value, SignalExpressionType):
+                        value = replace_token(value.expression)
+                    elif isinstance(value, Signal):
+                        value = replace_token(value.name)
+                    elif isinstance(value, str):
+                        value = replace_token(str)
+                    expanded_connections[key] = value
+                expanded_port.connections = expanded_connections
+                expanded_ports.append(expanded_port)
+        return expanded_ports
+
 
     @property
     def port_signals(self) -> Set[Signal]:
