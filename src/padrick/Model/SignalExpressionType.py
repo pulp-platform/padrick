@@ -48,6 +48,9 @@ constant_indexed_range: constant_expression "+" ":" constant_expression
                | octal_number
                | binary_number
                | hex_number
+               | SHORTCUT_VECTOR
+               
+SHORTCUT_VECTOR: /'[01]/
 
 decimal_number: DECIMAL_VALUE
               | SIZE? DECIMAL_BASE DECIMAL_VALUE
