@@ -12,7 +12,7 @@ class PadType(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     template: str
-    pad_signals: conlist(PadSignal, min_items=1)
+    pad_signals: List[PadSignal] = []
 
     #pydantic model config
     class Config:
