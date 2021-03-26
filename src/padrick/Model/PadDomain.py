@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional, Set, Mapping
+from typing import List, Optional, Set, Mapping, Iterable
 
 import click_log
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
@@ -9,10 +9,12 @@ from padrick.Model.PadType import PadType
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PortGroup import PortGroup
 from pydantic import BaseModel, constr, conlist, root_validator, validator
+from natsort import natsorted
+
+from padrick.Model.Utilities import sort_signals
 
 logger = logging.getLogger("padrick.Configparser")
 click_log.basic_config(logger)
-
 
 class PadDomain(BaseModel):
     """
@@ -125,63 +127,67 @@ class PadDomain(BaseModel):
 
 
     @property
-    def override_signals(self) -> Set[Signal]:
+    def override_signals(self) -> List[Signal]:
         override_signals = set()
         for pad in self.pad_list:
             override_signals.update(pad.override_signals)
-        return override_signals
+        return sort_signals(override_signals)
 
     @property
-    def static_connection_signals(self) -> Set[Signal]:
+    def static_connection_signals(self) -> List[Signal]:
         static_connection_signals = set()
         for pad in self.pad_list:
             static_connection_signals.update(pad.static_connection_signals)
-        return static_connection_signals
+        return sort_signals(static_connection_signals)
 
     @property
-    def static_connection_signals_soc2pad(self) -> Set[Signal]:
-        return set([signal for signal in self.static_connection_signals if signal.direction ==
-                    SignalDirection.soc2pads])
+    def static_connection_signals_soc2pad(self) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.static_connection_signals if signal.direction ==
+                    SignalDirection.soc2pads]))
 
     @property
-    def static_connection_signals_pad2soc(self) -> Set[Signal]:
-        return set([signal for signal in self.static_connection_signals if signal.direction ==
-                    SignalDirection.pads2soc])
+    def static_connection_signals_pad2soc(self) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.static_connection_signals if signal.direction ==
+                    SignalDirection.pads2soc]))
 
     @property
-    def dynamic_pad_signals(self) -> Set[Signal]:
+    def dynamic_pad_signals(self) -> List[Signal]:
         dynamic_pad_signals = set()
         for pad in self.pad_list:
             dynamic_pad_signals.update(pad.dynamic_pad_signals)
-        return dynamic_pad_signals
+        return sort_signals(dynamic_pad_signals)
 
-    def get_dynamic_pad_signals_for_mux_group(self, mux_group: str) -> Set[Signal]:
+    def get_dynamic_pad_signals_for_mux_group(self, mux_group: str) -> List[Signal]:
         dynamic_pad_signals = set()
         for pad in self.pad_list:
             if pad.mux_group == mux_group:
                 dynamic_pad_signals.update(pad.dynamic_pad_signals)
-        return dynamic_pad_signals
+        return sort_signals(dynamic_pad_signals)
 
     @property
-    def dynamic_pad_signals_soc2pad(self) -> Set[Signal]:
-        return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.soc2pads])
+    def dynamic_pad_signals_soc2pad(self) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.dynamic_pad_signals if signal.direction ==
+                          SignalDirection.soc2pads]))
 
-    def get_dynamic_pad_signals_soc2pad_for_mux_group(self, mux_group: str) -> Set[Signal]:
-        return set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.soc2pads])
+    def get_dynamic_pad_signals_soc2pad_for_mux_group(self, mux_group: str) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if
+                        signal.direction ==
+                    SignalDirection.soc2pads]))
 
     @property
     def dynamic_pad_signals_pad2soc(self):
-        return set([signal for signal in self.dynamic_pad_signals if signal.direction == SignalDirection.pads2soc])
+        return sort_signals(set([signal for signal in self.dynamic_pad_signals if signal.direction ==
+                                 SignalDirection.pads2soc]))
 
     def get_dynamic_pad_signals_pad2soc_for_mux_group(self, mux_group: str):
-        return set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.pads2soc])
+        return sort_signals(set([signal for signal in self.get_dynamic_pad_signals_for_mux_group(mux_group) if
+                        signal.direction ==
+                    SignalDirection.pads2soc]))
 
     @property
-    def port_mux_groups(self) -> Set[str]:
-        return set([port.mux_group for port_group in self.port_groups for port in port_group.ports])
+    def port_mux_groups(self) -> List[str]:
+        return natsorted(set([port.mux_group for port_group in self.port_groups for port in port_group.ports]))
 
     @property
-    def pad_mux_groups(self) -> Set[str]:
-        return set([pad.mux_group for pad in self.pad_list if pad.dynamic_pad_signals])
+    def pad_mux_groups(self) -> List[str]:
+        return natsorted(set([pad.mux_group for pad in self.pad_list if pad.dynamic_pad_signals]))

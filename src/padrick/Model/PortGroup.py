@@ -4,7 +4,9 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conlist, validator, root_validator
+from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra
+
+from padrick.Model.Utilities import sort_signals
 
 
 class PortGroup(BaseModel):
@@ -13,6 +15,9 @@ class PortGroup(BaseModel):
     mux_group: Optional[constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER)]
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
+
+    class Config:
+        extra = Extra.forbid
 
     @validator('output_defaults')
     def expand_default_value_for_connection_defaults(cls, output_defaults, values):
@@ -29,7 +34,7 @@ class PortGroup(BaseModel):
         the associated expression is static."""
         linked_connection_defaults: Mapping[Signal, SignalExpressionType] = {}
         for signal_name, expression in v.items():
-            port_signals = set.union(*[port.port_signals for port in values.get('ports', [])])
+            port_signals = set.union(*[set(port.port_signals) for port in values.get('ports', [])])
             # Try to find the port signal in the implicitly declared port signal list (a name used in the connections
             # section declares a new port signal)
             signal_found = False
@@ -139,24 +144,26 @@ class PortGroup(BaseModel):
 
 
     @property
-    def port_signals(self) -> Set[Signal]:
-        return set.union(*[port.port_signals for port in self.ports])
+    def port_signals(self) -> List[Signal]:
+        return sort_signals(set.union(*[set(port.port_signals) for port in self.ports]))
 
     @property
-    def port_signals_soc2pads(self) -> Set[Signal]:
-        return set([signal for signal in self.port_signals if signal.direction == SignalDirection.soc2pads])
+    def port_signals_soc2pads(self) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
+                                 SignalDirection.soc2pads]))
 
     @property
-    def port_signals_pads2soc(self) -> Set[Signal]:
-        return set([signal for signal in self.port_signals if signal.direction == SignalDirection.pads2soc])
+    def port_signals_pads2soc(self) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
+                                 SignalDirection.pads2soc]))
 
-    def get_port_signals_for_mux_group(self, mux_group: str) -> Set[Signal]:
-        return set.union(*[port.port_signals for port in self.ports if port.mux_group == mux_group])
+    def get_port_signals_for_mux_group(self, mux_group: str) -> List[Signal]:
+        return sort_signals(set.union(*[set(port.port_signals) for port in self.ports if port.mux_group == mux_group]))
 
-    def get_port_signals_soc2pads_for_mux_group(self, mux_group: str) -> Set[Signal]:
-        return set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.soc2pads])
+    def get_port_signals_soc2pads_for_mux_group(self, mux_group: str) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.soc2pads]))
 
-    def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> Set[Signal]:
-        return set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.pads2soc])
+    def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> List[Signal]:
+        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
+                    SignalDirection.pads2soc]))

@@ -7,6 +7,8 @@ from padrick.Model.PadType import PadType
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field
 
+from padrick.Model.Utilities import sort_signals
+
 
 class PadInstance(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
@@ -83,7 +85,7 @@ class PadInstance(BaseModel):
         return values
 
     @property
-    def static_connection_signals(self) -> Set[Signal]:
+    def static_connection_signals(self) -> List[Signal]:
         """
         Returns all static connection signals used for the given pad.
         Returns:
@@ -100,10 +102,10 @@ class PadInstance(BaseModel):
                 for signal_name in pad_signal.default_static_value.signal_collection:
                     static_signal = Signal(name=signal_name, size=pad_signal.size, direction=pad_signal.direction)
                     signals.add(static_signal)
-        return signals
+        return sort_signals(signals)
 
     @property
-    def override_signals(self) -> Set[Signal]:
+    def override_signals(self) -> List[Signal]:
         signals = set()
         for pad_signal in self.pad_type.pad_signals:
             if pad_signal.and_override_signal:
@@ -114,7 +116,7 @@ class PadInstance(BaseModel):
                 for signal_name in pad_signal.or_override_signal.signal_collection:
                     signal = Signal(name=signal_name, size=pad_signal.size, direction=pad_signal.direction)
                     signals.add(signal)
-        return signals
+        return sort_signals(signals)
 
 
 
@@ -129,7 +131,8 @@ class PadInstance(BaseModel):
         if self.is_static:
             return []
         else:
-            return [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad and pad_signal.conn_type == ConnectionType.dynamic]
+            return sort_signals([pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
+                                 and pad_signal.conn_type == ConnectionType.dynamic])
 
     @property
     def dynamic_pad_signals_soc2pad(self) -> List[PadSignal]:

@@ -1,11 +1,13 @@
 from functools import reduce
-from typing import Optional, Mapping, Union, Set
+from typing import Optional, Mapping, Union, Set, List
 
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint
+
+from padrick.Model.Utilities import sort_signals
 
 
 class Port(BaseModel):
@@ -78,7 +80,7 @@ class Port(BaseModel):
         return linked_connections
 
     @property
-    def port_signals_chip2pad(self) -> Set[Signal]:
+    def port_signals_chip2pad(self) -> List[Signal]:
         port_signals = set()
         if self.connections:
             for signal, expr in self.connections.items():
@@ -86,23 +88,23 @@ class Port(BaseModel):
                     for signal_name in expr.signal_collection:
                         port_signal = Signal(name=signal_name, size=signal.size, direction=signal.direction)
                         port_signals.add(port_signal)
-        return port_signals
+        return sort_signals(port_signals)
 
     @property
-    def port_signals_pad2chip(self) -> Set[Signal]:
+    def port_signals_pad2chip(self) -> List[Signal]:
         port_signals = set()
         if self.connections:
             for signal, expr in self.connections.items():
                 if signal.direction == SignalDirection.pads2soc:
                     port_signals.add(signal)
-        return port_signals
+        return sort_signals(port_signals)
 
     @property
-    def port_signals(self) -> Set[Signal]:
+    def port_signals(self) -> List[Signal]:
         """
 
         Returns: The union of pad2chip and chip2pad port signals.
 
         """
-        return self.port_signals_pad2chip | self.port_signals_chip2pad
+        return sort_signals(self.port_signals_pad2chip + self.port_signals_chip2pad)
 
