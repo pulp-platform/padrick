@@ -156,11 +156,12 @@ class SignalNameRemapTransformer(Transformer):
         return self._map.get(name, name)
 
 
-class SignalExpressionType:
+class SignalExpressionType(str):
     _expression: str
     ast: Tree
 
     def __init__(self, expression: str):
+        super().__init__()
         if expression == None:
             expression = ""
         self._ast = simple_expression_parser.parse(str(expression))
