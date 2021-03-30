@@ -55,6 +55,9 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
    pad_suffix = i if pad.multiple > 1 else ""
    pad_subscript = f"[{i}]" if pad.multiple > 1 else ""
    sel_bitwidth = round(math.log2(len(all_ports)+1))
+
+   def mux_group_name(mux_groups):
+       return "_".join(map(lambda s: s.upper(), sorted(mux_groups)))
 %>\
 % if pad.dynamic_pad_signals_soc2pad:
    // Pad ${pad.name}${pad_suffix}
@@ -62,7 +65,7 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
    // Pad Signal ${pad_signal.name}
    always_comb begin
      unique case (s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q)
-       PAD_MUX_GROUP_${pad.mux_group.upper()}_SEL_DEFAULT: begin
+       PAD_MUX_GROUP_${mux_group_name(pad.mux_groups)}_SEL_DEFAULT: begin
          mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
        end
 <% port_idx = 1 %>\
@@ -72,8 +75,8 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
    signal_name_remap = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
 %>\
 % for port in port_group.ports:
-% if port.mux_group == pad.mux_group:
-       PAD_MUX_GROUP_${pad.mux_group.upper()}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
+% if port.mux_groups.intersection(pad.expanded_mux_groups(i)):
+       PAD_MUX_GROUP_${mux_group_name(pad.expanded_mux_groups(i))}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
           mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap).expression};
 % else:
@@ -108,19 +111,19 @@ dynamic_pad_count = sum([pad.multiple for pad in dynamic_pads])
 % for port_signal in port.port_signals_pad2chip:
   // Port Signal ${port_signal.name}
   logic [${dynamic_pad_count-1}:0] port_mux_sel_req_${port_group.name}_${port_signal.name};
-  logic [PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_WIDTH-1:0] port_mux_sel_${port_group.name}_${port_signal.name};
+  logic [PORT_MUX_GROUP_${mux_group_name(port.mux_groups)}_SEL_WIDTH-1:0] port_mux_sel_${port_group.name}_${port_signal.name};
   logic port_mux_sel_${port_group.name}_${port_signal.name}_no_connection;
 
 % for pad in dynamic_pads:
-% if pad.mux_group == port.mux_group:
 % for i in range(pad.multiple):
+% if pad.expanded_mux_groups(i).intersection(port.mux_groups):
 <%
    pad_subscript = f"[{i}]" if pad.multiple > 1 else ""
    pad_suffix = i if pad.multiple > 1 else ""
 %>\
-   assign port_mux_sel_req_${port_group.name}_${port_signal.name}[PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_${pad.name.upper()}${pad_suffix}] = s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q == PAD_MUX_GROUP_${port.mux_group.upper()}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
-% endfor
+   assign port_mux_sel_req_${port_group.name}_${port_signal.name}[PORT_MUX_GROUP_${mux_group_name(port.mux_groups)}_SEL_${pad.name.upper()}${pad_suffix}] = s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q == PAD_MUX_GROUP_${mux_group_name(port.mux_groups)}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
 % endif
+% endfor
 % endfor
 
    lzc #(
@@ -138,21 +141,21 @@ dynamic_pad_count = sum([pad.multiple for pad in dynamic_pads])
      end else begin
         unique case (port_mux_sel_${port_group.name}_${port_signal.name})
 % for pad in dynamic_pads:
-% if pad.mux_group == port.mux_group:
 % for i in range(pad.multiple):
+% if pad.mux_group == port.mux_group:
 <%
   pad_suffix = i if pad.multiple > 1 else ""
   pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{pad.name}{pad_suffix}.{pad_signal.name}" for pad_signal in pad.dynamic_pad_signals_pad2soc}
 %>\
-          PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_${pad.name.upper()}${pad_suffix}: begin
+          PORT_MUX_GROUP_${mux_group_name(port.mux_groups)}_SEL_${pad.name.upper()}${pad_suffix}: begin
 % if port_signal in port.connections:
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping).expression};
 % else:
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
 % endif
           end
-% endfor
 % endif
+% endfor
 % endfor
           default: begin
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};

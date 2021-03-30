@@ -1,11 +1,13 @@
 from typing import Optional, Mapping, List, Union, Set
 
+from natsort import natsorted
+
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
 from padrick.Model.PadType import PadType
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field
+from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
 
 from padrick.Model.Utilities import sort_signals
 
@@ -16,16 +18,13 @@ class PadInstance(BaseModel):
     multiple: conint(ge=1) = 1
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
-    mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
+    mux_groups: conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1) = {"all", "self"}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
 
     #pydantic model config
     class Config:
         extra = Extra.forbid
-
-    @validator("mux_group")
-    def normalize_mux_groups (cls, mux_group):
-        return mux_group.strip().lower()
+        validate_assignment = True
 
 
     @validator('pad_type')
@@ -41,39 +40,41 @@ class PadInstance(BaseModel):
     @validator('connections')
     def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):
         linked_connections = {}
-        for pad_signal_name, expression in v.items():
-            # Create a copy of the pad signal instance so we can override its connection_type according to the
-            # is_static override value
-            if 'pad_type' not in values:
-                raise ValueError("Missing pad_type for pad_instance")
-            pad_signal = values['pad_type'].get_pad_signal(pad_signal_name).copy() #This will raise a ValueError if
-                                                                                   # the # pad signal does not exist
-            if values['is_static']: pad_signal.conn_type = ConnectionType.static
+        if v:
+            for pad_signal, expression in v.items():
+                # Create a copy of the pad signal instance so we can override its connection_type according to the
+                # is_static override value
+                if 'pad_type' not in values:
+                    raise ValueError("Missing pad_type for pad_instance")
+                if not isinstance(pad_signal, PadSignal):
+                    pad_signal = values['pad_type'].get_pad_signal(pad_signal).copy() #This will raise a ValueError if
+                                                                                       # the # pad signal does not exist
+                if values['is_static']: pad_signal.conn_type = ConnectionType.static
 
-            # Only for output pad_signals it is allowed to have an empty expression (-> leave unconnected) as the
-            # expression
-            if pad_signal.kind != PadSignalKind.output and not expression:
-                raise ValueError(f"Cannot leave pad_signal {pad_signal.name} of kind {pad_signal.kind} unconnected. "
-                                 f"Please provide a connection expression")
+                # Only for output pad_signals it is allowed to have an empty expression (-> leave unconnected) as the
+                # expression
+                if pad_signal.kind != PadSignalKind.output and not expression:
+                    raise ValueError(f"Cannot leave pad_signal {pad_signal.name} of kind {pad_signal.kind} unconnected. "
+                                     f"Please provide a connection expression")
 
 
-            # Replace expression of type None with empty expression instance
-            if not expression:
-                expression = SignalExpressionType.validate(None)
+                # Replace expression of type None with empty expression instance
+                if not expression:
+                    expression = SignalExpressionType.validate(None)
 
-            # For output pad_signals, only single signals are allowed. We cannot connect an output signal to an
-            # expression!
-            if pad_signal.kind == PadSignalKind.output and not expression.is_empty and not expression.is_single_signal:
-                raise ValueError(f"No complex expressions are allowed for output signals. Possible expressions are "
-                                 f"single signal identifiers or the empty expression to leave the output signal "
-                                 f"unconnected.")
+                # For output pad_signals, only single signals are allowed. We cannot connect an output signal to an
+                # expression!
+                if pad_signal.kind == PadSignalKind.output and not expression.is_empty and not expression.is_single_signal:
+                    raise ValueError(f"No complex expressions are allowed for output signals. Possible expressions are "
+                                     f"single signal identifiers or the empty expression to leave the output signal "
+                                     f"unconnected.")
 
-            # If the pad_signal is of conn_type dynamic, make sure the expression is a const_expression
-            if pad_signal.conn_type == ConnectionType.dynamic:
-                if not (expression or expression.is_const_expr):
-                    raise ValueError(f"Pad Signal connections expression for dynamic pad_signal {pad_signal.name} must "
-                                     f"be a constant expression")
-            linked_connections[pad_signal] = expression
+                # If the pad_signal is of conn_type dynamic, make sure the expression is a const_expression
+                if pad_signal.conn_type == ConnectionType.dynamic:
+                    if not (expression or expression.is_const_expr):
+                        raise ValueError(f"Pad Signal connections expression for dynamic pad_signal {pad_signal.name} must "
+                                         f"be a constant expression")
+                linked_connections[pad_signal] = expression
         return linked_connections
 
     @root_validator(skip_on_failure=True)
@@ -167,3 +168,12 @@ class PadInstance(BaseModel):
                 else:
                     pad_signal_connection[pad_signal] = self.pad_type.get_pad_signal(pad_signal.name).default_static_value
         return pad_signal_connection
+
+    def get_mux_group_name(self, index=0) -> str:
+        # replate <> token with index in all mux_groups and sort them naturally
+        groups = map(lambda s: s.replace('<>', str(index)).upper())
+        return "_".join(natsorted(groups))
+
+    def expanded_mux_groups(self, mux_group: str, index=None) -> Set[str]:
+        if index:
+            return set(map(lambda s: s.replace('<>', str(index))))

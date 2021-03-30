@@ -1,11 +1,13 @@
 from functools import reduce
 from typing import Optional, Mapping, Union, Set, List
 
+from natsort import natsorted
+
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint
+from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
 
 from padrick.Model.Utilities import sort_signals
 
@@ -14,7 +16,8 @@ class Port(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
+    mux_groups: conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1) = \
+        {"all", "self"}
     multiple: conint(ge=1) = 1
 
     #pydantic model config
@@ -23,9 +26,10 @@ class Port(BaseModel):
         validate_assignment = True
 
     @validator('connections')
-    def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):
+    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType], values):
         linked_connections = {}
-        for signal_name, expression in v.items():
+        for signal, expression in v.items():
+            signal_name = signal.name if isinstance(signal, Signal) else signal
             pad_signal_instances = PARSE_CONTEXT.find_pad_signal_instances(signal_name)
             if len(pad_signal_instances) == 0:
                 # Check if it is a pad2chip signal in this case, the right hand side must contain only pad-signal
@@ -79,6 +83,7 @@ class Port(BaseModel):
             linked_connections[signal] = expression
         return linked_connections
 
+
     @property
     def port_signals_chip2pad(self) -> List[Signal]:
         port_signals = set()
@@ -107,4 +112,3 @@ class Port(BaseModel):
 
         """
         return sort_signals(self.port_signals_pad2chip + self.port_signals_chip2pad)
-

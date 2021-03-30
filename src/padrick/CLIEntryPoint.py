@@ -82,14 +82,11 @@ def config(file):
                     return o
             def encode(self, o):
                 return super().encode(self.__sanitize_keys_and_values(o))
-
         click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
 
 # Register first level subcommand
-#cli.add_command(Rosetta.rosetta)
-#cli.add_command(Vega.vega)
 cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 
 # For debugging purposes only

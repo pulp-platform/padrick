@@ -11,6 +11,7 @@ from padrick.Model.PortGroup import PortGroup
 from pydantic import BaseModel, constr, conlist, root_validator, validator
 from natsort import natsorted
 
+from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.Utilities import sort_signals
 
 logger = logging.getLogger("padrick.Configparser")
@@ -41,17 +42,6 @@ class PadDomain(BaseModel):
                 port_groups_seen.add(port_group.name)
         return port_groups
 
-    @validator('pad_list')
-    def check_each_pad_instance_name_is_unique(cls, pads: List[PadInstance]):
-        pad_names_seen = set()
-        for pad in pads:
-            if pad.name in pad_names_seen:
-                raise ValueError(f"Duplicate pad instance name {pad.name}. Pad instance names must be unique.")
-            else:
-                pad_names_seen.add(pad.name)
-        return pads
-
-
     @root_validator(skip_on_failure=True)
     def check_padsignal_with_same_name_have_same_size_and_direction(cls, values):
         pad_signal_names_seen = set()
@@ -64,6 +54,37 @@ class PadDomain(BaseModel):
                     pad_signal_names_seen.add(pad_signal.name)
                     pad_signals_seen.add(pad_signal)
         return values
+
+    @validator('pad_list')
+    def expand_multi_pads(cls, pads: List[PadInstance]):
+        expanded_pads = []
+        for pad in pads:
+            for i in range(pad.multiple):
+                i = "" if pad.multiple == 1 else str(i)
+                replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
+                expanded_pad = pad.copy()
+                expanded_pad.name = replace_token(expanded_pad.name)
+                expanded_pad.description = replace_token(expanded_pad.description)
+                expanded_pad.mux_groups = set(map(replace_token, expanded_pad.mux_groups))
+                expanded_pad.multiple = 1
+                expanded_connections = {}
+                if expanded_connections:
+                    for key, value in expanded_pad.connections.items():
+                        if isinstance(value, SignalExpressionType):
+                            value = replace_token(value.expression)
+                        expanded_connections[key] = value
+                    expanded_pad.connections = expanded_connections
+                expanded_pads.append(expanded_pad)
+        return expanded_pads
+
+    @validator("pad_list")
+    def normalize_mux_groups (cls, pads: List[PadInstance]):
+        expanded_pads = []
+        for pad in pads:
+            if "self" in pad.mux_groups:
+                pad.mux_groups.discard("self")
+                pad.mux_groups.add(pad.name.lower().strip())
+        return pads
 
     @validator('pad_list')
     def check_static_connection_signals_are_not_bidirectional(cls, v):
@@ -85,46 +106,42 @@ class PadDomain(BaseModel):
                 seen[signal.name] = signal
         return v
 
-    # @validator('pad_list')
-    # def expand_multi_pads(cls, pads: List[PadInstance]):
-    #     pad_list = []
-    #     for pad in pads:
-    #         if pad.multiple > 1:
-    #             for i in range(pad.multiple):
-    #                 copy = pad.copy(update={'name': f"{pad.name.strip().lower()}{i}", 'multiple': 1})
-    #                 if copy.mux_group == "self":
-    #                     copy.mux_group = copy.name
-    #                 pad_list.append(copy)
-    #         else:
-    #             pad_list.append(pad)
-    #     return pad_list
+    @validator('pad_list')
+    def check_each_pad_instance_name_is_unique(cls, pads: List[PadInstance]):
+        pad_names_seen = set()
+        for pad in pads:
+            if pad.name in pad_names_seen:
+                raise ValueError(f"Duplicate pad instance name {pad.name}. Pad instance names must be unique.")
+            else:
+                pad_names_seen.add(pad.name)
+        return pads
+
 
 
     @root_validator(skip_on_failure=True)
-    def warn_about_orphan_mux_groups(cls, values):
-        port_mux_groups = set([port.mux_group for port_group in values['port_groups'] for port in port_group.ports])
-        pad_mux_groups = set([pad.mux_group for pad in values['pad_list'] if pad.dynamic_pad_signals])
-        orphan_port_mux_groups = port_mux_groups.difference(pad_mux_groups)
-        orphan_pad_mux_groups = pad_mux_groups.difference(port_mux_groups)
-        for mux_group in orphan_pad_mux_groups:
-            pads_in_group = [pad for pad in values['pad_list'] if pad.mux_group ==
-                             mux_group]
-            if any([pad.dynamic_pad_signals for pad in pads_in_group]):
-                logger.warning(
-                    f"Found mux_group '{mux_group}' with pads {[pad.name for pad in pads_in_group]} without any ports to "
-                    f"connect to. Did you mispell the mux_group in one of the ports?.")
+    def warn_about_orphan_pads_and_ports(cls, values):
+        port_mux_groups = set.union(*[port.mux_groups for port_group in values['port_groups'] for port in
+                                      port_group.ports])
+        # We need to handle pads differently since they do not expand the 'self' keyword
+        pad_mux_groups = set()
+        for pad in values['pad_list']:
+            if pad.dynamic_pad_signals:
+                expanded_mux_groups = set()
+                for mux_group in pad.mux_groups:
+                    for i in range(pad.multiple):
+                        expanded_mux_groups.add(mux_group.replace('<>', str(i)))
+                if not expanded_mux_groups.intersection(port_mux_groups):
+                    logger.warning(
+                        f"Found pad {pad.name} with mux_groups {str(pad.mux_groups)} but no port specifies any of these mux groups.")
+                pad_mux_groups.update(expanded_mux_groups)
 
-        for mux_group in orphan_port_mux_groups:
-            ports_in_group = [port for port_group in values['port_groups'] for port in port_group.ports if
-                              port.mux_group ==
-                             mux_group]
-            if ports_in_group:
-                logger.warning(f"Found mux_group '{mux_group}' with ports {[port.name for port in ports_in_group]} "
-                               f"without any "
-                               f"pads to "
-                               f"connect to. Did you mispell the mux_group in one of the pads?.")
+        for port_group in values['port_groups']:
+            for port in port_group.ports:
+                if not port.mux_groups.intersection(pad_mux_groups):
+                    logger.warning(
+                        f"Found port {port.name} with mux_groups {str(port.mux_groups)} but no pad specifies any of "
+                        f"these mux groups.")
         return values
-
 
     @property
     def override_signals(self) -> List[Signal]:

@@ -130,12 +130,19 @@ pad_domains:
           rx_en: 1'b1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0
-      - name: pad_gpioa
-        mux_group: all # The mux group is an arbitrary identifier that declares
-                       # the possible connectivities between ports and pads. All
-                       # ports and pads within the same mux_group can be
-                       # connected with each other in an any<->any fashion. By
-                       # default, all ports and pads are in the "all" mux_group.
+      - name: pad_gpioa<>
+        mux_groups: [all, self] # Mux groups are arbitrary identifiers that
+                                # declares the possible connectivities between
+                                # ports and pads. All ports and pads within the
+                                # same mux_group can be connected with each
+                                # other in an any<->any fashion. By default, all
+                                # ports and pads are in the "all" mux_group and
+                                # in the "self" mux group. "self" is a special
+                                # keyword that is internally expanded to the
+                                # name of the pad instance itself (with appended
+                                # index in case multiple is > 1). This allows
+                                # you implicitly create a mux group for every
+                                # instance of a multi pad.
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
         multiple: 32 #Generate 32 instances of this pad. Each instance will have
                      #its signal and instance names postfixed with the index
@@ -144,8 +151,10 @@ pad_domains:
         is_static: false #False is the default value, thus explicitly specifying
                          #static as false is optional. With this option, each
                          #pad_signal assumes the declared conn_type.
-      - name: pad_gpiob
-        mux_group: gpio_setb
+      - name: pad_gpiob<>
+        mux_groups: [gpio_setb] # Only ports (or entire portgroups) with this
+                                # mux_group can be routed to these pad
+                                # instances.
         multiple: 32
         pad_type: pull_down_pad
         is_static: false
@@ -157,7 +166,9 @@ pad_domains:
       # master peripheral exposes the SCK, MOSI, MISO and CS ports. These ports
       # can be routed to an arbitrary pad within the same pad_domain.
       - name: spi0
-        output_defaults:
+        output_defaults: #For each pad -> SoC port signal you have to specify
+                         #what value shall be applied when the port is not
+                         #connected to any Pad.
           miso: 1'b0
         ports:
           - name: spi0_mosi
@@ -198,8 +209,10 @@ pad_domains:
               rx_en: 1'b0
               output_en: 1'b1
       - name: i2c
-        mux_group: gpio_setb
-        output_defaults:
+        mux_groups: [gpio_setb] # You can optionally define the mux group of all
+                             # ports in the port group without specifying it for
+                             # every single port
+        output_defaults: 
           sda_i: 1'b0
         ports:
           - name: i2c_sda
@@ -216,3 +229,33 @@ pad_domains:
               chip2pad: scl
               rx_en: 1'b0
               output_en: 1'b1
+      - name: gpio_a
+        output_defaults: "'0" # Instead of defining the output_default for every
+                              # pad -> SoC port signal individually you can
+                              # define a value that applies to all of them (this
+                              # obviously only works if all signals should be
+                              # driffen with the same default value).
+        ports:
+          - multiple: 32 # Sometimes, the ports needed in a particular port
+                         # group are extremely repetitive (e.g. definition of 32
+                         # GPIO pad signals or data lines of MIPI CPI). For
+                         # these cases you can declare multiple ports with a
+                         # single port declaration that has the optional
+                         # 'multiple' field set. This will cause the port
+                         # declaration to expand to multiple individual ports
+                         # where every occurence of the string token '<>' in
+                         # 'name', 'description', 'mux_group' and signal
+                         # mappings in 'connections' is replaced with an
+                         # increasing index (starting from 0)
+            name: GPIO<>
+            description: "The signal number <> of the GPIO peripheral"
+            mux_groups:  [pad_gpioa<>] # Assign each gpio port to the individual
+                                       # ports of pad_gpiob. We don't need to
+                                       # mux the gpio port signals as they are
+                                       # all identical in functionality anyways.
+                                       # This creates a one-to-one mapping.
+            connections:
+              chip2pad: gpio<>_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc. 
+              gpio<>_o: pad2chip
+              rx_en: dir<>_i
+

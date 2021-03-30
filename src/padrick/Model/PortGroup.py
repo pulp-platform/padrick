@@ -4,7 +4,7 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra
+from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra, conset
 
 from padrick.Model.Utilities import sort_signals
 
@@ -12,7 +12,7 @@ from padrick.Model.Utilities import sort_signals
 class PortGroup(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
-    mux_group: Optional[constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER)]
+    mux_groups: Optional[conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1)]
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
 
@@ -23,7 +23,7 @@ class PortGroup(BaseModel):
     def expand_default_value_for_connection_defaults(cls, output_defaults, values):
         if isinstance(output_defaults, SignalExpressionType):
             port_signals_pad2soc = set()
-            for port in values['ports']:
+            for port in values.get('ports', []):
                 port_signals_pad2soc.update(port.port_signals_pad2chip)
             output_defaults = {port_signal.name: output_defaults for port_signal in port_signals_pad2soc}
         return output_defaults
@@ -73,6 +73,42 @@ class PortGroup(BaseModel):
         return values
 
 
+
+
+    @validator('ports')
+    def expand_multi_ports(cls, ports, values):
+        """
+        Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
+        """
+        expanded_ports = []
+        for port in ports:
+            for i in range(port.multiple):
+                i = "" if port.multiple == 1 else str(i)
+                expanded_port : Port = port.copy()
+                replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
+                expanded_port.name = replace_token(expanded_port.name)
+                expanded_port.description = replace_token(expanded_port.description)
+                expanded_port.mux_groups = set(map(replace_token, expanded_port.mux_groups))
+                expanded_port.multiple = 1
+                expanded_connections = {}
+                for key, value in expanded_port.connections.items():
+                    if isinstance(key, SignalExpressionType):
+                        key = replace_token(key.expression)
+                    elif isinstance(key, Signal):
+                        key = replace_token(key.name)
+                    elif isinstance(key, str):
+                        key = replace_token(str)
+                    if isinstance(value, SignalExpressionType):
+                        value = replace_token(value.expression)
+                    elif isinstance(value, Signal):
+                        value = replace_token(value.name)
+                    elif isinstance(value, str):
+                        value = replace_token(str)
+                    expanded_connections[key] = value
+                expanded_port.connections = expanded_connections
+                expanded_ports.append(expanded_port)
+        return expanded_ports
+
     @validator('ports')
     def check_port_signals_are_not_bidirectional(cls, v):
         port_signals = set()
@@ -105,42 +141,17 @@ class PortGroup(BaseModel):
 
     @validator('ports', each_item=True)
     def override_port_mux_group(cls, port, values):
-        if values.get('mux_group', None):
-            port.mux_group = values['mux_group']
+        if values.get('mux_groups', None):
+            port.mux_groups = values['mux_groups']
         return port
 
     @validator('ports')
-    def expand_multi_ports(cls, ports, values):
-        """
-        Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
-        """
-        expanded_ports = []
+    def normalize_mux_groups(cls, ports: List[Port], values):
         for port in ports:
-            for i in range(port.multiple):
-                expanded_port : Port = port.copy()
-                replace_token = lambda s: s.replace('<>', str(i)) if isinstance(s, str) else s
-                expanded_port.name = replace_token(expanded_port.name)
-                expanded_port.description = replace_token(expanded_port.description)
-                expanded_port.mux_group = replace_token(expanded_port.mux_group)
-                expanded_port.multiple = 1
-                expanded_connections = {}
-                for key, value in expanded_port.connections.items():
-                    if isinstance(key, SignalExpressionType):
-                        key = replace_token(key.expression)
-                    elif isinstance(key, Signal):
-                        key = replace_token(key.name)
-                    elif isinstance(key, str):
-                        key = replace_token(str)
-                    if isinstance(value, SignalExpressionType):
-                        value = replace_token(value.expression)
-                    elif isinstance(value, Signal):
-                        value = replace_token(value.name)
-                    elif isinstance(value, str):
-                        value = replace_token(str)
-                    expanded_connections[key] = value
-                expanded_port.connections = expanded_connections
-                expanded_ports.append(expanded_port)
-        return expanded_ports
+            if "self" in port.mux_groups:
+                port.mux_groups.discard("self")
+                port.mux_groups.add(f"{values['name']}_{port.name}")
+        return ports
 
 
     @property
