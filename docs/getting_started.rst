@@ -40,12 +40,22 @@ or you are unable to install any additional python dependencies you can use
 binary appimage distribution of Padrick. The binary wraps its own python
 interpreter in a Rust executable to interpret the padrick python source code
 embedded within the binary itself (this is enabled by a project called
-`Pyoxidizer <https://pyoxidizer.readthedocs.io>`). Any Linux distribution with
-glibc version 2.3.3 or newer should be able to run the Appimage binary. This include but is not limited to the following or newer Distributions:
+`Pyoxidizer <https://pyoxidizer.readthedocs.io>`_). Any Linux distribution with
+glibc version 2.3.3 or newer should be able to run the Appimage binary. This
+includes but is not limited to the following or newer LInux Distributions:
 
 * Debian 6
 * Fedora 16
 * OpenSUSE 11.4
 * RHEL/CentOS 6
 * Ubuntu 12.04
+
+
+.. note:: Once the Padrick is open-sourced, you can find these binaries in the
+          release section. Until then, please ask the author for the binaries
+          directly.
+
+
+Writing a Padframe Configuration File
+-------------------------------------
 
