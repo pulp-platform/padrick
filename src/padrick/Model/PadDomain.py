@@ -1,3 +1,4 @@
+import itertools
 import logging
 from typing import List, Optional, Set, Mapping, Iterable
 
@@ -7,12 +8,13 @@ from padrick.Model.PadInstance import PadInstance
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.PadType import PadType
 from padrick.Model.ParseContext import PARSE_CONTEXT
+from padrick.Model.Port import Port
 from padrick.Model.PortGroup import PortGroup
 from pydantic import BaseModel, constr, conlist, root_validator, validator
 from natsort import natsorted
 
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from padrick.Model.Utilities import sort_signals
+from padrick.Model.Utilities import sort_signals, sort_ports, sort_pads
 
 logger = logging.getLogger("padrick.Configparser")
 click_log.basic_config(logger)
@@ -59,22 +61,7 @@ class PadDomain(BaseModel):
     def expand_multi_pads(cls, pads: List[PadInstance]):
         expanded_pads = []
         for pad in pads:
-            for i in range(pad.multiple):
-                i = "" if pad.multiple == 1 else str(i)
-                replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
-                expanded_pad = pad.copy()
-                expanded_pad.name = replace_token(expanded_pad.name)
-                expanded_pad.description = replace_token(expanded_pad.description)
-                expanded_pad.mux_groups = set(map(replace_token, expanded_pad.mux_groups))
-                expanded_pad.multiple = 1
-                expanded_connections = {}
-                if expanded_connections:
-                    for key, value in expanded_pad.connections.items():
-                        if isinstance(value, SignalExpressionType):
-                            value = replace_token(value.expression)
-                        expanded_connections[key] = value
-                    expanded_pad.connections = expanded_connections
-                expanded_pads.append(expanded_pad)
+            expanded_pads.extend(pad.expand_padinstance())
         return expanded_pads
 
     @validator("pad_list")
@@ -201,10 +188,20 @@ class PadDomain(BaseModel):
                         signal.direction ==
                     SignalDirection.pads2soc]))
 
-    @property
-    def port_mux_groups(self) -> List[str]:
-        return natsorted(set([port.mux_group for port_group in self.port_groups for port in port_group.ports]))
+    def get_ports_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+        ports_in_mux_groups = list(itertools.chain(*[port_group.get_ports_in_mux_groups(mux_groups) for port_group in self.port_groups]))
+        return ports_in_mux_groups
+
+    def get_dynamic_pads_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+        pads_in_mux_groups = [pad for pad in self.pad_list if mux_groups.intersection(pad.mux_groups) and pad.dynamic_pad_signals]
+        return sort_pads(pads_in_mux_groups)
 
     @property
-    def pad_mux_groups(self) -> List[str]:
-        return natsorted(set([pad.mux_group for pad in self.pad_list if pad.dynamic_pad_signals]))
+    def port_mux_group_sets(self) -> List[Set[str]]:
+        port_mux_group_sets = set((frozenset(port.mux_groups) for port_group in self.port_groups for port in port_group.ports))
+        return natsorted(port_mux_group_sets, lambda x: "_".join(natsorted(x)).upper())
+
+    @property
+    def pad_mux_group_sets(self) -> List[Set[str]]:
+        pad_mux_group_sets = set((frozenset(pad.mux_groups) for pad in self.pad_list if pad.dynamic_pad_signals))
+        return natsorted(pad_mux_group_sets, lambda x: "_".join(natsorted(x)).upper())

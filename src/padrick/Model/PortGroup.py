@@ -6,7 +6,7 @@ from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra, conset
 
-from padrick.Model.Utilities import sort_signals
+from padrick.Model.Utilities import sort_signals, sort_ports
 
 
 class PortGroup(BaseModel):
@@ -73,40 +73,14 @@ class PortGroup(BaseModel):
         return values
 
 
-
-
     @validator('ports')
-    def expand_multi_ports(cls, ports, values):
+    def expand_multi_ports(cls, ports):
         """
         Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
         """
         expanded_ports = []
         for port in ports:
-            for i in range(port.multiple):
-                i = "" if port.multiple == 1 else str(i)
-                expanded_port : Port = port.copy()
-                replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
-                expanded_port.name = replace_token(expanded_port.name)
-                expanded_port.description = replace_token(expanded_port.description)
-                expanded_port.mux_groups = set(map(replace_token, expanded_port.mux_groups))
-                expanded_port.multiple = 1
-                expanded_connections = {}
-                for key, value in expanded_port.connections.items():
-                    if isinstance(key, SignalExpressionType):
-                        key = replace_token(key.expression)
-                    elif isinstance(key, Signal):
-                        key = replace_token(key.name)
-                    elif isinstance(key, str):
-                        key = replace_token(str)
-                    if isinstance(value, SignalExpressionType):
-                        value = replace_token(value.expression)
-                    elif isinstance(value, Signal):
-                        value = replace_token(value.name)
-                    elif isinstance(value, str):
-                        value = replace_token(str)
-                    expanded_connections[key] = value
-                expanded_port.connections = expanded_connections
-                expanded_ports.append(expanded_port)
+            expanded_ports.extend(port.expand_port())
         return expanded_ports
 
     @validator('ports')
@@ -178,3 +152,7 @@ class PortGroup(BaseModel):
     def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> List[Signal]:
         return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
                     SignalDirection.pads2soc]))
+
+    def get_ports_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+        ports_in_mux_group = [port for port in self.ports if mux_groups.intersection(port.mux_groups)]
+        return sort_ports(ports_in_mux_group)

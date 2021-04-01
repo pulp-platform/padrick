@@ -93,18 +93,18 @@ cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
     # while True:
-    #     config_file = '../../examples/kraken_padframe.yml'
-    #     output = '/home/meggiman/garbage/test_padrick'
-        # try:
-        #     padframe = parse_config(Path(config_file))
-        #     generate_rtl(padframe, Path(output))
-        #     print("Generated RTL")
-        # except Exception as e:
-        #     traceback.print_exc()
-        #     pass
+        config_file = '../../examples/kraken_padframe.yml'
+        output = '/home/meggiman/garbage/test_padrick_kraken'
+        try:
+            padframe = parse_config(Path(config_file))
+            generate_rtl(padframe, Path(output))
+            print("Generated RTL")
+        except Exception as e:
+            traceback.print_exc()
+            pass
         # time.sleep(5)
 
-    cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
-             '../../examples/sample_padframe.yaml'])
+    # cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
+    #          '../../examples/sample_padframe.yaml'])
 
     #cli(['config', '../../examples/kraken_padframe.yml'])

@@ -2,7 +2,7 @@ from typing import Optional, Mapping, List, Union, Set
 
 from natsort import natsorted
 
-from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
 from padrick.Model.PadType import PadType
@@ -18,7 +18,7 @@ class PadInstance(BaseModel):
     multiple: conint(ge=1) = 1
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
-    mux_groups: conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1) = {"all", "self"}
+    mux_groups: conset(constr(strip_whitespace=True, regex=LOWERCASE_IDENTIFIER), min_items=1) = {"all", "self"}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
 
     #pydantic model config
@@ -169,11 +169,26 @@ class PadInstance(BaseModel):
                     pad_signal_connection[pad_signal] = self.pad_type.get_pad_signal(pad_signal.name).default_static_value
         return pad_signal_connection
 
-    def get_mux_group_name(self, index=0) -> str:
-        # replate <> token with index in all mux_groups and sort them naturally
-        groups = map(lambda s: s.replace('<>', str(index)).upper())
-        return "_".join(natsorted(groups))
+    @property
+    def mux_group_name(self) -> str:
+        return "_".join(natsorted(self.mux_groups)).upper()
 
-    def expanded_mux_groups(self, mux_group: str, index=None) -> Set[str]:
-        if index:
-            return set(map(lambda s: s.replace('<>', str(index))))
+    def expand_padinstance(self) -> List['PadInstance']:
+        expanded_pads = []
+        for i in range(self.multiple):
+            i = "" if self.multiple == 1 else str(i)
+            replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
+            expanded_pad = self.copy()
+            expanded_pad.name = replace_token(expanded_pad.name)
+            expanded_pad.description = replace_token(expanded_pad.description)
+            expanded_pad.mux_groups = set(map(replace_token, expanded_pad.mux_groups))
+            expanded_pad.multiple = 1
+            expanded_connections = {}
+            if expanded_connections:
+                for key, value in expanded_pad.connections.items():
+                    if isinstance(value, SignalExpressionType):
+                        value = replace_token(value.expression)
+                    expanded_connections[key] = value
+                expanded_pad.connections = expanded_connections
+            expanded_pads.append(expanded_pad)
+        return expanded_pads
