@@ -6,7 +6,7 @@ from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra, conset
 
-from padrick.Model.Utilities import sort_signals, sort_ports
+from padrick.Model.Utilities import sort_signals, sort_ports, cached_property
 
 
 class PortGroup(BaseModel):
@@ -15,9 +15,11 @@ class PortGroup(BaseModel):
     mux_groups: Optional[conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1)]
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
+    _method_cache = {}
 
     class Config:
         extra = Extra.forbid
+        underscore_attrs_are_private = True
 
     @validator('output_defaults')
     def expand_default_value_for_connection_defaults(cls, output_defaults, values):
@@ -128,30 +130,19 @@ class PortGroup(BaseModel):
         return ports
 
 
-    @property
+    @cached_property
     def port_signals(self) -> List[Signal]:
         return sort_signals(set.union(*[set(port.port_signals) for port in self.ports]))
 
-    @property
+    @cached_property
     def port_signals_soc2pads(self) -> List[Signal]:
         return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
                                  SignalDirection.soc2pads]))
 
-    @property
+    @cached_property
     def port_signals_pads2soc(self) -> List[Signal]:
         return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
                                  SignalDirection.pads2soc]))
-
-    def get_port_signals_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set.union(*[set(port.port_signals) for port in self.ports if port.mux_group == mux_group]))
-
-    def get_port_signals_soc2pads_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.soc2pads]))
-
-    def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.pads2soc]))
 
     def get_ports_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
         ports_in_mux_group = [port for port in self.ports if mux_groups.intersection(port.mux_groups)]

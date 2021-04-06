@@ -36,6 +36,7 @@ class Padframe(BaseModel):
             PadSignal: lambda v: v.name,
             Signal: lambda  v: v.name
         }
+        underscore_attrs_are_private = True
 
 
 

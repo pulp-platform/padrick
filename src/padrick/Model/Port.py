@@ -24,6 +24,7 @@ class Port(BaseModel):
     class Config:
         extra = Extra.forbid
         validate_assignment = True
+        underscore_attrs_are_private = True
 
     @validator('connections')
     def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType], values):

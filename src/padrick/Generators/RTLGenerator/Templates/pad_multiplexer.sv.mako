@@ -46,6 +46,11 @@ module ${padframe.name}_${pad_domain.name}_muxer
 
 <%
 all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
+# Remap the port signal names to the hierarchical identifier for index the
+# signal from the struct
+signal_name_remap = {}
+for port_group in pad_domain.port_groups:
+    signal_name_remap[port_group.name] = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
 %>
    // SoC -> Pad Multiplex Logic
 % for pad in pad_domain.pad_list:
@@ -63,14 +68,10 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
          mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
        end
 % for port_group in pad_domain.port_groups:
-<%
-   # Remap the port signal names to the hierarchical identifier for index the signal from the struct
-   signal_name_remap = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
-%>\
 % for port in port_group.get_ports_in_mux_groups(pad.mux_groups):
        PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
-          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap).expression};
+          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name]).expression};
 % else:
           mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
 % endif

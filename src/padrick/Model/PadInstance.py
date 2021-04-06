@@ -9,7 +9,7 @@ from padrick.Model.PadType import PadType
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
 
-from padrick.Model.Utilities import sort_signals
+from padrick.Model.Utilities import sort_signals, cached_property
 
 
 class PadInstance(BaseModel):
@@ -20,11 +20,13 @@ class PadInstance(BaseModel):
     is_static: bool = False
     mux_groups: conset(constr(strip_whitespace=True, regex=LOWERCASE_IDENTIFIER), min_items=1) = {"all", "self"}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
+    _method_cache: Mapping = {}
 
     #pydantic model config
     class Config:
         extra = Extra.forbid
         validate_assignment = True
+        underscore_attrs_are_private = True
 
 
     @validator('pad_type')
@@ -121,7 +123,7 @@ class PadInstance(BaseModel):
 
 
 
-    @property
+    @cached_property
     def dynamic_pad_signals(self) -> List[PadSignal]:
         """
         Returns a list of all pad_signals that require a dedicated configuration register. That is, the list contains all
@@ -135,15 +137,15 @@ class PadInstance(BaseModel):
             return sort_signals([pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
                                  and pad_signal.conn_type == ConnectionType.dynamic])
 
-    @property
+    @cached_property
     def dynamic_pad_signals_soc2pad(self) -> List[PadSignal]:
         return [pad_signal for pad_signal in self.dynamic_pad_signals if pad_signal.kind == PadSignalKind.input]
 
-    @property
+    @cached_property
     def dynamic_pad_signals_pad2soc(self) -> List[PadSignal]:
         return [pad_signal for pad_signal in self.dynamic_pad_signals if pad_signal.kind == PadSignalKind.output]
 
-    @property
+    @cached_property
     def static_pad_signals(self):
         #If the instance itself is static, all pad_signals are static (override).
         if self.is_static:
@@ -152,11 +154,11 @@ class PadInstance(BaseModel):
             return [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.conn_type == ConnectionType.static]
 
 
-    @property
+    @cached_property
     def landing_pads(self):
         return [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind == PadSignalKind.pad]
 
-    @property
+    @cached_property
     def static_pad_signal_connections(self) -> Mapping[Signal, SignalExpressionType]:
         pad_signal_connection = {}
         for pad_signal in self.pad_type.pad_signals:
@@ -169,7 +171,7 @@ class PadInstance(BaseModel):
                     pad_signal_connection[pad_signal] = self.pad_type.get_pad_signal(pad_signal.name).default_static_value
         return pad_signal_connection
 
-    @property
+    @cached_property
     def mux_group_name(self) -> str:
         return "_".join(natsorted(self.mux_groups)).upper()
 
@@ -179,6 +181,7 @@ class PadInstance(BaseModel):
             i = "" if self.multiple == 1 else str(i)
             replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
             expanded_pad = self.copy()
+            expanded_pad._method_cache = {}
             expanded_pad.name = replace_token(expanded_pad.name)
             expanded_pad.description = replace_token(expanded_pad.description)
             expanded_pad.mux_groups = set(map(replace_token, expanded_pad.mux_groups))
