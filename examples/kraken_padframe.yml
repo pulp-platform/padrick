@@ -1,7 +1,7 @@
 name: kraken_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
-manifest_version: 1
+manifest_version: 2
 pad_domains:
   - name: aon # User defined name of the pad_domain
     pad_types: # This section contains a list of pads

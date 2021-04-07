@@ -97,8 +97,9 @@ if __name__ == '__main__':
         output = '/home/meggiman/garbage/test_padrick_kraken'
         try:
             padframe = parse_config(Path(config_file))
-            generate_rtl(padframe, Path(output))
-            print("Generated RTL")
+            if padframe:
+                generate_rtl(padframe, Path(output))
+                print("Generated RTL")
         except Exception as e:
             traceback.print_exc()
             pass
