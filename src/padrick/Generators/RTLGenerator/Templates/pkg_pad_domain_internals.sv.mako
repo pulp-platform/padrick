@@ -51,6 +51,7 @@ idx = 1
 def sort_by_name(seq):
     return natsorted(seq, lambda x: x.name)
 %>\
+
   parameter PAD_MUX_GROUP_${mux_group_name}_SEL_WIDTH = ${sel_bitwidth};
   parameter logic[${sel_bitwidth-1}:0] PAD_MUX_GROUP_${mux_group_name}_SEL_DEFAULT = ${sel_bitwidth}'d0;
 % for port_group in sort_by_name(pad_domain.port_groups):
