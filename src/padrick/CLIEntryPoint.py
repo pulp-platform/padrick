@@ -24,6 +24,7 @@ click_completion.init()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
+@click.version_option()
 def cli():
     """
     Generate padframes for SoC
