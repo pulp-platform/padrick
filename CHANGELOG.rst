@@ -13,9 +13,26 @@ Unreleased
 
 Added
 -----
+* Added support for multiple multiplex groups per pad/port. Each
+  pad/port/port_group can now be member of severa mux_groups. This causes the
+  union of all specified groups to be muxable to the pad,port or port_group in
+  question.
+* Add support for multi-ports. Ports now accept the new optional `multiple` key
+  that allows to specify several port with similar structure without copy-paste-hell
+* Add support for templated names, description and mux_groups to
+  multi-pads/multi-ports using the '<>' token. This feature simplifies the
+  definition of GPIO ports. Check the example config file for an example on how
+  to use the feature.
+* Add version flag to CLI to print version information
+* Add validation of manifest version. The CLI now prints out an error message if
+  the manifest version is not supported anymore with a help message which
+  version of Padrick supports the out-dated manifest version.
 
 Changed
 -------
+* Manifest version was increased to 2.
+* Renamed `mux_group` key to `mux_groups` which now accepts a list of string instead of a single string.
+* Updated  sample config files to be compatible with new manifest format.
 
 Fixed
 -----
