@@ -19,3 +19,7 @@ Changed
 
 Fixed
 -----
+
+0.1.0 - 2021-03-30
+==================
+Very first *alpha* release of Padrick with support for RTL Generation and Driver Generation.
