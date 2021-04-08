@@ -3,6 +3,7 @@ from typing import Optional, Mapping, Union, Set, List
 
 from natsort import natsorted
 
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
@@ -13,10 +14,10 @@ from padrick.Model.Utilities import sort_signals
 
 
 class Port(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
+    name: TemplatedIdentifierType
     description: Optional[str]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_groups: conset(constr(strip_whitespace=True, regex=LOWERCASE_IDENTIFIER), min_items=1) = \
+    mux_groups: conset(constr(strip_whitespace=True, to_lower=True), min_items=1) = \
         {"all", "self"}
     multiple: conint(ge=1) = 1
 
@@ -124,7 +125,7 @@ class Port(BaseModel):
             i = "" if self.multiple == 1 else str(i)
             expanded_port: Port = self.copy()
             replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
-            expanded_port.name = replace_token(expanded_port.name)
+            expanded_port.name = expanded_port.name.evaluate_template(i)
             expanded_port.description = replace_token(expanded_port.description)
             expanded_port.mux_groups = set(map(replace_token, expanded_port.mux_groups))
             expanded_port.multiple = 1
