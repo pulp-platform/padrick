@@ -130,7 +130,7 @@ pad_domains:
           rx_en: 1'b1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
           driving_strength: 0
-      - name: pad_gpioa<>
+      - name: pad_gpioa{i}
         mux_groups: [all, self] # Mux groups are arbitrary identifiers that
                                 # declares the possible connectivities between
                                 # ports and pads. All ports and pads within the
@@ -151,7 +151,7 @@ pad_domains:
         is_static: false #False is the default value, thus explicitly specifying
                          #static as false is optional. With this option, each
                          #pad_signal assumes the declared conn_type.
-      - name: pad_gpiob<>
+      - name: pad_gpiob{i}
         mux_groups: [gpio_setb] # Only ports (or entire portgroups) with this
                                 # mux_group can be routed to these pad
                                 # instances.
@@ -243,19 +243,19 @@ pad_domains:
                          # single port declaration that has the optional
                          # 'multiple' field set. This will cause the port
                          # declaration to expand to multiple individual ports
-                         # where every occurence of the string token '<>' in
+                         # where every occurence of the string token '{i}' in
                          # 'name', 'description', 'mux_group' and signal
                          # mappings in 'connections' is replaced with an
                          # increasing index (starting from 0)
-            name: GPIO<>
-            description: "The signal number <> of the GPIO peripheral"
-            mux_groups:  [pad_gpioa<>] # Assign each gpio port to the individual
+            name: GPIO{i}
+            description: "The signal number {i} of the GPIO peripheral"
+            mux_groups:  [pad_gpioa{i}] # Assign each gpio port to the individual
                                        # ports of pad_gpiob. We don't need to
                                        # mux the gpio port signals as they are
                                        # all identical in functionality anyways.
                                        # This creates a one-to-one mapping.
             connections:
-              chip2pad: gpio<>_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc. 
-              gpio<>_o: pad2chip
-              rx_en: dir<>_i
+              chip2pad: gpio{i}_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc. 
+              gpio{i}_o: pad2chip
+              rx_en: dir{i}_i
 

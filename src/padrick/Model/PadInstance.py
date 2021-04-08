@@ -9,16 +9,18 @@ from padrick.Model.PadType import PadType
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
 
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.Utilities import sort_signals, cached_property
 
 
 class PadInstance(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
+    name: TemplatedIdentifierType
+    description: Optional[TemplatedStringType]
     multiple: conint(ge=1) = 1
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
-    mux_groups: conset(constr(strip_whitespace=True, regex=LOWERCASE_IDENTIFIER), min_items=1) = {"all", "self"}
+    mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
     _method_cache: Mapping = {}
 
@@ -38,6 +40,13 @@ class PadInstance(BaseModel):
             raise ValueError(f"Unknown pad_type {v}. Did you mispell the pad_type or forgot to declare it?")
         else:
             return pad_type
+
+    @validator('mux_groups', each_item=True)
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
+        mux_group_str = str(mux_group)
+        if not mux_group_str.islower():
+            raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_group
 
     @validator('connections')
     def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):
@@ -179,18 +188,17 @@ class PadInstance(BaseModel):
         expanded_pads = []
         for i in range(self.multiple):
             i = "" if self.multiple == 1 else str(i)
-            replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
             expanded_pad = self.copy()
             expanded_pad._method_cache = {}
-            expanded_pad.name = replace_token(expanded_pad.name)
-            expanded_pad.description = replace_token(expanded_pad.description)
-            expanded_pad.mux_groups = set(map(replace_token, expanded_pad.mux_groups))
+            expanded_pad.name = expanded_pad.name.evaluate_template(i)
+            expanded_pad.description = expanded_pad.description.evaluate_template(i) if expanded_pad.description else None
+            expanded_pad.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_pad.mux_groups))
             expanded_pad.multiple = 1
             expanded_connections = {}
             if expanded_connections:
                 for key, value in expanded_pad.connections.items():
                     if isinstance(value, SignalExpressionType):
-                        value = replace_token(value.expression)
+                        value = str(value.evaluate_template(i))
                     expanded_connections[key] = value
                 expanded_pad.connections = expanded_connections
             expanded_pads.append(expanded_pad)

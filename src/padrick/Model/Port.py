@@ -10,15 +10,16 @@ from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Si
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
 
+from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.Utilities import sort_signals
 
 
 class Port(BaseModel):
     name: TemplatedIdentifierType
-    description: Optional[str]
+    description: Optional[TemplatedStringType]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_groups: conset(constr(strip_whitespace=True, to_lower=True), min_items=1) = \
-        {"all", "self"}
+    mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
+        {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     multiple: conint(ge=1) = 1
 
     #pydantic model config
@@ -85,6 +86,13 @@ class Port(BaseModel):
             linked_connections[signal] = expression
         return linked_connections
 
+    @validator('mux_groups', each_item=True)
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
+        mux_group_str = str(mux_group)
+        if not mux_group_str.islower():
+            raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_group
+
 
     @property
     def port_signals_chip2pad(self) -> List[Signal]:
@@ -124,25 +132,20 @@ class Port(BaseModel):
         for i in range(self.multiple):
             i = "" if self.multiple == 1 else str(i)
             expanded_port: Port = self.copy()
-            replace_token = lambda s: s.replace('<>', i) if isinstance(s, str) else s
             expanded_port.name = expanded_port.name.evaluate_template(i)
-            expanded_port.description = replace_token(expanded_port.description)
-            expanded_port.mux_groups = set(map(replace_token, expanded_port.mux_groups))
+            expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None
+            expanded_port.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port.mux_groups))
             expanded_port.multiple = 1
             expanded_connections = {}
             for key, value in expanded_port.connections.items():
                 if isinstance(key, SignalExpressionType):
-                    key = replace_token(key.expression)
+                    key = str(key.evaluate_template(i))
                 elif isinstance(key, Signal):
-                    key = replace_token(key.name)
-                elif isinstance(key, str):
-                    key = replace_token(str)
+                    key = str(key.name.evaluate_template(i))
                 if isinstance(value, SignalExpressionType):
-                    value = replace_token(value.expression)
+                    value = str(value.evaluate_template(i))
                 elif isinstance(value, Signal):
-                    value = replace_token(value.name)
-                elif isinstance(value, str):
-                    value = replace_token(str)
+                    value = str(value.name.evaluate_template(i))
                 expanded_connections[key] = value
             expanded_port.connections = expanded_connections
             expanded_ports.append(expanded_port)

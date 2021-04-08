@@ -5,6 +5,9 @@ from padrick.Model.SignalExpressionType import SignalExpressionType
 
 from pydantic import BaseModel, constr, conint, validator, PrivateAttr, root_validator, Extra
 
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+
+
 class PadSignalKind(str, Enum):
     input = "input"
     output = "output"
@@ -20,7 +23,7 @@ class ConnectionType(str, Enum):
     dynamic = "dynamic"
 
 class Signal(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
+    name: TemplatedIdentifierType
     size: conint(ge=1, le=32) = 1
     _direction: Optional[SignalDirection] = PrivateAttr(None)
 

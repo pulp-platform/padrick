@@ -400,21 +400,21 @@ pad_domains:
       #     # #     #  #   #  #       #     #    #       #     # #     # #     # 
       #     #  #####  #     # ####### ######     #       #     # ######   ##### 
           
-      - name: pad_gpioa<i>
+      - name: pad_gpioa{i}
         mux_groups: [mx_gpioa, self]
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
         multiple: 26 # 26 generic io pads
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: false
 
-      - name: pad_gpiob<i>
+      - name: pad_gpiob{i}
         mux_groups: [mx_gpiob, self] 
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
         multiple: 16 # 16 generic io pads
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: false 
 
-      - name: pad_gpioc<i>
+      - name: pad_gpioc{i}
         mux_groups: [mx_gpioc, self] 
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
         multiple: 4 # 4 generic io pads
@@ -447,10 +447,10 @@ pad_domains:
         mux_groups: mx_gpio_tpl
         ports:
           - multiple: 4
-            name: out<i>
-            description: "TIMER 0 out <i>"
+            name: out{i}
+            description: "TIMER 0 out {i}"
             connections:
-              chip2pad: out<i>_o
+              chip2pad: out{i}_o
 
       i2c_port_group: &i2c_port_group
         name: i2c_tpl
@@ -495,11 +495,11 @@ pad_domains:
               chip2pad: 1'b0
               vsync_i: pad2chip
           - multiple: 8
-            name: data<i>
+            name: data{i}
             description: "Input data line of the CPI slave peripheral" # An optional description of the signal
             connections:
               chip2pad: 1'b0
-              data<i>_i: pad2chip
+              data{i}_i: pad2chip
 
 
       qspi_port_group: &qspi_port_group
@@ -513,17 +513,17 @@ pad_domains:
               trie: 1'b0
               rxe: 1'b0
           - multiple: 4
-            name: spi_sdio<i>
+            name: spi_sdio{i}
             description: "IO data port of the SPI master peripheral" # An optional description of the signal
             connections:
-              chip2pad: sd<i>_o
-              sd<i>_i: pad2chip
-              trie: ~sd<i>_oe
-              rxe: ~sd<i>_oe
+              chip2pad: sd{i}_o
+              sd{i}_i: pad2chip
+              trie: ~sd{i}_oe
+              rxe: ~sd{i}_oe
           - multiple: 4
-            name: spi_csn<i>
+            name: spi_csn{i}
             connections:
-              chip2pad: csn<i>_o
+              chip2pad: csn{i}_o
               trie: 1'b0
               rxe: 1'b0
 
@@ -596,20 +596,20 @@ pad_domains:
         output_defaults: "'0"
         ports:
           - multiple: 8
-            name: xydata<i>
+            name: xydata{i}
             description: "TDB"
             connections:
-              xydata<i>_i: pad2chip
+              xydata{i}_i: pad2chip
           - multiple: 4
-            name: on<i>
+            name: on{i}
             description: "TDB"
             connections:
-              on<i>_i: pad2chip
+              on{i}_i: pad2chip
           - multiple: 4
-            name: off<i>
+            name: off{i}
             description: "TDB"
             connections:
-              off<i>_i: pad2chip
+              off{i}_i: pad2chip
           - name: asa
             description: "TBD"
             connections:
@@ -643,49 +643,49 @@ pad_domains:
             connections:
               chip2pad: xnrst_o
           - multiple: 8
-            name: cfg<i>
+            name: cfg{i}
             description: "TBD"
             connections:
-              chip2pad: cfg<i>_o
+              chip2pad: cfg{i}_o
       
       # gpio A ports
       - name: gpio_a
         output_defaults: "'0"
         ports:
-          - name: gpio<i>
+          - name: gpio{i}
             multiple: 26
-            description: "Bidirectional GPIO <i> signal"
-            mux_groups: [pad_gpioa<i>]
+            description: "Bidirectional GPIO {i} signal"
+            mux_groups: ["pad_gpioa{i}"]
             connections:
-              chip2pad: gpio<i>_o
-              gpio<i>_i: pad2chip
-              trie: gpio<i>_dir
-              rxe: gpio<i>_dir
+              chip2pad: gpio{i}_o
+              gpio{i}_i: pad2chip
+              trie: gpio{i}_dir
+              rxe: gpio{i}_dir
 
       # gpio A ports
       - name: gpio_b
         output_defaults: 1'b0
         ports:
           - multiple: 16 
-            name: gpio<i>
-            mux_groups: [pad_gpiob<i>]
-            description: "Bidirectional GPIO <i> signal"
+            name: gpio{i}
+            mux_groups: ["pad_gpiob{i}"]
+            description: "Bidirectional GPIO {i} signal"
             connections:
-              chip2pad: gpio<i>_o
-              gpio<i>_i: pad2chip
-              trie: gpio<i>_dir
-              rxe: gpio<i>_dir
+              chip2pad: gpio{i}_o
+              gpio{i}_i: pad2chip
+              trie: gpio{i}_dir
+              rxe: gpio{i}_dir
 
       # gpio A ports
       - name: gpio_c
-        mux_groups: [pad_gpioc<i>]
+        mux_groups: ["pad_gpioc{i}"]
         output_defaults: 1'b0
         ports:
           - multiple: 4
-            name: gpio<i>
-            description: "Bidirectional GPIO <i> signal"
+            name: gpio{i}
+            description: "Bidirectional GPIO {i} signal"
             connections:
-              chip2pad: gpio<i>_o
-              gpio<i>_i: pad2chip
-              trie: gpio<i>_dir
-              rxe: gpio<i>_dir
+              chip2pad: gpio{i}_o
+              gpio{i}_i: pad2chip
+              trie: gpio{i}_dir
+              rxe: gpio{i}_dir

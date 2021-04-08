@@ -1,7 +1,7 @@
 from lark import Transformer, v_args
 
 templated_index_grammar = r"""
-idx_template: "<" idx_expression ">"
+idx_template: "{" idx_expression "}"
 ?idx_expression: term (TERM_OP idx_expression)?
 ?term: factor (FACTOR_OP term)?
 ?factor: constant | INDEX_VAR | "(" idx_expression ")"
@@ -19,7 +19,7 @@ class TemplatedIdxToStringTransformer(Transformer):
         return str(token)
 
     def idx_template(self, children):
-        return "<" + "".join(children) + ">"
+        return "{" + "".join(children) + "}"
 
 @v_args(inline=True)
 class TemplatedIdxEvaluator(Transformer):

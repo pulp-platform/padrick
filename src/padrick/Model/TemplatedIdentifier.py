@@ -1,10 +1,13 @@
+from copy import deepcopy
+from functools import lru_cache
+
+from lark import Token, Transformer
 from lark.exceptions import UnexpectedInput
 from lark.lark import Lark
 from lark.tree import Tree
-from lark.visitors import Transformer, v_args
 
-from padrick.Model.TemplatedIndexGrammar import TemplatedIdxToStringTransformer, TemplatedIdxEvaluator
-from padrick.Model.TemplatedIndexGrammar import templated_index_grammar
+from padrick.Model.TemplatedIndexGrammar import TemplatedIdxToStringTransformer, TemplatedIdxEvaluator, \
+    templated_index_grammar
 
 expression_language = r"""
 ?start: identifier
@@ -74,22 +77,41 @@ SQL_COMMENT: /--[^\n]*/
 %ignore WS
 """
 
-templated_identifier_parser = Lark(expression_language)
+templated_identifier_parser = Lark(expression_language + templated_index_grammar, parser="lalr")
+
+class TokenMerger(Transformer):
+    def identifier(self, children):
+        merged_children = []
+        tokens_to_merge = []
+        for child in children:
+            if isinstance(child, str):
+                tokens_to_merge.append(child)
+            else:
+                if tokens_to_merge:
+                    merged_children.append("".join(tokens_to_merge))
+                    tokens_to_merge = []
+                merged_children.append(child)
+        if tokens_to_merge:
+            merged_children.append("".join(tokens_to_merge))
+        if len(merged_children)
+
+@lru_cache()
+def parse_expression(expression: str):
+    return templated_identifier_parser.parse(str(expression))
 
 
 class TemplatedIdentifierType(str):
-    _expression: str
-    ast: Tree
-
     def __init__(self, expression: str):
         super().__init__()
         if expression == None:
             expression = ""
-        self._ast = templated_identifier_parser.parse(str(expression))
-
+        self._ast = parse_expression(expression)
 
     def __str__(self):
-        return TemplatedIdxToStringTransformer().transform(self._ast)
+        if isinstance(self._ast, str):
+            return self._ast
+        else:
+            return TemplatedIdxToStringTransformer().transform(self._ast)
 
     @property
     def identifier(self) -> str:
@@ -100,7 +122,10 @@ class TemplatedIdentifierType(str):
         return self._ast
 
     def evaluate_template(self, i):
-        return (TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast)
+        copy = deepcopy(self)
+        if not isinstance(self._ast, Token):
+            copy._ast = (TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast)
+        return copy
 
     @classmethod
     def __get_validators__(cls):
@@ -117,6 +142,7 @@ class TemplatedIdentifierType(str):
     def __repr__(self):
         return self.__str__()
 
+
 if __name__ == "__main__":
-    expr = TemplatedIdentifierType.validate("test_<>")
+    expr = TemplatedIdentifierType.validate("test_<i+2>")
     print(expr.evaluate_template(42))
