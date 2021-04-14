@@ -1,31 +1,38 @@
 from functools import reduce
 from typing import Optional, Mapping, Union, Set, List
 
-from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
+from natsort import natsorted
+
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint
+from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
 
+from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.Utilities import sort_signals
 
 
 class Port(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
+    name: TemplatedIdentifierType
+    description: Optional[TemplatedStringType]
     connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_group: constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER) = "all"
+    mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
+        {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     multiple: conint(ge=1) = 1
 
     #pydantic model config
     class Config:
         extra = Extra.forbid
         validate_assignment = True
+        underscore_attrs_are_private = True
 
     @validator('connections')
-    def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):
+    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType], values):
         linked_connections = {}
-        for signal_name, expression in v.items():
+        for signal, expression in v.items():
+            signal_name = signal.name if isinstance(signal, Signal) else signal
             pad_signal_instances = PARSE_CONTEXT.find_pad_signal_instances(signal_name)
             if len(pad_signal_instances) == 0:
                 # Check if it is a pad2chip signal in this case, the right hand side must contain only pad-signal
@@ -79,6 +86,14 @@ class Port(BaseModel):
             linked_connections[signal] = expression
         return linked_connections
 
+    @validator('mux_groups', each_item=True)
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
+        mux_group_str = str(mux_group)
+        if not mux_group_str.islower():
+            raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_group
+
+
     @property
     def port_signals_chip2pad(self) -> List[Signal]:
         port_signals = set()
@@ -108,3 +123,30 @@ class Port(BaseModel):
         """
         return sort_signals(self.port_signals_pad2chip + self.port_signals_chip2pad)
 
+    @property
+    def mux_group_name(self) -> str:
+        return "_".join(natsorted(self.mux_groups)).upper()
+
+    def expand_port(self) -> List['Port']:
+        expanded_ports = []
+        for i in range(self.multiple):
+            i = "" if self.multiple == 1 else str(i)
+            expanded_port: Port = self.copy()
+            expanded_port.name = expanded_port.name.evaluate_template(i)
+            expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None
+            expanded_port.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port.mux_groups))
+            expanded_port.multiple = 1
+            expanded_connections = {}
+            for key, value in expanded_port.connections.items():
+                if isinstance(key, SignalExpressionType):
+                    key = str(key.evaluate_template(i))
+                elif isinstance(key, Signal):
+                    key = str(key.name.evaluate_template(i))
+                if isinstance(value, SignalExpressionType):
+                    value = str(value.evaluate_template(i))
+                elif isinstance(value, Signal):
+                    value = str(value.name.evaluate_template(i))
+                expanded_connections[key] = value
+            expanded_port.connections = expanded_connections
+            expanded_ports.append(expanded_port)
+        return expanded_ports

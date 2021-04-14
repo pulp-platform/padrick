@@ -17,6 +17,7 @@ class PadType(BaseModel):
     #pydantic model config
     class Config:
         extra = Extra.forbid
+        underscore_attrs_are_private = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

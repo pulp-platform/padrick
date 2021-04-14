@@ -24,6 +24,7 @@ click_completion.init()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
+@click.version_option()
 def cli():
     """
     Generate padframes for SoC
@@ -82,32 +83,30 @@ def config(file):
                     return o
             def encode(self, o):
                 return super().encode(self.__sanitize_keys_and_values(o))
-
         click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
 
 # Register first level subcommand
-#cli.add_command(Rosetta.rosetta)
-#cli.add_command(Vega.vega)
 cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 
 # For debugging purposes only
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
     # while True:
-    #     config_file = '../../examples/kraken_padframe.yml'
-    #     output = '/home/meggiman/garbage/test_padrick'
-        # try:
-        #     padframe = parse_config(Path(config_file))
-        #     generate_rtl(padframe, Path(output))
-        #     print("Generated RTL")
-        # except Exception as e:
-        #     traceback.print_exc()
-        #     pass
+        config_file = '../../examples/kraken_padframe.yml'
+        output = '/home/meggiman/garbage/test_padrick_kraken'
+        try:
+            padframe = parse_config(Path(config_file))
+            if padframe:
+                generate_rtl(padframe, Path(output))
+                print("Generated RTL")
+        except Exception as e:
+            traceback.print_exc()
+            pass
         # time.sleep(5)
 
-    cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
-             '../../examples/sample_padframe.yaml'])
+    # cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
+    #          '../../examples/sample_padframe.yaml'])
 
     #cli(['config', '../../examples/kraken_padframe.yml'])

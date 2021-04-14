@@ -21,10 +21,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
   typedef struct {
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
-% for i in range(pad.multiple):
-        <% pad_suffix = i if pad.multiple > 1 else "" %> \
-    mux_to_pad_${pad.name}_t ${pad.name}${pad_suffix};
-% endfor
+    mux_to_pad_${pad.name}_t ${pad.name};
 % endif
 % endfor
   } mux_to_pads_t;
@@ -34,10 +31,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
   typedef struct {
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_pad2soc:
-% for i in range(pad.multiple):
-<% pad_suffix = i if pad.multiple > 1 else "" %> \
-    pad_to_mux_${pad.name}_t ${pad.name}${pad_suffix};
-% endfor
+    pad_to_mux_${pad.name}_t ${pad.name};
 % endif
 % endfor
   } pads_to_mux_t;
@@ -46,19 +40,24 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
 
 
   // Indices definitions
-% for mux_group in pad_domain.pad_mux_groups:
+% for mux_groups in pad_domain.pad_mux_group_sets:
 <%
 import math
-all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports if port.mux_group == mux_group]
-sel_bitwidth = max(1,math.ceil(math.log2(len(all_ports)+1))) # +1 since the sel == 0 in this case means "use config register value" which is the default
+from natsort import natsorted
+mux_group_name = "_".join(natsorted(mux_groups)).upper()
+all_ports_in_mux_group = pad_domain.get_ports_in_mux_groups(mux_groups)
+sel_bitwidth = max(1,math.ceil(math.log2(len(all_ports_in_mux_group)+1))) # +1 since the sel == 0 in this case means "use config register value" which is the default
 idx = 1
+def sort_by_name(seq):
+    return natsorted(seq, lambda x: x.name)
 %>\
-  parameter PAD_MUX_GROUP_${mux_group.upper()}_SEL_WIDTH = ${sel_bitwidth};
-  parameter logic[${sel_bitwidth-1}:0] PAD_MUX_GROUP_${mux_group.upper()}_SEL_DEFAULT = ${sel_bitwidth}'d0;
-% for port_group in pad_domain.port_groups:
-% for port in port_group.ports:
-% if port.mux_group == mux_group:
-  parameter logic[${sel_bitwidth-1}:0] PAD_MUX_GROUP_${mux_group.upper()}_SEL_${port_group.name.upper()}_${port.name.upper()} = ${sel_bitwidth}'d${idx};
+
+  parameter PAD_MUX_GROUP_${mux_group_name}_SEL_WIDTH = ${sel_bitwidth};
+  parameter logic[${sel_bitwidth-1}:0] PAD_MUX_GROUP_${mux_group_name}_SEL_DEFAULT = ${sel_bitwidth}'d0;
+% for port_group in sort_by_name(pad_domain.port_groups):
+% for port in sort_by_name(port_group.ports):
+% if port.mux_groups.intersection(mux_groups):
+  parameter logic[${sel_bitwidth-1}:0] PAD_MUX_GROUP_${mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()} = ${sel_bitwidth}'d${idx};
 <% idx += 1 %>\
 % endif
 % endfor
@@ -66,21 +65,17 @@ idx = 1
 % endfor
 
   // Dynamic Pad  instance index
-% for mux_group in pad_domain.port_mux_groups:
+% for mux_groups in pad_domain.port_mux_group_sets:
 <%
-  dynamic_pads = [pad for pad in pad_domain.pad_list if pad.dynamic_pad_signals_pad2soc and pad.mux_group == mux_group]
-  sel_bitwidth = max(1, math.ceil(math.log2(sum([pad.multiple for pad in dynamic_pads])))) # no +1 here since the default is activate if the empty_o signal of the leading zero counter is asserted.
+  mux_group_name = "_".join(natsorted(mux_groups)).upper()
+  dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(mux_groups)
+  sel_bitwidth = max(1, math.ceil(math.log2(len(dynamic_pads)))) # no +1 here since the default is activate if the empty_o signal of the leading zero counter is asserted.
   idx = 0
 %>
-  parameter PORT_MUX_GROUP_${mux_group.upper()}_SEL_WIDTH = ${sel_bitwidth};
+  parameter PORT_MUX_GROUP_${mux_group_name}_SEL_WIDTH = ${sel_bitwidth};
 % for pad in dynamic_pads:
-% if pad.mux_group == mux_group:
-% for i in range(pad.multiple):
-<% pad_suffix = i if pad.multiple > 1 else "" %>\
-  parameter logic[${sel_bitwidth-1}:0] PORT_MUX_GROUP_${mux_group.upper()}_SEL_${pad.name.upper()}${pad_suffix} = ${sel_bitwidth}'d${idx};
+  parameter logic[${sel_bitwidth-1}:0] PORT_MUX_GROUP_${mux_group_name}_SEL_${pad.name.upper()} = ${sel_bitwidth}'d${idx};
 <% idx += 1 %>\
-% endfor
-% endif
 % endfor
 % endfor
 endpackage : pkg_internal_${padframe.name}_${pad_domain.name}

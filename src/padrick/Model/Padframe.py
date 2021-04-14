@@ -1,9 +1,11 @@
 import json
+import logging
 from itertools import count
 
 from mako.template import Template
 
-from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER
+import padrick
+from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
 from padrick.Model.PadDomain import PadDomain
 from pydantic import BaseModel, constr, conint, conlist, validator
 from typing import List, Optional
@@ -11,6 +13,7 @@ from typing import List, Optional
 from padrick.Model.PadSignal import PadSignal, Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
+logger = logging.getLogger("padrick.Configparser")
 
 class Padframe(BaseModel):
     """
@@ -36,6 +39,13 @@ class Padframe(BaseModel):
             PadSignal: lambda v: v.name,
             Signal: lambda  v: v.name
         }
+        underscore_attrs_are_private = True
 
 
-
+    @validator('manifest_version')
+    def check_manifest_version(cls, version):
+        """ Verifies that the configuration file has the right version number for the current version of padrick."""
+        if version != MANIFEST_VERSION:
+            raise ValueError(f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
+                             f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
+        return version
