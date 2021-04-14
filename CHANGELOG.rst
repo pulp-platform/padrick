@@ -20,13 +20,16 @@ Added
 * Add support for multi-ports. Ports now accept the new optional `multiple` key
   that allows to specify several port with similar structure without copy-paste-hell
 * Add support for templated names, description and mux_groups to
-  multi-pads/multi-ports using the '<>' token. This feature simplifies the
+  multi-pads/multi-ports using the '{i}' token. This feature simplifies the
   definition of GPIO ports. Check the example config file for an example on how
   to use the feature.
 * Add version flag to CLI to print version information
 * Add validation of manifest version. The CLI now prints out an error message if
   the manifest version is not supported anymore with a help message which
   version of Padrick supports the out-dated manifest version.
+* Add mini expression language for template tokens.
+* Render assignment macros in systemverilog package to simplify hierarchical assignements of port groups.
+* Add optional format code feature to index templates.
 
 Changed
 -------
