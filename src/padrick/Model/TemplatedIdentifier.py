@@ -79,21 +79,21 @@ SQL_COMMENT: /--[^\n]*/
 
 templated_identifier_parser = Lark(expression_language + templated_index_grammar, parser="lalr")
 
-class TokenMerger(Transformer):
-    def identifier(self, children):
-        merged_children = []
-        tokens_to_merge = []
-        for child in children:
-            if isinstance(child, str):
-                tokens_to_merge.append(child)
-            else:
-                if tokens_to_merge:
-                    merged_children.append("".join(tokens_to_merge))
-                    tokens_to_merge = []
-                merged_children.append(child)
-        if tokens_to_merge:
-            merged_children.append("".join(tokens_to_merge))
-        if len(merged_children)
+# class TokenMerger(Transformer):
+#     def identifier(self, children):
+#         merged_children = []
+#         tokens_to_merge = []
+#         for child in children:
+#             if isinstance(child, str):
+#                 tokens_to_merge.append(child)
+#             else:
+#                 if tokens_to_merge:
+#                     merged_children.append("".join(tokens_to_merge))
+#                     tokens_to_merge = []
+#                 merged_children.append(child)
+#         if tokens_to_merge:
+#             merged_children.append("".join(tokens_to_merge))
+#         if len(merged_children)
 
 @lru_cache()
 def parse_expression(expression: str):
