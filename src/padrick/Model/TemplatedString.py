@@ -24,19 +24,6 @@ class TemplatedStringType(str):
             expression = ""
         self._ast = templated_string_parser.parse(str(expression))
 
-
-    def __str__(self):
-        if isinstance(self._ast, str):
-            return self._ast
-        else:
-            return TemplatedIdxToStringTransformer().transform(self._ast)
-
-    def __eq__(self, other):
-        return self.__str__() == other
-
-    def __hash__(self):
-        return self.__str__().__hash__()
-
     @property
     def identifier(self) -> str:
         return str(self)
@@ -46,10 +33,10 @@ class TemplatedStringType(str):
         return self._ast
 
     def evaluate_template(self, i):
-        copy = deepcopy(self)
         if not isinstance(self._ast, Token):
-            copy._ast = (TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast)
-        return copy
+            return TemplatedStringType((TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast))
+        else:
+            return self
 
     @classmethod
     def __get_validators__(cls):

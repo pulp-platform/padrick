@@ -99,25 +99,14 @@ templated_identifier_parser = Lark(expression_language + templated_index_grammar
 def parse_expression(expression: str):
     return templated_identifier_parser.parse(str(expression))
 
-
 class TemplatedIdentifierType(str):
     def __init__(self, expression: str):
         super().__init__()
         if expression == None:
-            expression = ""
-        self._ast = parse_expression(expression)
-
-    def __str__(self):
-        if isinstance(self._ast, str):
-            return self._ast
+            self._ast = ""
         else:
-            return TemplatedIdxToStringTransformer().transform(self._ast)
+            self._ast = None
 
-    def __eq__(self, other):
-        return self.__str__() == other
-
-    def __hash__(self):
-        return self.__str__().__hash__()
 
     @property
     def identifier(self) -> str:
@@ -125,13 +114,15 @@ class TemplatedIdentifierType(str):
 
     @property
     def ast(self):
+        if self._ast is None:
+            self._ast = parse_expression(str(self))
         return self._ast
 
     def evaluate_template(self, i):
-        copy = deepcopy(self)
-        if not isinstance(self._ast, Token):
-            copy._ast = (TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast)
-        return copy
+        if not isinstance(self.ast, Token):
+            return (TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast)
+        else:
+            return self
 
     @classmethod
     def __get_validators__(cls):

@@ -10,7 +10,7 @@ idx_template: "{" idx_expression format_spec? "}"
 format_spec: ":" length? format_class
 length: constant 
 constant: /[0-9]+/
-!format_class: "d"|"c"|"C"
+!format_class: "d"|"o"|"b"|"x"|"c"|"C"
 INDEX_VAR: "i"
 FACTOR_OP: "*" | "/" | "%"
 TERM_OP: "+" | "-"
@@ -25,6 +25,7 @@ class TemplatedIdxToStringTransformer(Transformer):
 
     def idx_template(self, children):
         return "{" + ":".join(children) + "}"
+
 
 @v_args(inline=True)
 class TemplatedIdxEvaluator(Transformer):
@@ -42,7 +43,7 @@ class TemplatedIdxEvaluator(Transformer):
         if (operator == "*"):
             return left * right
         elif(operator == "/"):
-            return left / right
+            return left // right
         elif(operator == "%"):
             return  left % right
         else:

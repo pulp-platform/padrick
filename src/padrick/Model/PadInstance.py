@@ -194,7 +194,7 @@ class PadInstance(BaseModel):
             expanded_pad.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_pad.mux_groups))
             expanded_pad.multiple = 1
             expanded_connections = {}
-            if expanded_connections:
+            if expanded_pad.connections:
                 for key, value in expanded_pad.connections.items():
                     if isinstance(value, SignalExpressionType):
                         value = str(value.evaluate_template(i))

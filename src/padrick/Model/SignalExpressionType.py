@@ -152,6 +152,7 @@ class SignalNameRemapTransformer(Transformer):
         return self._map.get(name, name)
 
 
+
 class SignalExpressionType(str):
     _expression: str
     ast: Tree
@@ -159,23 +160,20 @@ class SignalExpressionType(str):
     def __init__(self, expression: str):
         super().__init__()
         if expression == None:
-            expression = ""
-        self._ast = simple_expression_parser.parse(str(expression))
-
-
-    def __str__(self):
-        return TemplatedIdxToStringTransformer().transform(self._ast)
+            self._ast = ""
+        elif isinstance(expression, str):
+            self._ast = None
+        else:
+            raise ValueError("Expression must be a string or None")
 
     def get_mapped_expr(self, signal_name_mapping: Mapping[str, str]) -> 'SignalExpressionType':
-        clone = deepcopy(self)
-        clone._ast = SignalNameRemapTransformer(signal_name_mapping).transform(clone._ast)
-        return clone
+        return SignalExpressionType((SignalNameRemapTransformer(signal_name_mapping)*TemplatedIdxToStringTransformer()).transform(self.ast))
 
     def evaluate_template(self, i):
-        clone = deepcopy(self)
-        if not isinstance(self._ast, str):
-            clone._ast = TemplatedIdxEvaluator(i).transform(clone._ast)
-        return clone
+        if not isinstance(self.ast, str):
+            return SignalExpressionType((TemplatedIdxEvaluator(i)*TemplatedIdxToStringTransformer()).transform(self.ast))
+        else:
+            return self
 
     @property
     def expression(self) -> str:
@@ -183,6 +181,8 @@ class SignalExpressionType(str):
 
     @property
     def ast(self):
+        if self._ast is None:
+            self._ast = simple_expression_parser.parse(str(self))
         return self._ast
 
     @property
