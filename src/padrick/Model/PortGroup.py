@@ -149,7 +149,6 @@ class PortGroup(BaseModel):
     def expand_port_group(self) -> List['PortGroup']:
         expanded_port_groups = []
         for i in range(self.multiple):
-            i = "" if self.multiple == 1 else str(i)
             expanded_port_group: PortGroup = self.copy()
             expanded_port_group.name = expanded_port_group.name.evaluate_template(i)
             expanded_port_group.description = expanded_port_group.description.evaluate_template(i) if expanded_port_group.description else None

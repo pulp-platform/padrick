@@ -113,6 +113,12 @@ class TemplatedIdentifierType(str):
         else:
             return TemplatedIdxToStringTransformer().transform(self._ast)
 
+    def __eq__(self, other):
+        return self.__str__() == other
+
+    def __hash__(self):
+        return self.__str__().__hash__()
+
     @property
     def identifier(self) -> str:
         return str(self)

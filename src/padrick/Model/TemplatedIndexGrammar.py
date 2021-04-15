@@ -24,7 +24,7 @@ class TemplatedIdxToStringTransformer(Transformer):
         return str(token)
 
     def idx_template(self, children):
-        return "{" + "".join(children) + "}"
+        return "{" + ":".join(children) + "}"
 
 @v_args(inline=True)
 class TemplatedIdxEvaluator(Transformer):
@@ -59,13 +59,16 @@ class TemplatedIdxEvaluator(Transformer):
     def number_to_base26(cls, value:int) -> List[int]:
         if value<0:
             raise ValueError("Value must not be negative.")
-        result = []
-        while value:
-            value, digit = divmod(value, 26)
-            result.insert(0, digit)
-        return result
+        elif value == 0:
+            return [0]
+        else:
+            result = []
+            while value:
+                value, digit = divmod(value, 26)
+                result.insert(0, digit)
+            return result
 
-    def idx_template(self, idx_expression, format_spec: Tree):
+    def idx_template(self, idx_expression, format_spec: Tree=None):
         if format_spec:
             length = next(format_spec.find_data('length'), None)
             if length is None:

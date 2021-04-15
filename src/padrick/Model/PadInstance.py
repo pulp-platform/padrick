@@ -187,7 +187,6 @@ class PadInstance(BaseModel):
     def expand_padinstance(self) -> List['PadInstance']:
         expanded_pads = []
         for i in range(self.multiple):
-            i = "" if self.multiple == 1 else str(i)
             expanded_pad = self.copy()
             expanded_pad._method_cache = {}
             expanded_pad.name = expanded_pad.name.evaluate_template(i)
