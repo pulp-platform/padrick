@@ -74,7 +74,7 @@ for port_group in pad_domain.port_groups:
 % for port in port_group.get_ports_in_mux_groups(pad.mux_groups):
        PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
-          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name]).expression};
+          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name])};
 % else:
           mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
 % endif
@@ -130,7 +130,7 @@ dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
 %>\
           PORT_MUX_GROUP_${port.mux_group_name}_SEL_${pad.name.upper()}: begin
 % if port_signal in port.connections:
-            port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping).expression};
+            port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping)};
 % else:
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
 % endif

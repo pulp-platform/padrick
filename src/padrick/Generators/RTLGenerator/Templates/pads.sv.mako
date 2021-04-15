@@ -50,7 +50,7 @@ module ${padframe.name}_${pad_domain.name}_pads
   override_signal_name_mapping = {signal.name: f'override_signals_i.{signal.name}' for signal in pad.override_signals}
   for ps in pad.static_pad_signals:
     if ps in pad.static_pad_signal_connections:
-      connections[ps] = pad.static_pad_signal_connections[ps].get_mapped_expr(static_signal_name_mapping).expression
+      connections[ps] = pad.static_pad_signal_connections[ps].get_mapped_expr(static_signal_name_mapping)
     else:
       connections[ps] = " "
   for ps in pad.dynamic_pad_signals_soc2pad:
@@ -61,9 +61,9 @@ module ${padframe.name}_${pad_domain.name}_pads
     connections[ps] = f"pad_{pad.name}{pad_suffix}_{ps.name}"
   for ps, expr in connections.items():
     if not ps.or_override_signal.is_empty:
-      connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
+      connections[ps] = f'({expr})|({ps.or_override_signal.get_mapped_expr(override_signal_name_mapping)})'
     if not ps.and_override_signal.is_empty:
-      connections[ps] = f'({expr})&({ps.and_override_signal.get_mapped_expr(override_signal_name_mapping).expression})'
+      connections[ps] = f'({expr})&({ps.and_override_signal.get_mapped_expr(override_signal_name_mapping)})'
   pad_signal_connection = {signal.name: expr for signal, expr in connections.items()}
   # print(pad_signal_connection)
 %> \

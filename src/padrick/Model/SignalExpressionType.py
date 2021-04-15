@@ -170,7 +170,7 @@ class SignalExpressionType(str):
             raise ValueError("Expression must be a string or None")
 
     def get_mapped_expr(self, signal_name_mapping: Mapping[str, str]) -> 'SignalExpressionType':
-        return SignalExpressionType((SignalNameRemapTransformer(signal_name_mapping)*TemplatedIdxToStringTransformer()).transform(self.ast))
+        return (SignalNameRemapTransformer(signal_name_mapping)*TemplatedIdxToStringTransformer()).transform(self.ast)
 
     def evaluate_template(self, i):
         if not isinstance(self.ast, str):
