@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+// ${line}
+% endfor
 package pkg_${padframe.name};
 
 % for pad_domain in padframe.pad_domains:

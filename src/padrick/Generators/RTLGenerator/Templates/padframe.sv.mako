@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+// ${line}
+% endfor
 module ${padframe.name}
   import pkg_${padframe.name}::*;
 #(

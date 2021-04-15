@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+# ${line}
+% endfor
 ${padframe.name}:
   files:
     - src/pkg_${padframe.name}.sv

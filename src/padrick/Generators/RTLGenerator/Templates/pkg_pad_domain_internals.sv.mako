@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+// ${line}
+% endfor
 package pkg_internal_${padframe.name}_${pad_domain.name};
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:

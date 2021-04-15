@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+# ${line}
+% endfor
 package:
   name: ${padframe.name}
   authors:

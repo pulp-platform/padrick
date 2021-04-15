@@ -5,6 +5,9 @@
 
 %>
 {
+% for line in header_text.splitlines():
+    # ${line}
+% endfor
     name: "${padframe.name}_${pad_domain.name}_config"
     clock_primary: "clk_i"
     reset_primary: "rst_ni"
