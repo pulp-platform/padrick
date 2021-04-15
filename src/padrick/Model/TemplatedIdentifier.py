@@ -95,7 +95,7 @@ templated_identifier_parser = Lark(expression_language + templated_index_grammar
 #             merged_children.append("".join(tokens_to_merge))
 #         if len(merged_children)
 
-@lru_cache()
+#@lru_cache()
 def parse_expression(expression: str):
     return templated_identifier_parser.parse(str(expression))
 
@@ -144,5 +144,5 @@ class TemplatedIdentifierType(str):
 
 
 if __name__ == "__main__":
-    expr = TemplatedIdentifierType.validate("test_<i+2>")
-    print(expr.evaluate_template(42))
+    expr = TemplatedIdentifierType.validate("test_{i+2:3d}")
+    print(expr.evaluate_template(32))
