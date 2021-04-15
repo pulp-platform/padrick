@@ -130,7 +130,6 @@ class Port(BaseModel):
     def expand_port(self) -> List['Port']:
         expanded_ports = []
         for i in range(self.multiple):
-            i = "" if self.multiple == 1 else str(i)
             expanded_port: Port = self.copy()
             expanded_port.name = expanded_port.name.evaluate_template(i)
             expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None

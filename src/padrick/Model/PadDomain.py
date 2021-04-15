@@ -35,6 +35,13 @@ class PadDomain(BaseModel):
         super().__init__(*args, **kwargs)
 
     @validator('port_groups')
+    def expand_multi_port_groups(cls, port_groups: List[PortGroup]):
+        expanded_port_groups = []
+        for port_group in port_groups:
+            expanded_port_groups.extend(port_group.expand_port_group())
+        return expanded_port_groups
+
+    @validator('port_groups')
     def check_port_group_names_are_unique(cls, port_groups: List[PortGroup]):
         port_groups_seen = set()
         for port_group in port_groups:
@@ -65,13 +72,31 @@ class PadDomain(BaseModel):
         return expanded_pads
 
     @validator("pad_list")
-    def normalize_mux_groups (cls, pads: List[PadInstance]):
+    def normalize_pad_mux_groups (cls, pads: List[PadInstance]):
         expanded_pads = []
         for pad in pads:
             if "self" in pad.mux_groups:
                 pad.mux_groups.discard("self")
                 pad.mux_groups.add(pad.name.lower().strip())
         return pads
+
+    @validator('port_groups')
+    def override_port_mux_group(cls, port_groups: List[PortGroup], values):
+        for port_group in port_groups:
+            for port in port_group.ports:
+                if not port_group.mux_groups is None:
+                    port.mux_groups = port_group.mux_groups
+        return port_groups
+
+    @validator('port_groups')
+    def normalize_port_mux_groups(cls, port_groups: List[PortGroup], values):
+        for port_group in port_groups:
+            for port in port_group.ports:
+                if "self" in port.mux_groups:
+                    port.mux_groups.discard("self")
+                    port.mux_groups.add(f"{values['name']}_{port.name}")
+        return port_groups
+
 
     @validator('pad_list')
     def check_static_connection_signals_are_not_bidirectional(cls, v):
@@ -126,8 +151,8 @@ class PadDomain(BaseModel):
             for port in port_group.ports:
                 if not port.mux_groups.intersection(pad_mux_groups):
                     logger.warning(
-                        f"Found port {port.name} with mux_groups {str(port.mux_groups)} but no pad specifies any of "
-                        f"these mux groups.")
+                        f"Found port {port.name} in port group {port_group.name} with mux_groups"
+                        f" {str(port.mux_groups)} but no pad specifies any of these mux groups.")
         return values
 
     @property

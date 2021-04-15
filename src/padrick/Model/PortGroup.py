@@ -4,17 +4,20 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra, conset
+from pydantic import BaseModel, constr, conint, validator, root_validator, Extra, conset
 
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.Utilities import sort_signals, sort_ports, cached_property
 
 
 class PortGroup(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
-    mux_groups: Optional[conset(constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER), min_items=1)]
+    name: TemplatedIdentifierType
+    description: Optional[TemplatedStringType]
+    mux_groups: Optional[conset(TemplatedIdentifierType, min_items=1)]
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
+    multiple: conint(ge=1) = 1
     _method_cache = {}
 
     class Config:
@@ -86,6 +89,16 @@ class PortGroup(BaseModel):
         return expanded_ports
 
     @validator('ports')
+    def check_ports_are_unique(cls, ports):
+        port_names_seen = set()
+        for port in ports:
+            if port.name in port_names_seen:
+                raise ValueError(f"Duplicate port name {port.name}. Ports within a port group must be unique.")
+            else:
+                port_names_seen.add(port.name)
+        return ports
+
+    @validator('ports')
     def check_port_signals_are_not_bidirectional(cls, v):
         port_signals = set()
         for port in v:
@@ -115,21 +128,6 @@ class PortGroup(BaseModel):
                     port_signals.add(port_signal)
         return v
 
-    @validator('ports', each_item=True)
-    def override_port_mux_group(cls, port, values):
-        if values.get('mux_groups', None):
-            port.mux_groups = values['mux_groups']
-        return port
-
-    @validator('ports')
-    def normalize_mux_groups(cls, ports: List[Port], values):
-        for port in ports:
-            if "self" in port.mux_groups:
-                port.mux_groups.discard("self")
-                port.mux_groups.add(f"{values['name']}_{port.name}")
-        return ports
-
-
     @cached_property
     def port_signals(self) -> List[Signal]:
         return sort_signals(set.union(*[set(port.port_signals) for port in self.ports]))
@@ -147,3 +145,16 @@ class PortGroup(BaseModel):
     def get_ports_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
         ports_in_mux_group = [port for port in self.ports if mux_groups.intersection(port.mux_groups)]
         return sort_ports(ports_in_mux_group)
+
+    def expand_port_group(self) -> List['PortGroup']:
+        expanded_port_groups = []
+        for i in range(self.multiple):
+            i = "" if self.multiple == 1 else str(i)
+            expanded_port_group: PortGroup = self.copy()
+            expanded_port_group.name = expanded_port_group.name.evaluate_template(i)
+            expanded_port_group.description = expanded_port_group.description.evaluate_template(i) if expanded_port_group.description else None
+            expanded_port_group.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port_group.mux_groups)) if expanded_port_group.mux_groups else None
+            expanded_port_group.multiple = 1
+            expanded_port_groups.append(expanded_port_group)
+        return expanded_port_groups
+
