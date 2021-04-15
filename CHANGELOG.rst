@@ -30,6 +30,7 @@ Added
 * Add mini expression language for template tokens.
 * Render assignment macros in systemverilog package to simplify hierarchical assignements of port groups.
 * Add optional format code feature to index templates.
+* RTL generate command now supports rtl 
 
 Changed
 -------
