@@ -13,9 +13,9 @@ expression_language = r"""
 ?start: expression
 
 ?expression: _primary
-          | UNARY_OP _primary -> unary_operation
-          | "(" expression ")"
-          | expression BINARY_OP expression -> binary_operation
+          | UNARY_OP WS? _primary -> unary_operation
+          | "(" WS? expression WS? ")"
+          | expression WS? BINARY_OP WS? expression -> binary_operation
           | empty_expression
           
 empty_expression: WS*
@@ -137,7 +137,7 @@ CPP_COMMENT: /\/\/[^\n]*/
 C_COMMENT: "/*" /(.|\n)*?/ "*/"
 SQL_COMMENT: /--[^\n]*/
 
-%ignore WS
+//%ignore WS
 """
 
 simple_expression_parser = Lark(expression_language+templated_index_grammar, parser="earley")
@@ -162,7 +162,10 @@ class SignalExpressionType(str):
         if expression == None:
             self._ast = ""
         elif isinstance(expression, str):
-            self._ast = None
+            try:
+                self._ast = simple_expression_parser.parse(expression)
+            except UnexpectedInput as e:
+                raise ValueError("Illegal signal expresion: "+str(e))
         else:
             raise ValueError("Expression must be a string or None")
 
@@ -181,8 +184,6 @@ class SignalExpressionType(str):
 
     @property
     def ast(self):
-        if self._ast is None:
-            self._ast = simple_expression_parser.parse(str(self))
         return self._ast
 
     @property

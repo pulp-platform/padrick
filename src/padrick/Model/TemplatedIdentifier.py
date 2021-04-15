@@ -74,7 +74,6 @@ CPP_COMMENT: /\/\/[^\n]*/
 C_COMMENT: "/*" /(.|\n)*?/ "*/"
 SQL_COMMENT: /--[^\n]*/
 
-%ignore WS
 """
 
 templated_identifier_parser = Lark(expression_language + templated_index_grammar, parser="lalr")
@@ -105,7 +104,10 @@ class TemplatedIdentifierType(str):
         if expression == None:
             self._ast = ""
         else:
-            self._ast = None
+            try:
+                self._ast = parse_expression(str(self))
+            except UnexpectedInput as e:
+                raise ValueError("Illegal identifier: "+str(e))
 
 
     @property
@@ -114,8 +116,6 @@ class TemplatedIdentifierType(str):
 
     @property
     def ast(self):
-        if self._ast is None:
-            self._ast = parse_expression(str(self))
         return self._ast
 
     def evaluate_template(self, i):

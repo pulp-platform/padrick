@@ -33,8 +33,8 @@ class TemplatedStringType(str):
         return self._ast
 
     def evaluate_template(self, i):
-        if not isinstance(self._ast, Token):
-            return TemplatedStringType((TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self._ast))
+        if not isinstance(self.ast, Token):
+            return TemplatedStringType((TemplatedIdxEvaluator(i) * TemplatedIdxToStringTransformer()).transform(self.ast))
         else:
             return self
 
