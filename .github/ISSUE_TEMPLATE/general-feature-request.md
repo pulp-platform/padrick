@@ -1,5 +1,5 @@
 ---
-name: General Feature request
+name: General Feature Request
 about: Suggest a new feature that doesn't fall into any other, more specific feature
   category
 title: ''
