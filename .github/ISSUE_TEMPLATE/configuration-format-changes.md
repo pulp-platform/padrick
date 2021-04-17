@@ -2,21 +2,25 @@
 name: Configuration Format Changes
 about: Suggestions to enhance Padricks Configuration File format
 title: ''
-labels: ''
+labels: configuration format
 assignees: ''
 
 ---
 
-** Describe the suggested change of config format **
+**Suggested Change**
 
-** Example snippet **
+Describe the suggested change of config format..
+
+**Example snippet**
 ``` yaml
 ...
-my_awesome_new_kez: value_xy # The new key
+my_awesome_new_kez: value_xy # An example of the changed format in action new key
 ```
+**How this will affect Padricks behavior**
+Describe how the change is supposed to affect the behavior of Padrick
 
-** Describe how the change is supposed to affect the behavior of Padrick **
+**Justification for the change**
+Describe why the changes are desirable
 
-** Describe why the changes are desirable **
-
-** Are the changes backwards compatible with the existing format? **
+**Backwards Compatibility**
+Are the changes implementable in a manner that is backwards compatible with the existing format?

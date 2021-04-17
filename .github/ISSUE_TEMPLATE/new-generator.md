@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
-** Describe the Output Format **
+**New Output Format**
+Please describe the new output format and its intended use case.
 
-** Are changes or additions to Padricks configuration file format required? If yes, describe them**
+**Are changes or additions to Padricks configuration file format required?**
+If yes, please describe them.
