@@ -8,6 +8,7 @@ from mako.template import Template
 import padrick.Generators.CLIGeneratorCommands
 import click
 import click_completion
+import click_spinner
 import click_log
 import json
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
@@ -49,18 +50,20 @@ def install_completions(append, case_insensitive, shell, path):
 def validate(file):
     """ Parse and validate the given config file
     """
-    model = parse_config(Path(file))
-    if model != None:
-        click.echo(f"Successfully parsed configuration file.")
-    else:
-        click.echo(f"Error while parsing configuration file {file}")
+    with click_spinner.spinner():
+        model = parse_config(Path(file))
+        if model != None:
+            click.echo(f"Successfully parsed configuration file.")
+        else:
+            click.echo(f"Error while parsing configuration file {file}")
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
 @click_log.simple_verbosity_option(logger)
 def config(file):
     """ Print the parsed padframe configuration file """
-    model = parse_config(Path(file))
+    with click_spinner.spinner():
+        model = parse_config(Path(file))
     if model != None:
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):
