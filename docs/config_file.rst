@@ -1,3 +1,5 @@
+.. _chapter_padframe_config_file:
+
 ===========================
 Padframe Configuration File
 ===========================

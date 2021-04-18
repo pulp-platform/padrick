@@ -10,6 +10,7 @@ Contents
    Overview <overview>
    Getting Started <getting_started>
    Padframe Configuration File <config_file>
+   Configuration Cookbook <config_cookbok>
    CLI Reference <cli_doc>
    License <license>
    Authors <authors>
