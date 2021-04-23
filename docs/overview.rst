@@ -31,24 +31,29 @@ dynamic adaptation to the workload and simplifies a lot the PCB design process
 and repurposing of existing PCBs by means of rerouting the IO signals.
 
 Since the padframe is always a custom tailored component for one particular
-SoCs, a lot of time has been spent in the past writing this padframe
+SoC, a lot of time has been spent in the past writing this padframe
 multiplexing and routing logic. This design process is very labouruos and
 extremely error prone which is where Padrick enters the stage;
 
-Padrick is command line tool written in Pyhton3 aims to solve the problem of
-painstakingly writing the multiplexing logic and interconnection logic for
-padframes by hand. Not only does it (optionally) allow full-crossbar like
-routing of every periphery port to every IO pad it also generates C-drivers
-and Documentation to interact with the auto-generated IP.
+Padrick is a command line tool written in Pyhton3 that aims to solve the problem
+of painstakingly writing the multiplexing logic and interconnection logic for
+padframes by hand. Not only does it allow full-crossbar like routing of every
+periphery port to every IO pad it also generates C-drivers and Documentation to
+interact with the auto-generated IP. Every aspect of the generated pad
+multiplexing IP is fully customizable and technology agnostic. The degree of
+multiplexing capability can be customized from anything between static pad
+assignments to full any-to-any crossbar routing to also support more traditional
+pad multiplexing schemes.
 
 How does it work? The user provides a YAML description of the desired Padrame
 configuration. The configuration file's syntax is tailored in a way such that
-large portions of it can be copy pasted or even entirely reused from one SoC
-to the other while only minor modifications of e.g. the involved IO pads need
-to be performed. After parsing and internaly validating the configuration file
-with a couple of sanity checks, Padrick generates several SystemVerilog
-modules that instantiate the desired IO Pads, implements the IO Multiplexing
-logic and exposes the SoC facing IO signal and either an AXI-lite or APB
-interface to be attached to the SoC configuration bus for at-runtime control
-over the IO Pads.
-
+large portions of it can be copy pasted or even entirely reused from one SoC to
+the other while only minor modifications of e.g. the involved IO pads need to be
+performed when porting to different technologies or when reusing IO peripherals.
+After parsing and internaly validating the configuration file with a couple of
+sanity checks, Padrick generates several SystemVerilog modules that instantiate
+the desired IO Pads, implements the IO Multiplexing logic and exposes the SoC
+facing IO signal and an auto-generated configuration register file that can be
+accessed through a dedicated configuration interface (a lightweight protocol
+which can be easily conveted to AXI-lite or APB) to be attached to the SoC
+configuration bus for at-runtime control over the IO Pads.

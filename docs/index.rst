@@ -5,12 +5,13 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    Overview <overview>
    Getting Started <getting_started>
    Padframe Configuration File <config_file>
-   Configuration Cookbook <config_cookbok>
+   Configuration Cookbook <config_cookbook>
+   Generated Hardware Overview and Integration <hw_overview_and_integration>
    CLI Reference <cli_doc>
    License <license>
    Authors <authors>

@@ -63,7 +63,7 @@ The next step after installing Padrick is to write a configuration file for your
 padframe. The configuration file captures all information about the padframe
 required for your SoC, from IO cell specifications, IO peripheral signal
 declaration to multiplexing strategy. The config file is written in YAML, a
-powerfull, human readable markup language. The following listing shows you a
+powerful, human readable markup language. The following listing shows you a
 minimal padframe configuration file to generate a simple padframe for an SoC
 with 4 pads an SPI and a UART peripheral where each signals of the UART or SPI
 peripheral can be routed to anyone of the four available pads. 
@@ -143,7 +143,7 @@ peripheral can be routed to anyone of the four available pads.
                  tx_en: 1'b1
 
 The different keys and settings in this example might seem confusing at the
-moment, they are all explained in detail in chapter :ref:`Padframe Configuration
+moment, but they are all explained in detail in chapter :ref:`Padframe Configuration
 File<chapter_padframe_config_file>`. For the purpose of this introductionary
 tutorial, just copy the content of the example to a new file and give it the
 name my_padrame_config.yaml
@@ -254,7 +254,7 @@ padframe configuration at runtime.
    At the moment, the only supported configuration interface protocol is the
    lightweight `Register Interface Protocol
    <https://github.com/pulp-platform/register_interface>`_. The linked github
-   repository contains easy to use protocol converters to vairous other
+   repository contains easy to use protocol converters to various other
    protocols like AXI, AXI-lite or APB. In the near future, Padricks `generate
    rtl` will command will provide a flag to directly embed the required protocol
    converters within the generated module exposing the protocol of your liking
@@ -273,10 +273,13 @@ suggest you to proceed as follows:
   They showcase various of Padricks capabilites.
 * Check the options available with the various CLI commands (either :ref:`online
   <chapter_cli_reference>` or directly in your terminal with the `-h` option).
-* Have a look at the :ref:`Configuration Cookbook Chapter
-  <chapter_config_cookbook>` for tipps and tricks on how to specify various
-  common pad multiplexing strategies.
-* In case something is unclear, state your question on `Github Discussions Forum <https://github.com/pulp-platform/padrick/discussions>`_
+* If you are unsure how to specify a certain aspect of your padframe or if you
+  think that there must be a more efficient way to specify it, have a look at
+  the :ref:`Configuration Cookbook Chapter <chapter_config_cookbook>` for tipps
+  and tricks on how to specify various common pad multiplexing strategies.
+* Once you have your configuration ready, have a look at the generated source code.
+* In case something is unclear, state your question on `Github Discussions Forum
+  <https://github.com/pulp-platform/padrick/discussions>`_
 * If you find a bug or want to request file an `issue
   <https://github.com/pulp-platform/padrick/issues>`_ or if you already have a
   solution, file a `pull-request
