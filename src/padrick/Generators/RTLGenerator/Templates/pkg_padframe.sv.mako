@@ -110,7 +110,7 @@ package pkg_${padframe.name};
 % if any([port_group.port_signals_pads2soc for port_group in pad_domain.port_groups for pad_domain in padframe.pad_domains]):
   typedef struct packed {
 % for pad_domain in padframe.pad_domains:
-% if any(port_group.port_signals_pads2soc):
+% if any(port_group.port_signals_pads2soc for port_group in pad_domain.port_groups):
     pad_domain_${pad_domain.name}_ports_pad2soc_t ${pad_domain.name};
 % endif
 % endfor
@@ -120,7 +120,7 @@ package pkg_${padframe.name};
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups for pad_domain in padframe.pad_domains]):
   typedef struct packed {
 % for pad_domain in padframe.pad_domains:
-% if any(port_group.port_signals_soc2pads):
+% if any(port_group.port_signals_soc2pads for port_group in pad_domain.port_groups):
     pad_domain_${pad_domain.name}_ports_soc2pad_t ${pad_domain.name};
 % endif
 % endfor
