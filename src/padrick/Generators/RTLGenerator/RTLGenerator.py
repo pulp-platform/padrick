@@ -21,6 +21,7 @@ class RTLGenException(Exception):
 
 def generate_rtl(padframe: Padframe, dir: Path, header_text: str):
     os.makedirs(dir/"src", exist_ok=True)
+    os.makedirs(dir/"include"/padframe.name, exist_ok=True)
     TemplateRenderJob(name='SV package',
                       target_file_name='pkg_{padframe.name}.sv',
                       template=resources.read_text(template_package, 'pkg_padframe.sv.mako')
@@ -81,6 +82,10 @@ def generate_rtl(padframe: Padframe, dir: Path, header_text: str):
                       template=resources.read_text(template_package, 'padframe.sv.mako')
                       ).render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges,
                                address_space_size=address_space_size, header_text=header_text)
+    TemplateRenderJob(name='Padframe assignment header file',
+                      target_file_name='assign.svh',
+                      template=resources.read_text(template_package, 'assign.svh.mako')
+                      ).render(dir / "include" / padframe.name, logger=logger, padframe=padframe, header_text=header_text)
 
     TemplateRenderJob(name=f'Bender.yml Project file',
                       target_file_name="Bender.yml",

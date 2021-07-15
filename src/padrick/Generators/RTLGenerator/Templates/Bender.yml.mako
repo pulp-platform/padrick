@@ -11,6 +11,9 @@ dependencies:
   axi:                    { git: "https://github.com/pulp-platform/axi.git", version: 0.27.0 }
   common_cells:           { git: "https://github.com/pulp-platform/common_cells.git", version: 1.21.0 }
 
+export_include_dirs:
+- include
+
 sources:
   - src/pkg_${padframe.name}.sv
 % for pad_domain in padframe.pad_domains:

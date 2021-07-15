@@ -27,10 +27,11 @@ Added
 * Add validation of manifest version. The CLI now prints out an error message if
   the manifest version is not supported anymore with a help message which
   version of Padrick supports the out-dated manifest version.
-* Add mini expression language for template tokens.
+* Add mini expression language for template tokens. 
 * Render assignment macros in systemverilog package to simplify hierarchical assignements of port groups.
 * Add optional format code feature to index templates.
-* RTL generate command now supports rtl 
+* RTL generate command now supports supplying file headers to insert into the auto-generated files
+* Auto-generate SystemVerilog header files with struct assignment macros
 
 Changed
 -------
@@ -40,6 +41,7 @@ Changed
 
 Fixed
 -----
+* Fixed bug in toplevel padfram struct generation
 
 0.1.0 - 2021-03-30
 ==================
