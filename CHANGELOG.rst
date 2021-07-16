@@ -43,6 +43,7 @@ Changed
 * Manifest version was increased to 2.
 * Renamed `mux_group` key to `mux_groups` which now accepts a list of string instead of a single string.
 * Updated  sample config files to be compatible with new manifest format.
+* Switched to reg_interface version 3.1 and updated internal reggen version.
 
 Fixed
 -----
