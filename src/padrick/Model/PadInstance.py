@@ -1,11 +1,13 @@
-from typing import Optional, Mapping, List, Union, Set
+from typing import Optional, Mapping, List, Union, Set, Tuple
 
 from natsort import natsorted
 
+from padrick.Model.Port import Port
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal
 from padrick.Model.PadType import PadType
+from padrick.Model.PortGroup import PortGroup
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
 
@@ -22,6 +24,7 @@ class PadInstance(BaseModel):
     is_static: bool = False
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
+    default_port: Optional[Union[constr(regex="^[_a-zA-Z](?:[_a-zA-Z0-9])*\.[_a-zA-Z](?:[_a-zA-Z0-9])*"), Tuple[PortGroup, Port]]]
     _method_cache: Mapping = {}
 
     #pydantic model config

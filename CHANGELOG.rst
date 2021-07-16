@@ -32,6 +32,11 @@ Added
 * Add optional format code feature to index templates.
 * RTL generate command now supports supplying file headers to insert into the auto-generated files
 * Auto-generate SystemVerilog header files with struct assignment macros
+* Added optional key `default_port` to pad_instances of the form
+  "<port_group_name>.<port_name>". This allows to specify a port that should be
+  connected to the pad by default after reset. An error is raised if the
+  specified default_port is not actually connectable to the pad (not in the same
+  mux group).
 
 Changed
 -------

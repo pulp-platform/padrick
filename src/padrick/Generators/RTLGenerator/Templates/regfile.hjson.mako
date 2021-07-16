@@ -76,6 +76,21 @@
 % endfor
 % endif
 % if pad.dynamic_pad_signals:
+<%
+    # The reset value depends on whether the dynamic pad has a default_port or not. If it doesn't the resvalue is
+    # zero (connect to register file value). If it has one, we need to find the right select value that corresponds
+    # to the port.
+    connectable_ports = []
+    idx = 0
+    reset_value = 0
+    for port_group in pad_domain.port_groups:
+      for port in port_group.ports:
+        if port.mux_groups.intersection(pad.mux_groups):
+          connectable_ports.append((port_group, port))
+          idx += 1
+          if pad.default_port and pad.default_port[0].name == port_group.name and pad.default_port[1].name == port.name:
+            reset_value = idx
+%>
        {
           name: ${pad.name.upper()}_MUX_SEL
           desc: '''
@@ -84,21 +99,15 @@
           '''
           swaccess: "rw"
           hwaccess: "hro"
-          resval: 0
+          resval: ${reset_value}
           fields: [
               {
                   bits: "${max(0,math.ceil(math.log2(len(pad_domain.get_ports_in_mux_groups(pad.mux_groups))+1))-1)}:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register. This is the default value."}
-<% idx = 0 %>\
-% for port_group in pad_domain.port_groups:
-% for port in port_group.ports:
-% if port.mux_groups.intersection(pad.mux_groups):
+%for idx, (port_group, port) in enumerate(connectable_ports):
                       { value: "${idx+1}", name: "port_${port_group.name}_${port.name.lower()}", desc: "Connect port ${port.name} from port group ${port_group.name} to this pad." }
-<% idx += 1 %>\
-% endif
-% endfor
-% endfor
+%endfor
                   ]
               }
           ]

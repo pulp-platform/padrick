@@ -128,7 +128,25 @@ class PadDomain(BaseModel):
                 pad_names_seen.add(pad.name)
         return pads
 
-
+    @root_validator(skip_on_failure=True)
+    def validate_and_link_default_role_ports(cls, values):
+        pad: PadInstance
+        for pad in values['pad_list']:
+            # Try to find the port in the port in the list of muxable ports for this pad_instance
+            if isinstance(pad.default_port, str):
+                (default_port_group_name, default_port_name) = pad.default_port.split(".", maxsplit=1)
+                linked_default_port = None
+                for port_group in values['port_groups']:
+                    if port_group.name == default_port_group_name:
+                        for port in port_group.ports:
+                            if port.mux_groups.intersection(pad.mux_groups) and port.name == default_port_name:
+                                linked_default_port = (port_group, port)
+                                break
+                if linked_default_port:
+                    pad.default_port = linked_default_port
+                else:
+                    raise ValueError(f"Default_port {pad.default_port} for pad {pad.name} is not in the list of connectable ports.")
+        return values
 
     @root_validator(skip_on_failure=True)
     def warn_about_orphan_pads_and_ports(cls, values):
