@@ -11,8 +11,9 @@
     name: "${padframe.name}_${pad_domain.name}_config"
     clock_primary: "clk_i"
     reset_primary: "rst_ni"
-    bus_device: "reg",
-    bus_host: "",
+    bus_interfaces: [
+        { protocol: "reg_iface", direction: "device"}
+    ]
     regwidth: 32,
     registers: [
         {skipto: "${start_address_offset}"},

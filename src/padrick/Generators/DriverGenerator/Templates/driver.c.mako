@@ -6,13 +6,11 @@
 % for pad_domain in padframe.pad_domains:
 #define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${padframe.name.upper()}_BASE_ADDRESS
 #include "${padframe.name}_${pad_domain.name}_regs.h"
+#include "bitfield.h"
 % endfor
 
 #define REG_WRITE32(addr, value) *((volatile uint32_t*) addr) = (uint32_t) value;
 #define REG_READ32(addr) *((volatile uint32_t*) addr)
-#define REG_SET(FIELD, v) ((v & FIELD##_MASK) << FIELD##_LSB)
-#define REG_CLR(FIELD)    ((FIELD##_MASK) << FIELD##_LSB)
-#define REG_GET(FIELD, v) ((v >> FIELD##_LSB) & FIELD##_MASK)
 
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
@@ -25,37 +23,45 @@
       field_type = "uint16_t"
   else:
       field_type = "uint32_t"
-  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG(0)"
+  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_OFFSET"
   all_ports_in_mux_group = pad_domain.get_ports_in_mux_groups(pad.mux_groups)
   sel_size = max(1,math.ceil(math.log2(len(all_ports_in_mux_group)+1)))
-  field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_0_{ps.name.upper()}"
+  field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_{ps.name.upper()}"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_type} value) {
-  uint32_t address = ${address};
-  uint32_t v = REG_READ32(address);
-  v &= ~REG_CLR(${field_name});
-  v |= REG_SET(${field_name}, value);
+  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t reg = REG_READ32(address);
+%if ps.size > 1:
+  reg = bitfield_field32_write(reg, ${field_name}_FIELD, value);
+%else:
+  reg = bitfield_bit32_write(reg, ${field_name}_BIT, value);
+%endif
   REG_WRITE32(address, v);
 }
 
 ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get() {
-  uint32_t address = ${address};
-  return REG_GET(${field_name}, REG_READ32(address));
+  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t reg = REG_READ32(address);
+  %if ps.size > 1:
+  return bitfield_field32_read(reg, ${field_name}_FIELD);
+%else:
+  return bitfield_bit32_read(reg, ${field_name}_BIT);
+%endif
 }
 % endfor
 % if pad.dynamic_pad_signals_soc2pad:
 <%
-  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL(0)"
+  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_OFFSET"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
-  const uint32_t address = ${address};
+  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
   uint32_t field_mask = 1<<sel_size-1;
   REG_WRITE32(address, value & field_mask);
 }
 
 ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get() {
-  const uint32_t address = ${address};
+  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
 
   uint32_t field_mask = 1<<sel_size-1;

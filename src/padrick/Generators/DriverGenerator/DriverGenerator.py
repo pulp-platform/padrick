@@ -1,6 +1,7 @@
 import importlib.resources as resources
 import logging
 import os
+import shutil
 from pathlib import Path
 from typing import Tuple, Mapping
 
@@ -8,8 +9,9 @@ import click_log
 import hjson
 from padrick.Generators.TemplateRenderJob import TemplateRenderJob
 from padrick.Model.Padframe import Padframe
-from reggen import gen_ctheader as reggen_gen_header
+from reggen import gen_cheader as reggen_gen_header
 from reggen import validate as reggen_validate
+from reggen.ip_block import IpBlock
 
 logger = logging.getLogger("padrick.DriverGenerator")
 click_log.basic_config(logger)
@@ -21,7 +23,7 @@ template_package = 'padrick.Generators.DriverGenerator.Templates'
 class DriverGenException(Exception):
     pass
 
-def generate_driver(padframe: Padframe, dir: Path):
+def generate_driver(padframe: Padframe, dir: Path,  header_text: str):
     os.makedirs(dir/"src", exist_ok=True)
     os.makedirs(dir/"include", exist_ok=True)
     next_pad_domain_reg_offset = 0 # Offset of the first register of the current pad_frame's register file. All
@@ -31,23 +33,18 @@ def generate_driver(padframe: Padframe, dir: Path):
                           target_file_name=f'{padframe.name}_{pad_domain.name}_regs.hjson',
                           template=resources.read_text(rtl_template_package, 'regfile.hjson.mako')
                           ).render(dir, logger=logger, padframe=padframe, pad_domain=pad_domain,
-                                   start_address_offset=hex(next_pad_domain_reg_offset))
+                                   start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text)
 
         logger.debug("Invoking reggen to generate C header file for the padframe configuration registers.")
         hjson_reg_file = dir/f"{padframe.name}_{pad_domain.name}_regs.hjson"
         try:
-            obj = hjson.loads(hjson_reg_file.read_text(), use_decimal=True,
-                              object_pairs_hook=reggen_validate.checking_dict)
+            obj = IpBlock.from_path(str(hjson_reg_file), [])
         except ValueError as e:
-            logger.error(f"Fatal error while parsing auto generated register file config for pad_domain {pad_domain.name}.")
+            logger.error(f"Fatal error while parsing auto generated register file for pad_domain {pad_domain.name}.")
             raise DriverGenException(f"Error parsing regfile.") from e
-        error_count = reggen_validate.validate(obj)
-        address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj["gennextoffset"])
-        next_pad_domain_reg_offset = obj["gennextoffset"]
+        address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj.reg_blocks[None].offset)
+        next_pad_domain_reg_offset = obj.reg_blocks[None].offset
         address_space_size = next_pad_domain_reg_offset-4
-        if error_count != 0:
-            logger.error(f"Validation of auto generated register file configuration failed.")
-            raise DriverGenException("Reggen Validation failed")
         output_file = dir/f"include/{padframe.name}_{pad_domain.name}_regs.h"
         with output_file.open('w') as f:
             return_code = reggen_gen_header.gen_cdefines(obj, f, "", "")
@@ -58,8 +55,10 @@ def generate_driver(padframe: Padframe, dir: Path):
     TemplateRenderJob(name="Driver header file",
                       target_file_name=f"{padframe.name}.h",
                       template=resources.read_text(template_package,'driver.h.mako')
-                      ).render(dir/'include', logger, padframe)
+                      ).render(dir/'include', logger, padframe, header_text=header_text)
     TemplateRenderJob(name="Driver implementation file",
                       target_file_name=f"{padframe.name}.c",
                       template=resources.read_text(template_package, 'driver.c.mako')
-                      ).render(dir/'src', logger, padframe)
+                      ).render(dir/'src', logger, padframe, header_text=header_text)
+    with open(dir/'include'/'bitfield.h', 'w') as f:
+        f.write(resources.read_text(template_package, 'bitfield.h'))
