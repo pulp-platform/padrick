@@ -37,6 +37,7 @@ Added
   connected to the pad by default after reset. An error is raised if the
   specified default_port is not actually connectable to the pad (not in the same
   mux group).
+* Added new CLI commands to customize internal Mako templates.
 
 Changed
 -------

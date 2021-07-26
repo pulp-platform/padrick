@@ -11,10 +11,12 @@ import click_completion
 import click_spinner
 import click_log
 import json
+
+from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
-from padrick.Model import Padframe
+from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
@@ -63,7 +65,7 @@ def validate(file):
 def config(file):
     """ Print the parsed padframe configuration file """
     with click_spinner.spinner():
-        model = parse_config(Path(file))
+        model = parse_config(Padframe, Path(file))
     if model != None:
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):
@@ -97,12 +99,14 @@ cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
     # while True:
-        config_file = '../../examples/kraken_padframe.yml'
-        output = '/home/meggiman/garbage/test_padrick_kraken'
+        #cli(['generate', 'template-customization'])
+        cli(['generate', '-s', 'padrick_gen_settings.yml', 'rtl'])
+        config_file = '../../examples/siracusa_pads.yml'
+        output = '/home/meggiman/garbage/test_padrick_siracusa'
         try:
-            padframe = parse_config(Path(config_file))
+            padframe = parse_config(Padframe, Path(config_file))
             if padframe:
-                generate_rtl(padframe, Path(output))
+                generate_rtl(RTLTemplates(), padframe, Path(output), header_text="")
                 print("Generated RTL")
         except Exception as e:
             traceback.print_exc()

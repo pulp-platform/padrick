@@ -7,7 +7,9 @@ from typing import Tuple, Mapping
 
 import click_log
 import hjson
-from padrick.Generators.TemplateRenderJob import TemplateRenderJob
+
+from padrick.Generators.GeneratorSettings import DriverTemplates
+from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model.Padframe import Padframe
 from reggen import gen_cheader as reggen_gen_header
 from reggen import validate as reggen_validate
@@ -23,16 +25,13 @@ template_package = 'padrick.Generators.DriverGenerator.Templates'
 class DriverGenException(Exception):
     pass
 
-def generate_driver(padframe: Padframe, dir: Path,  header_text: str):
+def generate_driver(templates:DriverTemplates, padframe: Padframe, dir: Path,  header_text: str):
     os.makedirs(dir/"src", exist_ok=True)
     os.makedirs(dir/"include", exist_ok=True)
     next_pad_domain_reg_offset = 0 # Offset of the first register of the current pad_frame's register file. All
     address_ranges: Mapping[str, Tuple[int, int]] = {} # dictionary of pad_domain to start- end-address tupple
     for pad_domain in padframe.pad_domains:
-        TemplateRenderJob(name=f'Register File Specification for {pad_domain.name}',
-                          target_file_name=f'{padframe.name}_{pad_domain.name}_regs.hjson',
-                          template=resources.read_text(rtl_template_package, 'regfile.hjson.mako')
-                          ).render(dir, logger=logger, padframe=padframe, pad_domain=pad_domain,
+        templates.regfile_hjson.render(dir, logger=logger, padframe=padframe, pad_domain=pad_domain,
                                    start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text)
 
         logger.debug("Invoking reggen to generate C header file for the padframe configuration registers.")
@@ -52,13 +51,7 @@ def generate_driver(padframe: Padframe, dir: Path,  header_text: str):
             logger.error(f"Regtool template rendering of register file header for pad domain {pad_domain.name} failed")
             raise DriverGenException("Reggen header file rendering failed")
 
-    TemplateRenderJob(name="Driver header file",
-                      target_file_name=f"{padframe.name}.h",
-                      template=resources.read_text(template_package,'driver.h.mako')
-                      ).render(dir/'include', logger, padframe, header_text=header_text)
-    TemplateRenderJob(name="Driver implementation file",
-                      target_file_name=f"{padframe.name}.c",
-                      template=resources.read_text(template_package, 'driver.c.mako')
-                      ).render(dir/'src', logger, padframe, header_text=header_text)
+    templates.driver_header.render(dir / 'include', logger, padframe, header_text=header_text)
+    templates.driver_source.render(dir/'src', logger, padframe, header_text=header_text)
     with open(dir/'include'/'bitfield.h', 'w') as f:
         f.write(resources.read_text(template_package, 'bitfield.h'))
