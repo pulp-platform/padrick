@@ -1,4 +1,4 @@
-from typing import Optional, List, Set, Mapping, Union
+from typing import Optional, List, Set, Mapping, Union, Dict
 
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
@@ -18,6 +18,7 @@ class PortGroup(BaseModel):
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
     multiple: conint(ge=1) = 1
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
     _method_cache = {}
 
     class Config:

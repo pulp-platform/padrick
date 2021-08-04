@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Set
+from typing import Optional, Set, Dict, Union
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
@@ -52,6 +52,7 @@ class PadSignal(Signal):
     default_reset_value: Optional[int]
     default_static_value: Optional[SignalExpressionType]
     _static_signals: Set[Signal] = PrivateAttr(default=set())
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
     @property
     def direction(self):

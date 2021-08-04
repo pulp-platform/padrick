@@ -1,4 +1,4 @@
-from typing import Optional, Mapping, List, Union, Set, Tuple
+from typing import Optional, Mapping, List, Union, Set, Tuple, Dict
 
 from natsort import natsorted
 
@@ -25,6 +25,7 @@ class PadInstance(BaseModel):
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
     default_port: Optional[Union[constr(regex="^[_a-zA-Z](?:[_a-zA-Z0-9])*\.[_a-zA-Z](?:[_a-zA-Z0-9])*"), Tuple[PortGroup, Port]]]
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
     _method_cache: Mapping = {}
 
     #pydantic model config
@@ -97,6 +98,12 @@ class PadInstance(BaseModel):
             for pad_signal in values['connections'].keys():
                 if pad_signal.kind == PadSignalKind.pad:
                     raise ValueError("Padsignals of kind pad cannot be referenced in the connections list.")
+        return values
+
+    @root_validator(skip_on_failure=True)
+    def no_default_port_for_multi_pad(cls, values):
+        if values.get('multiple') > 1 and not values.get('default_port') is None:
+            raise ValueError("Cannot specify default port on a pad_instance with multiple > 1.")
         return values
 
     @property

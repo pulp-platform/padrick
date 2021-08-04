@@ -8,7 +8,7 @@ import padrick
 from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
 from padrick.Model.PadDomain import PadDomain
 from pydantic import BaseModel, constr, conint, conlist, validator
-from typing import List, Optional
+from typing import List, Optional, Dict, Union
 
 from padrick.Model.PadSignal import PadSignal, Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
@@ -29,6 +29,7 @@ class Padframe(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     pad_domains: conlist(PadDomain, min_items=1)
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
     #Pydantic Model Config
     class Config:

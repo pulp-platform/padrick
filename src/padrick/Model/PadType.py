@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.ParseContext import PARSE_CONTEXT
@@ -13,6 +13,7 @@ class PadType(BaseModel):
     description: Optional[str]
     template: str
     pad_signals: List[PadSignal] = []
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
     #pydantic model config
     class Config:

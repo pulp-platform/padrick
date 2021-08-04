@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import Optional, Mapping, Union, Set, List
+from typing import Optional, Mapping, Union, Set, List, Dict
 
 from natsort import natsorted
 
@@ -21,6 +21,7 @@ class Port(BaseModel):
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
         {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     multiple: conint(ge=1) = 1
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
     #pydantic model config
     class Config:

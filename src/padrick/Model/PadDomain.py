@@ -1,6 +1,6 @@
 import itertools
 import logging
-from typing import List, Optional, Set, Mapping, Iterable
+from typing import List, Optional, Set, Mapping, Iterable, Dict, Union
 
 import click_log
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
@@ -28,6 +28,7 @@ class PadDomain(BaseModel):
     pad_types: conlist(PadType, min_items=1)
     pad_list: conlist(PadInstance, min_items=1)
     port_groups: List[PortGroup]
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
 
     def __init__(self, *args, **kwargs):

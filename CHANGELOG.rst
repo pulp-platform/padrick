@@ -38,6 +38,9 @@ Added
   specified default_port is not actually connectable to the pad (not in the same
   mux group).
 * Added new CLI commands to customize internal Mako templates.
+* Add optional user_attr key to padframe specification format. This allows users
+  to tag pads, ports etc. with additional metadata and potentially use it within
+  the custom templates.
 
 Changed
 -------
