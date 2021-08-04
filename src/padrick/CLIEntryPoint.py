@@ -53,7 +53,7 @@ def validate(file):
     """ Parse and validate the given config file
     """
     with click_spinner.spinner():
-        model = parse_config(Path(file))
+        model = parse_config(Padframe, Path(file))
         if model != None:
             click.echo(f"Successfully parsed configuration file.")
         else:
