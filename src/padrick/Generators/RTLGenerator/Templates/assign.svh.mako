@@ -14,11 +14,13 @@
 %endfor
 %endif
 
-%if port_group.port_signals_pads2soc:
+%if port_group.port_signals_soc2pads:
 `define ASSIGN_${pad_domain.name.upper()}_${port_group.name.upper()}_SOC2PAD(load, driver) ${"\\"}
 %for signal in port_group.port_signals_soc2pads:
   assign load.${signal.name} = driver.${signal.name}; ${"\\"}
 %endfor
 %endif
+
 %endfor
+
 %endfor

@@ -4,7 +4,7 @@
 package pkg_internal_${padframe.name}_${pad_domain.name};
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
-  typedef struct {
+  typedef struct packed{
 % for signal in pad.dynamic_pad_signals_soc2pad:
     logic ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
 % endfor
@@ -12,7 +12,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
 
 % endif
 % if pad.dynamic_pad_signals_pad2soc:
-  typedef struct {
+  typedef struct packed{
 % for signal in pad.dynamic_pad_signals_pad2soc:
     logic ${f"[{signal.size-1}:0]" if signal.size > 1 else ""} ${signal.name};
 % endfor
@@ -21,7 +21,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
 % endif
 % endfor
 % if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
-  typedef struct {
+  typedef struct packed{
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
     mux_to_pad_${pad.name}_t ${pad.name};
@@ -31,7 +31,7 @@ package pkg_internal_${padframe.name}_${pad_domain.name};
 
 % endif
 % if any([pad.dynamic_pad_signals_pad2soc for pad in pad_domain.pad_list]):
-  typedef struct {
+  typedef struct packed{
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_pad2soc:
     pad_to_mux_${pad.name}_t ${pad.name};

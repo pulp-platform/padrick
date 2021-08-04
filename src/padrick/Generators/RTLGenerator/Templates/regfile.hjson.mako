@@ -2,6 +2,10 @@
   import math
   import string
   from padrick.Model.PadSignal import SignalDirection
+  from natsort import natsorted
+
+  def sort_by_name(seq):
+    return natsorted(seq, lambda x: x.name)
 
 %>
 {
@@ -83,8 +87,8 @@
     connectable_ports = []
     idx = 0
     reset_value = 0
-    for port_group in pad_domain.port_groups:
-      for port in port_group.ports:
+    for port_group in sort_by_name(pad_domain.port_groups):
+      for port in sort_by_name(port_group.ports):
         if port.mux_groups.intersection(pad.mux_groups):
           connectable_ports.append((port_group, port))
           idx += 1
