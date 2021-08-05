@@ -70,11 +70,13 @@ def config(file):
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):
                 return str(o)
-            def __sanitize_keys_and_values(self, o):
+            def sanitize(self, o):
                 if isinstance(o, list):
-                    return [self.__sanitize_keys_and_values(v) for v in o]
+                    return [self.sanitize(v) for v in o]
+                if isinstance(o, tuple):
+                    return tuple([self.sanitize(v) for v in o])
                 elif isinstance(o, dict):
-                    return {self.__sanitize_keys_and_values(key): self.__sanitize_keys_and_values(v) for key, v in o.items()}
+                    return {self.sanitize(key): self.sanitize(v) for key, v in o.items()}
                 elif isinstance(o, Template):
                     return o.source
                 elif isinstance(o, SignalExpressionType):
@@ -87,7 +89,7 @@ def config(file):
                 else:
                     return o
             def encode(self, o):
-                return super().encode(self.__sanitize_keys_and_values(o))
+                return super().encode(self.sanitize(o))
         click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
