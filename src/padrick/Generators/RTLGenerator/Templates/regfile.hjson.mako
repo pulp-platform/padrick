@@ -108,7 +108,7 @@
               {
                   bits: "${max(0,math.ceil(math.log2(len(pad_domain.get_ports_in_mux_groups(pad.mux_groups))+1))-1)}:0"
                   enum: [
-                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register. This is the default value."}
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
 %for idx, (port_group, port) in enumerate(connectable_ports):
                       { value: "${idx+1}", name: "port_${port_group.name}_${port.name.lower()}", desc: "Connect port ${port.name} from port group ${port_group.name} to this pad." }
 %endfor

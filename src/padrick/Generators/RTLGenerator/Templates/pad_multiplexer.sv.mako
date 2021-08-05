@@ -63,31 +63,34 @@ for port_group in pad_domain.port_groups:
 %>\
 % if pad.dynamic_pad_signals_soc2pad:
    // Pad ${pad.name}
-% for pad_signal in pad.dynamic_pad_signals_soc2pad:
-   // Pad Signal ${pad_signal.name}
    always_comb begin
      unique case (s_reg2hw.${pad.name}_mux_sel.q)
        PAD_MUX_GROUP_${pad.mux_group_name}_SEL_DEFAULT: begin
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
          mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+% endfor
        end
 % for port_group in pad_domain.port_groups:
 % for port in port_group.get_ports_in_mux_groups(pad.mux_groups):
        PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
           mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name])};
 % else:
           mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
 % endif
+% endfor
        end
 % endfor
 % endfor
        default: begin
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
          mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+% endfor
        end
      endcase
    end // always_comb
 
-% endfor
 % endif
 % endfor
 
