@@ -159,7 +159,7 @@ def driver(generator_settings: GeneratorSettings, config_file: str, output: str,
     header_text = "\n\n".join(header_sections)
     with click_spinner.spinner():
         try:
-            generate_driver(padframe, Path(output), header_text)
+            generate_driver(generator_settings.driver_templates, padframe, Path(output), header_text)
         except (RTLGenException, TemplateRenderException) as e:
             raise ClickException("C Driver Generation failed") from e
         except Exception as e:
@@ -188,7 +188,7 @@ def padlist(generator_settings: GeneratorSettings, config_file: str, output: str
 
     with click_spinner.spinner():
         try:
-            generate_padlist(padframe, Path(output))
+            generate_padlist(generator_settings.doc_templates, padframe, Path(output))
         except (DocGenException, TemplateRenderException) as e:
             raise ClickException("Padlist Generation failed") from e
         except Exception as e:
