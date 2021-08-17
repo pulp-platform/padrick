@@ -271,6 +271,11 @@ suggest you to proceed as follows:
 * Read the chapter about the :ref:`Configuration File Format<chapter_padframe_config_file>`.
 * Check the `examples` folder and have a look at the sample configuration files.
   They showcase various of Padricks capabilites.
+* Read the chapter :ref:`Generated Hardware Overview and
+  Integration<hw_overview_and_integration>` to get a better understanding of the
+  RTL that padrick generates and how to integrate it in your SoC project.
+* Have a look at the RTL that padrick generates from these examples to better
+  understand the structure of the generated pad multiplexer
 * Check the options available with the various CLI commands (either :ref:`online
   <chapter_cli_reference>` or directly in your terminal with the `-h` option).
 * If you are unsure how to specify a certain aspect of your padframe or if you

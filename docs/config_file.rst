@@ -43,6 +43,7 @@ Port:
   the *Port signals* sda_tx, sda_rx and out_enable which all correspond (through
   some logic mapping) to the pad signals of a single IO pad.
 
+
 Configuration File Syntax
 =========================
   The configuration file is written in YAML syntax. If you are unfamiliar with
@@ -574,6 +575,145 @@ Expands to ``pad_a00``, ``pad_a01``, ``pad_a02``, ``pad_a03``, ``pad_b00``, ``pa
 
 Port Multiplexing
 =================
+
+By default, Padrick allows routing any *Port* to any *Pad Instance*. However,
+the degree of routability can be adjusted very finely. Padick uses so called
+*mux groups* to configure the connectivity between ports and pad instances.
+Every pad instance and every port is contained in *one or several* mux groups.
+Port can be routed to all pad instances which are contained in any of the port's
+mux groups. I.e. ``port_xy`` can be connected to ``pad_123`` if ``pad_123`` is
+part of one (or multiple) of ``port_xy``'s mux groups.
+
+A mux group is denoted by a simple string identifier and declared with
+`mux_groups` key in the config file. E.g. the following config snipped declares
+a pad called ``my_pad`` that is member of the mux_groups ``mux1``, ``my_pads``,
+and ``all``:
+
+.. code-block:: yaml
+
+   pad_list:
+     - name: my_pad
+       mux_groups: # some examples use the more compact notation [mux1 my_pads self]. Both styles are valid YAML.
+         - mux1
+         - my_pads
+         - all
+       connections:
+         ...
+
+
+Similar to *peripheral signals* or *static connection signals* you don't have to
+explicitly declare *mux groups*. The first usage of an identifier creates the
+new mux group. You can use any C-identifier like string as the mux group name.
+
+You probably noticed, that our previous config example snippets did not specify
+the ``mux_groups`` key. The key is optional and has the default value [all].
+I.e. by default, all ports and all pads are member of a mux group called
+``all``. If you followed our explanation so far you should realize now, why by
+default, all ports can be connected to all pads with such a default value.
+
+Apart from ports and pad instances, mux_groups can also be applied to a complete
+port group. In that case the declared mux_group acts as a default for any port
+within the port group that doesn't explicitly specify its own port group.
+
+Lets have a look at small example with a couple of pads and a couple of ports:
+
+.. code-block:: yaml
+
+   pad_list:
+     - name: pad1
+       mux_groups: [mx1]
+       ...
+     - name: pad2
+       mux_groups: [mx1, mx2]
+       ...
+     - name: pad3
+       mux_groups: [mx2]
+
+   port_groups:
+     - name: spi
+       mux_groups: [mx1]
+       ports:
+         - name: sck
+           mux_groups: [mx2]
+           ...
+         - name: mosi
+           mux_groups: [mx1, mx2]
+           ...
+         - name: miso
+           ... # No mux_groups override specified for mosi
+
+In this small example, we used 2 different mux groups called ``mx1`` and
+``mx2``. We have the following connectivity for the 3 ports:
+
+* Port ``sck`` can be connected to ``pad2`` and ``pad3`` since both are member of the ``mx2``  group.
+* Port ``mosi`` can be connected to all three pads since all pads are member of either ``mx1`` or ``mx2``.
+* Port ``miso`` does not specify a mux group, thus the default value of the *mux group* applies (if the mux group doesn't specify one, ``[all]`` is used). Therefore, ``miso`` can be routed to either ``pad1`` or ``pad2``.
+
+Mux Group Templating
+....................
+
+Combining this chapter with the knowledge from `mini expression language <Mini
+Expression language>`_ we now have all the ingredients to define more complex
+mux groups. The key realization is, that mux_groups can be templated using the
+mini expression language like we templated the port/pad instance names and
+descriptions in the examples on *Generating Multiple Ports/Pads with Regular
+Structure*.
+
+Lets consider the following example:
+
+.. code-block:: yaml
+
+   ...
+   pad_list:
+     - name: hs_pad{i}
+       multiple: 4
+       pad_type: highspeed_pad
+       mux_groups: [hs_pads, hs_pad{i}]
+       ...
+     - name: ls_pad{i}
+       multiple: 4
+       pad_type: lowspeed_pad
+       mux_groups: [ls_pads, ls_pad{i}]
+       ...
+
+   port_groups:
+     - name: hs_gpio
+       ports:
+         - name: gpio{i}
+           multiple: 4
+           mux_groups: [hs_pad{i}]
+     - name: ls_gpio
+       ports:
+         - name: gpio{i}
+           multiple: 4
+           mux_groups: [ls_pad{i}]
+     - name: i2c
+       mux_groups: [ls_pads]
+       ports:
+         ...
+     - name: hyerflash
+       mux_groups: [hs_pads]
+       ports:
+         ...
+
+In this example, we have instantiate 4 highspeed (hs) and 4 low speed (ls)
+pads. After vector expansion the pad ``hs_pad0``, will be member of the
+mux_group ``hs_pads`` and ``hs_pad0``, the pad ``hs_pad1`` will be member of
+mux groups ``hs_pads`` and ``hs_pad1`` and so forth.
+
+On the port side, we declare a low-speed gpio port group, a high speed gpio
+port group, an i2c port group and a hyperflash port group.
+
+Since the individual ports of a GPIO peripheral are usually all identical, it
+doesn't make much sense to waste the routing resources to allow routing e.g.
+``GPIO0`` to ``pad4``, you just use ``GPIO4`` instead. To allow for such a
+routing scenario, each port in the ``hs_gpios`` port group declares is member of
+the corresponding pad's mux group. E.g. port ``gpio0`` of the ``hs_gpio`` port
+group is member of the ``hs_pad0`` mux group, port ``gpio1`` is member of
+``hs_pad1`` and so forth. This results in the intended scenario. Since the i2c
+port group specifies the default mux group ``ls_pads``, every port within ``i2c``
+can be routed to any of the 4 low-speed pads, while any port of the hyperflash
+peripheral can be routed to any of the high_speed pads.
 
 Syntax Reference
 ================
