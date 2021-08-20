@@ -10,14 +10,14 @@
 %if port_group.port_signals_pads2soc:
 `define ASSIGN_${pad_domain.name.upper()}_${port_group.name.upper()}_PAD2SOC(load, driver) ${"\\"}
 %for signal in port_group.port_signals_pads2soc:
-  assign load.${signal.name} = driver.${signal.name}; ${"\\"}
+  assign load.${signal.name[:-2]}_i = driver.${signal.name[:-2]}_o; ${"\\"}
 %endfor
 %endif
 
 %if port_group.port_signals_soc2pads:
 `define ASSIGN_${pad_domain.name.upper()}_${port_group.name.upper()}_SOC2PAD(load, driver) ${"\\"}
 %for signal in port_group.port_signals_soc2pads:
-  assign load.${signal.name} = driver.${signal.name}; ${"\\"}
+  assign load.${signal.name[:-2]}_i = driver.${signal.name[:-2]}_o; ${"\\"}
 %endfor
 %endif
 
