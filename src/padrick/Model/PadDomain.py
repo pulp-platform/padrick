@@ -130,7 +130,7 @@ class PadDomain(BaseModel):
         return pads
 
     @root_validator(skip_on_failure=True)
-    def validate_and_link_default_role_ports(cls, values):
+    def validate_and_link_default_ports(cls, values):
         pad: PadInstance
         for pad in values['pad_list']:
             # Try to find the port in the port in the list of muxable ports for this pad_instance

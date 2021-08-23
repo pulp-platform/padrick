@@ -6,6 +6,7 @@ from padrick.Generators.PadrickTemplate import PadrickTemplate
 RTLTemplatePackage = 'padrick.Generators.RTLGenerator.Templates'
 DriverTemplatePackage = 'padrick.Generators.DriverGenerator.Templates'
 DocTemplatePackage = 'padrick.Generators.DocGenerator.Templates'
+ConstraintsTemplatePackage = 'padrick.Generators.ConstraintsGenerator.Templates'
 
 
 class RTLTemplates(BaseModel):
@@ -82,6 +83,14 @@ class DriverTemplates(BaseModel):
         template=(DriverTemplatePackage, 'driver.c.mako')
     )
 
+
+class ConstraintsTemplates(BaseModel):
+    case_analysis = PadrickTemplate(
+        name='Set Case Analysis statements for padmultiplexer',
+        target_file_name='{padframe.name}_mode_{constraints_mode.name}.sdc',
+        template=(ConstraintsTemplatePackage, 'set_case_analysis.sdc.mako')
+    )
+
 class DocTemplates(BaseModel):
     pass
 
@@ -89,3 +98,4 @@ class GeneratorSettings(BaseModel):
     rtl_templates = RTLTemplates()
     driver_templates = DriverTemplates()
     doc_templates = DocTemplates()
+    constraints_templates = ConstraintsTemplates()

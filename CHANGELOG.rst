@@ -41,6 +41,7 @@ Added
 * Add optional user_attr key to padframe specification format. This allows users
   to tag pads, ports etc. with additional metadata and potentially use it within
   the custom templates.
+* Add 'generate constraints' command to auto-generate SDC constraints for set_case_analysis of pad_mux config registers.
 
 Changed
 -------
