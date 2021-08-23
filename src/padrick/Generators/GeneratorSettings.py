@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, conint, validator
 from pydantic.dataclasses import dataclass
 
+import padrick
 from padrick.Generators.PadrickTemplate import PadrickTemplate
+from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
 
 RTLTemplatePackage = 'padrick.Generators.RTLGenerator.Templates'
 DriverTemplatePackage = 'padrick.Generators.DriverGenerator.Templates'
@@ -95,7 +97,17 @@ class DocTemplates(BaseModel):
     pass
 
 class GeneratorSettings(BaseModel):
+    manifest_version: conint(le=MANIFEST_VERSION) = MANIFEST_VERSION
     rtl_templates = RTLTemplates()
     driver_templates = DriverTemplates()
     doc_templates = DocTemplates()
     constraints_templates = ConstraintsTemplates()
+
+    @validator('manifest_version')
+    def check_manifest_version(cls, version):
+        """ Verifies that the configuration file has the right version number for the current version of padrick."""
+        if version != MANIFEST_VERSION:
+            raise ValueError(
+                f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
+                f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
+        return version
