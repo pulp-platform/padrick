@@ -4,7 +4,7 @@ name: kraken_padframe # This name is used as the prefix for all
 manifest_version: 2
 pad_domains:
   - name: aon # User defined name of the pad_domain
-    pad_types: # This section contains a list of pads
+    pad_types: # This section contains a list of pads  
       - name: IN22FDX_GPIO18_10M3S40PI_IO_H
         description: "gf22 pad"
         template: |
@@ -120,7 +120,7 @@ pad_domains:
         template: |
           wire PWROK_S, IOPWROK_S, BIAS_S, RETC_S;
 
-          IN22FDX_GPIO18_10M3S40PI_PWRDET_V ${instance_name} (
+          IN22FDX_GPIO18_10M3S40PI_PWRDET_TIE_V ${instance_name} (
             .RETCOUT (RETC_S),
             .PWROKOUT (PWROK_S),
             .IOPWROKOUT (IOPWROK_S),
@@ -142,8 +142,28 @@ pad_domains:
         pad_type: IN22FDX_GPIO18_10M3S40PI_PWRDET_V
         is_static: true
 
-      - name: pad_ref_clk # The instance name of the pad. 
-        description: "32kHz reference clock" #Optional description of the pads function
+      - name: pad_bypass_fll 
+        description: "boot option selection pin" 
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+        is_static: true # not muxed pad (static)
+        connections:
+          pad2chip: st_bypass_fll
+          chip2pad: 1'b0
+          trie: 1'b1
+          rxe: 1'b1
+
+      - name: pad_ext_clk 
+        description: "boot option selection pin"  
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+        is_static: true # not muxed pad (static)
+        connections:
+          pad2chip: st_ext_clk
+          chip2pad: 1'b0
+          trie: 1'b1
+          rxe: 1'b1
+
+      - name: pad_ref_clk 
+        description: "32kHz reference clock"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -152,18 +172,28 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_bootsel # The instance name of the pad. 
-        description: "boot option selection pin" #Optional description of the pads function
+      - name: pad_bootsel0 
+        description: "boot option selection pin"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
-          pad2chip: st_boot_sel
+          pad2chip: st_boot_sel0
           chip2pad: 1'b0
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_bypass # The instance name of the pad. 
-        description: "boot option selection pin" #Optional description of the pads function
+      - name: pad_bootsel1 
+        description: "boot option selection pin"  
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+        is_static: true # not muxed pad (static)
+        connections:
+          pad2chip: st_boot_sel1
+          chip2pad: 1'b0
+          trie: 1'b1
+          rxe: 1'b1
+
+      - name: pad_bypass 
+        description: "boot option selection pin"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_H
         is_static: true # not muxed pad (static)
         connections:
@@ -172,18 +202,18 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_testmode # The instance name of the pad. 
-        description: "test mode selection pin" #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          pad2chip: st_testmode
-          chip2pad: 1'b0
-          trie: 1'b1
-          rxe: 1'b1
+      #- name: pad_testmode 
+      #  description: "test mode selection pin"  
+      #  pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+      #  is_static: true # not muxed pad (static)
+      #  connections:
+      #    pad2chip: st_testmode
+      #    chip2pad: 1'b0
+      #    trie: 1'b1
+      #    rxe: 1'b1
 
-      - name: pad_reset # The instance name of the pad. 
-        description: "Chip global reset" #Optional description of the pads function
+      - name: pad_reset 
+        description: "Chip global reset"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -192,8 +222,8 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_jtag_tck # The instance name of the pad. 
-        description: "JTAG clock" #Optional description of the pads function
+      - name: pad_jtag_tck 
+        description: "JTAG clock"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -202,8 +232,8 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_jtag_tms # The instance name of the pad. 
-        description: "JTAG tms" #Optional description of the pads function
+      - name: pad_jtag_tms 
+        description: "JTAG tms"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -212,8 +242,8 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_jtag_tdi # The instance name of the pad. 
-        description: "JTAG tdi" #Optional description of the pads function
+      - name: pad_jtag_tdi 
+        description: "JTAG tdi"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -222,9 +252,9 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_jtag_trstn # The instance name of the pad. 
-        description: "JTAG reset" #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+      - name: pad_jtag_trstn 
+        description: "JTAG reset"  
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_H
         is_static: true # not muxed pad (static)
         connections:
           pad2chip: st_jtag_trstn
@@ -232,8 +262,8 @@ pad_domains:
           trie: 1'b1
           rxe: 1'b1
 
-      - name: pad_jtag_tdo # The instance name of the pad. 
-        description: "JTAG tdo" #Optional description of the pads function
+      - name: pad_jtag_tdo 
+        description: "JTAG tdo"  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -242,8 +272,8 @@ pad_domains:
           trie: 1'b0
           rxe: 1'b0
 
-      - name: pad_hyp_cs0 # The instance name of the pad. 
-        description: "HYPER chip select 0 " #Optional description of the pads function
+      - name: pad_hyp_cs0 
+        description: "HYPER chip select 0 "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -252,8 +282,8 @@ pad_domains:
           trie: 1'b0
           rxe: 1'b0
 
-      - name: pad_hyp_cs1 # The instance name of the pad. 
-        description: "HYPER chip select 1 " #Optional description of the pads function
+      - name: pad_hyp_cs1 
+        description: "HYPER chip select 1 "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -263,8 +293,8 @@ pad_domains:
           rxe: 1'b0 
 
       #################### FOR this pair we need to see if there is a differential pad
-      - name: pad_hyp_ck # The instance name of the pad. 
-        description: "HYPER clock " #Optional description of the pads function
+      - name: pad_hyp_ck 
+        description: "HYPER clock "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -274,8 +304,8 @@ pad_domains:
           rxe: 1'b0
           
 
-      - name: pad_hyp_ckn # The instance name of the pad. 
-        description: "HYPER clock " #Optional description of the pads function
+      - name: pad_hyp_ckn 
+        description: "HYPER clock "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -284,8 +314,8 @@ pad_domains:
           trie: 1'b0
           rxe: 1'b0
 
-      - name: pad_hyp_rwds # The instance name of the pad. 
-        description: "HYPER rwds " #Optional description of the pads function
+      - name: pad_hyp_rwds 
+        description: "HYPER rwds "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -295,8 +325,8 @@ pad_domains:
           trie: ~st_hyper_rwds_oe
           rxe: ~st_hyper_rwds_oe
 
-      - name: pad_hyp_reset # The instance name of the pad. 
-        description: "HYPER reset " #Optional description of the pads function
+      - name: pad_hyp_reset 
+        description: "HYPER reset "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
@@ -305,90 +335,14 @@ pad_domains:
           trie: 1'b0
           rxe: 1'b0
           
-      - name: pad_hyp_dq0 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
+      - name: pad_hyp_dq{i}
+        multiple: 8
+        description: "HYPER dq{i} "  
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: true # not muxed pad (static)
         connections:
-          chip2pad: st_hyper_dq0_o
-          pad2chip: st_hyper_dq0_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-          
-      - name: pad_hyp_dq1 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq1_o
-          pad2chip: st_hyper_dq1_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-
-      - name: pad_hyp_dq2 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq2_o
-          pad2chip: st_hyper_dq2_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-          
-      - name: pad_hyp_dq3 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq3_o
-          pad2chip: st_hyper_dq3_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-
-      - name: pad_hyp_dq4 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq4_o
-          pad2chip: st_hyper_dq4_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-
-      - name: pad_hyp_dq5 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq5_o
-          pad2chip: st_hyper_dq5_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-
-      - name: pad_hyp_dq6 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq6_o
-          pad2chip: st_hyper_dq6_i
-          trie: ~st_hyper_dq_oe
-          rxe: ~st_hyper_dq_oe
-
-      - name: pad_hyp_dq7 # The instance name of the pad. 
-        description: "HYPER dq " #Optional description of the pads function
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: true # not muxed pad (static)
-        connections:
-          #pad2chip: 0
-          chip2pad: st_hyper_dq7_o
-          pad2chip: st_hyper_dq7_i
+          chip2pad: st_hyper_dq{i}_o
+          pad2chip: st_hyper_dq{i}_i
           trie: ~st_hyper_dq_oe
           rxe: ~st_hyper_dq_oe
 
@@ -403,28 +357,87 @@ pad_domains:
       - name: pad_gpioa{i}
         mux_groups: [mx_gpioa, self]
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
-        multiple: 26 # 26 generic io pads
+        multiple: 5 # left gpioa pads
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_H
+        is_static: false
+
+      - name: pad_gpioa{i+5}
+        mux_groups: [mx_gpioa, self]
+        description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
+        multiple: 3 # bottom gpioa pads
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+        is_static: false
+
+      - name: pad_gpioa{i+8}
+        mux_groups: [mx_gpioa, self]
+        description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
+        multiple: 17 # right gpioa pads
+        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_H
+        is_static: false
+
+      - name: pad_gpioa{i+25}
+        mux_groups: [mx_gpioa, self]
+        description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
+        multiple: 1 # top gpioa pads
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: false
 
       - name: pad_gpiob{i}
-        mux_groups: [mx_gpiob, self] 
+        mux_groups: [mx_gpiob , self]
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
         multiple: 16 # 16 generic io pads
         pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
         is_static: false 
 
-      - name: pad_gpioc{i}
-        mux_groups: [mx_gpioc, self] 
-        description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
-        multiple: 4 # 4 generic io pads
-        pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
-        is_static: false 
+      #- name: pad_gpioc
+      #  mux_groups: mx_gpioc 
+      #  description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
+      #  multiple: 4 # 4 generic io pads
+      #  pad_type: IN22FDX_GPIO18_10M3S40PI_IO_V
+      #  is_static: false       
 
-    port_group_common_definitions:
-      uart_port_group: &uart_port_group
-        name: uart_tlp
-        mux_groups: mx_gpio_tpl
+
+     #####  #######  #####     ######  ####### ######  #######  #####  
+    #     # #     # #     #    #     # #     # #     #    #    #     # 
+    #       #     # #          #     # #     # #     #    #    #       
+     #####  #     # #          ######  #     # ######     #     #####  
+          # #     # #          #       #     # #   #      #          # 
+    #     # #     # #     #    #       #     # #    #     #    #     # 
+     #####  #######  #####     #       ####### #     #    #     #####    
+    # soc io connections, IO peripherals and GPIOs
+    port_groups:
+      # A port is a collection of signals intended to be multiplexed to one
+      # particular pad within the pad domain. The connectivity is runtime
+      # configurable via the pad_frames configuration interface. I.e. an SPI
+      # master peripheral exposes the SCK, MOSI, MISO and CS ports. These ports
+      # can be routed to an arbitrary pad within the same pad_domain.
+      - name: qspi{i}
+        multiple: 4
+        mux_groups: ["mx_gpio{i/2:c}"]
+        output_defaults: 1'b0
+        ports:
+          - name: spi_sdio{i}
+            multiple: 4
+            description: "IO data port {i} of the SPI master peripheral" # An optional description of the signal
+            connections:
+              chip2pad: sd{i}_o
+              sd{i}_i: pad2chip
+              trie: ~sd{i}_oe
+              rxe: ~sd{i}_oe
+          - name: spi_sck
+            connections:
+              chip2pad: sck_o
+              trie: 1'b0
+              rxe: 1'b0
+          - name: spi_csn{i}
+            multiple: 4
+            connections:
+              chip2pad: csn{i}_o
+              trie: 1'b0
+              rxe: 1'b0
+      - name: uart{i}
+        multiple: 2
+        mux_groups: ["mx_gpio{(i+1)%2:c}"]
         output_defaults:
           rx_i: 1'b1
         ports:
@@ -442,22 +455,20 @@ pad_domains:
               trie: 1'b0
               rxe: 1'b0
 
-      timer_port_group: &timer_port_group
-        name: timer_tpl
-        mux_groups: mx_gpio_tpl
+      - name: timer{i}
+        multiple: 4
+        mux_groups: ["mx_gpio{i/2:c}"]
         ports:
-          - multiple: 4
-            name: out{i}
+          - name: out{i}
+            multiple: 4
             description: "TIMER 0 out {i}"
             connections:
               chip2pad: out{i}_o
 
-      i2c_port_group: &i2c_port_group
-        name: i2c_tpl
-        mux_groups: mx_gpio_tpl
-        output_defaults:
-          sda_i: 1'b1
-          scl_i: 1'b1
+      - name: i2c{i}
+        multiple: 4
+        mux_groups: [mx_gpioa]
+        output_defaults: 1'b1
         ports:
           - name: i2c_sda
             description: "Bidirectional I2C SDA signal"
@@ -474,139 +485,22 @@ pad_domains:
               trie: ~scl_oe
               rxe: ~scl_oe
 
-      cpi_port_group: &cpi_port_group
-        name: cpi_tpl
-        mux_groups: mx_gpio_tpl
-        output_defaults: 1'b0
-        ports:
-          - name: pclk
-            description: "input clock of the CPI slave peripheral" # An optional description of the signal
-            connections:
-              chip2pad: 1'b0
-              pclk_i: pad2chip
-          - name: hsync
-            description: "horizontal synchronization input signal" # An optional description of the signal
-            connections:
-              chip2pad: 1'b0
-              hsync_i: pad2chip
-          - name: vsync
-            description: "vertical synchronization input signal" # An optional description of the signal
-            connections:
-              chip2pad: 1'b0
-              vsync_i: pad2chip
-          - multiple: 8
-            name: data{i}
-            description: "Input data line of the CPI slave peripheral" # An optional description of the signal
-            connections:
-              chip2pad: 1'b0
-              data{i}_i: pad2chip
-
-
-      qspi_port_group: &qspi_port_group
-        name: qspi_tpl
-        mux_groups: mx_gpio_tpl
-        output_defaults: 1'b0
-        ports:
-          - name: spi_sck
-            connections:
-              chip2pad: sck_o
-              trie: 1'b0
-              rxe: 1'b0
-          - multiple: 4
-            name: spi_sdio{i}
-            description: "IO data port of the SPI master peripheral" # An optional description of the signal
-            connections:
-              chip2pad: sd{i}_o
-              sd{i}_i: pad2chip
-              trie: ~sd{i}_oe
-              rxe: ~sd{i}_oe
-          - multiple: 4
-            name: spi_csn{i}
-            connections:
-              chip2pad: csn{i}_o
-              trie: 1'b0
-              rxe: 1'b0
-
-     #####  #######  #####     ######  ####### ######  #######  #####  
-    #     # #     # #     #    #     # #     # #     #    #    #     # 
-    #       #     # #          #     # #     # #     #    #    #       
-     #####  #     # #          ######  #     # ######     #     #####  
-          # #     # #          #       #     # #   #      #          # 
-    #     # #     # #     #    #       #     # #    #     #    #     # 
-     #####  #######  #####     #       ####### #     #    #     #####    
-    # soc io connections, IO peripherals and GPIOs
-    port_groups:
-      # A port is a collection of signals intended to be multiplexed to one
-      # particular pad within the pad domain. The connectivity is runtime
-      # configurable via the pad_frames configuration interface. I.e. an SPI
-      # master peripheral exposes the SCK, MOSI, MISO and CS ports. These ports
-      # can be routed to an arbitrary pad within the same pad_domain.
-      - <<: *qspi_port_group
-        name: qspi0
-        mux_groups: [mx_gpiob]
-      - <<: *qspi_port_group
-        name: qspi1
-        mux_groups: [mx_gpiob]
-      - <<: *qspi_port_group
-        name: qspi2
-        mux_groups: [mx_gpiob]
-      - <<: *qspi_port_group
-        name: qspi3
-        mux_groups: [mx_gpioa]
-
-      - <<: *uart_port_group
-        name: uart0
-        mux_groups: [mx_gpiob]
-      - <<: *uart_port_group
-        name: uart1
-        mux_groups: [mx_gpioc]
-
-      - <<: *timer_port_group
-        name: timer0
-        mux_groups: [mx_gpiob]
-      - <<: *timer_port_group
-        name: timer1
-        mux_groups: [mx_gpiob]
-      - <<: *timer_port_group
-        name: timer2
-        mux_groups: [mx_gpiob]
-      - <<: *timer_port_group
-        name: timer3
-        mux_groups: [mx_gpiob]
-
-      - <<: *i2c_port_group
-        name: i2c0
-        mux_groups: [mx_gpioa] 
-      - <<: *i2c_port_group
-        name: i2c1
-        mux_groups: [mx_gpioa] 
-      - <<: *i2c_port_group
-        name: i2c2
-        mux_groups: [mx_gpioa] 
-      - <<: *i2c_port_group
-        name: i2c3
-        mux_groups: [mx_gpioa] 
-
-      - <<: *cpi_port_group
-        name: cpi0
-        mux_groups: [mx_gpiob]
-
       - name: dvsi0
         mux_groups: [mx_gpioa]
-        output_defaults: "'0"
+        output_defaults: 1'b0
         ports:
-          - multiple: 8
-            name: xydata{i}
+          - name: xydata{i}
+            multiple: 8
             description: "TDB"
             connections:
               xydata{i}_i: pad2chip
-          - multiple: 4
-            name: on{i}
+          - name: on{i}
+            multiple: 4
             description: "TDB"
             connections:
               on{i}_i: pad2chip
-          - multiple: 4
-            name: off{i}
+          - name: off{i}
+            multiple: 4
             description: "TDB"
             connections:
               off{i}_i: pad2chip
@@ -642,47 +536,33 @@ pad_domains:
             description: "TBD"
             connections:
               chip2pad: xnrst_o
-          - multiple: 8
-            name: cfg{i}
+          - name: cfg{i}
+            multiple: 8
             description: "TBD"
             connections:
               chip2pad: cfg{i}_o
       
       # gpio A ports
       - name: gpio_a
-        output_defaults: "'0"
+        output_defaults: 1'b0
         ports:
           - name: gpio{i}
             multiple: 26
-            description: "Bidirectional GPIO {i} signal"
             mux_groups: ["pad_gpioa{i}"]
+            description: "Bidirectional GPIO {i} signal"
             connections:
               chip2pad: gpio{i}_o
               gpio{i}_i: pad2chip
               trie: gpio{i}_dir
               rxe: gpio{i}_dir
 
-      # gpio A ports
+      # gpio B ports
       - name: gpio_b
         output_defaults: 1'b0
         ports:
-          - multiple: 16 
-            name: gpio{i}
+          - name: gpio{i}
+            multiple: 16
             mux_groups: ["pad_gpiob{i}"]
-            description: "Bidirectional GPIO {i} signal"
-            connections:
-              chip2pad: gpio{i}_o
-              gpio{i}_i: pad2chip
-              trie: gpio{i}_dir
-              rxe: gpio{i}_dir
-
-      # gpio A ports
-      - name: gpio_c
-        mux_groups: ["pad_gpioc{i}"]
-        output_defaults: 1'b0
-        ports:
-          - multiple: 4
-            name: gpio{i}
             description: "Bidirectional GPIO {i} signal"
             connections:
               chip2pad: gpio{i}_o
