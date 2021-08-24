@@ -49,7 +49,7 @@ class ConstraintsPadMode(BaseModel):
         return expanded_pad_configs
 
     def link_with_pad_domain(self, pad_domain: PadDomain):
-        p: PadInstance = next(p for p in pad_domain.pad_list if p.name == self.pad_inst and not p.is_static)
+        p: PadInstance = next((p for p in pad_domain.pad_list if p.name == self.pad_inst and not p.is_static), None)
         if not p:
             raise ConstraintsGenException(f"Cannot find pad instance {self.pad_inst} in Pad Domain {pad_domain.name}.")
         else:
@@ -67,15 +67,16 @@ class ConstraintsPadMode(BaseModel):
             if port not in pad_domain.get_ports_in_mux_groups(self.pad_inst.mux_groups):
                 raise ConstraintsGenException(f"Port {self.port_sel} is not connectable to pad {self.pad_inst.name}")
             self.port_sel = (port_group, port)
-        linked_pad_cfgs = {}
-        for ps_name, expression in self.pad_cfg.items():
-            ps = next((ps for ps in self.pad_inst.pad_type.pad_signals if ps.name == ps_name), None)
-            if not ps:
-                raise ConstraintsGenException(f"Unknown pad signal {ps_name}")
-            if ps not in self.pad_inst.dynamic_pad_signals_soc2pad:
-                raise ConstraintsGenException(f"Pad signal {ps_name} is not dynamic or has the wrong directionality. You can only constrain dynamic pad signals with direction chip2pad.")
-            linked_pad_cfgs[ps] = expression
-        self.pad_cfg = linked_pad_cfgs
+        if self.pad_cfg:
+            linked_pad_cfgs = {}
+            for ps_name, expression in self.pad_cfg.items():
+                ps = next((ps for ps in self.pad_inst.pad_type.pad_signals if ps.name == ps_name), None)
+                if not ps:
+                    raise ConstraintsGenException(f"Unknown pad signal {ps_name}")
+                if ps not in self.pad_inst.dynamic_pad_signals_soc2pad:
+                    raise ConstraintsGenException(f"Pad signal {ps_name} is not dynamic or has the wrong directionality. You can only constrain dynamic pad signals with direction chip2pad.")
+                linked_pad_cfgs[ps] = expression
+            self.pad_cfg = linked_pad_cfgs
 
 class ConstraintsMode(BaseModel):
     name: str
