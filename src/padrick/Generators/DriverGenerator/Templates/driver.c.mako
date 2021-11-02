@@ -9,7 +9,7 @@
 #include "bitfield.h"
 % endfor
 
-#define REG_WRITE32(addr, value) *((volatile uint32_t*) addr) = (uint32_t) value;
+#define REG_WRITE32(addr, value) *((volatile uint32_t*) addr) = (uint32_t) value
 #define REG_READ32(addr) *((volatile uint32_t*) addr)
 
 % for pad_domain in padframe.pad_domains:
@@ -36,7 +36,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_
 %else:
   reg = bitfield_bit32_write(reg, ${field_name}_BIT, value);
 %endif
-  REG_WRITE32(address, v);
+  REG_WRITE32(address, reg);
 }
 
 ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get() {
@@ -57,7 +57,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${
   const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
   uint32_t field_mask = 1<<sel_size-1;
-  REG_WRITE32(address, value & field_mask);
+  REG_WRITE32(address, mux_sel & field_mask);
 }
 
 ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get() {
