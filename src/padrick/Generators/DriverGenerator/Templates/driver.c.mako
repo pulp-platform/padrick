@@ -56,7 +56,7 @@ ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
   const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
-  uint32_t field_mask = 1<<sel_size-1;
+  uint32_t field_mask = (1<<sel_size)-1;
   REG_WRITE32(address, mux_sel & field_mask);
 }
 
@@ -64,7 +64,7 @@ ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad
   const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
 
-  uint32_t field_mask = 1<<sel_size-1;
+  uint32_t field_mask = (1<<sel_size)-1;
   return REG_READ32(address) & field_mask;
 }
 % endif
