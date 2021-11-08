@@ -68,7 +68,7 @@ pad_domains:
         is_static: false
       - name: pad_gpio_d_{i:2d}
         mux_groups: [self]
-        description: "pads for 3 uarts with cf and 2 uart"
+        description: "pads for 5 uart"
         multiple: 11
         pad_type: pad_functional
         is_static: false
@@ -377,7 +377,7 @@ pad_domains:
               oen: 1'b0
               puen: 1'b1
 
-      - name: uart_cf0
+      - name: uart2
         output_defaults: 1'b1
         ports:
           - name: uart_tx
@@ -392,20 +392,24 @@ pad_domains:
               rx_o: pad2chip
               oen: 1'b0
               puen: 1'b1
-          - name: uart_rts
+
+      - name: uart3
+        output_defaults: 1'b1
+        ports:
+          - name: uart_tx
             mux_groups: [pad_gpio_b_46]
             connections:
-              chip2pad: rts_i
+              chip2pad: tx_i
               oen: 1'b0
               puen: 1'b1
-          - name: uart_cts
+          - name: uart_rx
             mux_groups: [pad_gpio_b_47]
             connections:
-              cts_o: pad2chip
+              rx_o: pad2chip
               oen: 1'b0
               puen: 1'b1
 
-      - name: uart_cf1
+      - name: uart4
         output_defaults: 1'b1
         ports:
           - name: uart_tx
@@ -420,59 +424,19 @@ pad_domains:
               rx_o: pad2chip
               oen: 1'b0
               puen: 1'b1
-          - name: uart_rts
-            mux_groups: [pad_gpio_b_50]
-            connections:
-              chip2pad: rts_i
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_cts
-            mux_groups: [pad_gpio_b_51]
-            connections:
-              cts_o: pad2chip
-              oen: 1'b0
-              puen: 1'b1
-
-      - name: uart_cf2
-        output_defaults: 1'b1
-        ports:
-          - name: uart_tx
-            mux_groups: [pad_gpio_b_52]
-            connections:
-              chip2pad: tx_i
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_rx
-            mux_groups: [pad_gpio_b_53]
-            connections:
-              rx_o: pad2chip
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_rts
-            mux_groups: [pad_gpio_b_54]
-            connections:
-              chip2pad: rts_i
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_cts
-            mux_groups: [pad_gpio_b_55]
-            connections:
-              cts_o: pad2chip
-              oen: 1'b0
-              puen: 1'b1
 
       - name: i2c0
         output_defaults: 1'b1
         ports:
           - name: i2c_scl
-            mux_groups: [pad_gpio_b_56]
+            mux_groups: [pad_gpio_b_50]
             connections:
               chip2pad: scl_i
               scl_o: pad2chip
               oen: ~scl_oe_i
               puen: 1'b0
           - name: i2c_sda
-            mux_groups: [pad_gpio_b_57]
+            mux_groups: [pad_gpio_b_51]
             description: "Bidirectional I2C SDA signal"
             connections:
               chip2pad: sda_i
@@ -484,14 +448,14 @@ pad_domains:
         output_defaults: 1'b1
         ports:
           - name: i2c_scl
-            mux_groups: [pad_gpio_b_58]
+            mux_groups: [pad_gpio_b_52]
             connections:
               chip2pad: scl_i
               scl_o: pad2chip
               oen: ~scl_oe_i
               puen: 1'b0
           - name: i2c_sda
-            mux_groups: [pad_gpio_b_59]
+            mux_groups: [pad_gpio_b_53]
             connections:
               chip2pad: sda_i
               sda_o: pad2chip
@@ -502,14 +466,14 @@ pad_domains:
         output_defaults: 1'b1
         ports:
           - name: i2c_scl
-            mux_groups: [pad_gpio_b_60]
+            mux_groups: [pad_gpio_b_54]
             connections:
               chip2pad: scl_i
               scl_o: pad2chip
               oen: ~scl_oe_i
               puen: 1'b0
           - name: i2c_sda
-            mux_groups: [pad_gpio_b_61]
+            mux_groups: [pad_gpio_b_55]
             connections:
               chip2pad: sda_i
               sda_o: pad2chip
@@ -539,7 +503,7 @@ pad_domains:
               chip2pad: pwm{i}_i
               oen: 1'b0
               puen: 1'b1
-      
+
       #PAD_GPIO_C
       - name: spi7
         output_defaults: 1'b0
@@ -687,7 +651,7 @@ pad_domains:
               oen: 1'b1
               puen: 1'b1
       
-      - name: uart_cf3
+      - name: uart7
         output_defaults: 1'b1
         ports:
           - name: uart_tx
@@ -700,18 +664,6 @@ pad_domains:
             mux_groups: [pad_gpio_d_07]
             connections:
               rx_o: pad2chip
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_rts
-            mux_groups: [pad_gpio_d_08]
-            connections:
-              chip2pad: rts_i
-              oen: 1'b0
-              puen: 1'b1
-          - name: uart_cts
-            mux_groups: [pad_gpio_d_09]
-            connections:
-              cts_o: pad2chip
               oen: 1'b0
               puen: 1'b1
       
@@ -925,7 +877,6 @@ pad_domains:
               oen: 1'b0
               puen: 1'b1
 
-
       - name: uart5
         output_defaults: 1'b1
         ports:
@@ -965,6 +916,3 @@ pad_domains:
               chip2pad: ddr{i}_i
               oen: 1'b0
               puen: 1'b1
-      
-
-              
