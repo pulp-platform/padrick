@@ -6,7 +6,7 @@
 #define ${padframe.name.upper()}_H
 #include <stdint.h>
 
-#define ${padframe.name.upper()}_BASE_ADDRESS 0x1A106000
+#define ${padframe.name.upper()}_BASE_ADDRESS 0x1A104000
 
 #ifndef ${padframe.name.upper()}_BASE_ADDRESS
 #error "${padframe.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of your padframe before you include this header file."
