@@ -51,7 +51,7 @@ def make_exe(dist):
     # GPL licensed software.
     # policy.extension_module_filter = "no-gpl"
 
-    # Controls whether the file scanner attempts to classify files and emit
+    # Controls whether the file scanner ts to classify files and emit
     # resource-specific values.
     # policy.file_scanner_classify_files = True
 
@@ -105,7 +105,7 @@ def make_exe(dist):
 
     # Configure policy values to classify files as typed resources.
     # (This is the default.)
-    policy.set_resource_handling_mode("classify")
+    policy.set_resource_handling_mode("files")
 
     # Configure policy values to handle files as files and not attempt
     # to classify files as specific types.

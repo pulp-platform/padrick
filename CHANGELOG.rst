@@ -42,6 +42,7 @@ Added
   to tag pads, ports etc. with additional metadata and potentially use it within
   the custom templates.
 * Add 'generate constraints' command to auto-generate SDC constraints for set_case_analysis of pad_mux config registers.
+* Add new CLI generate command to render custom templates to support completely customized output formats
 
 Changed
 -------

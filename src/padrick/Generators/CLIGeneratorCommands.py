@@ -7,6 +7,8 @@ from typing import Tuple
 import click
 import click_log
 from ruamel.yaml import YAMLError, YAML
+from mako import exceptions
+from mako.template import Template
 
 from padrick.Generators.ConstraintsGenerator.ConstraintsGenerator import generate_constraints
 from padrick.Generators.ConstraintsGenerator.ConstraintsSpec import ConstraintsGenException, ConstraintsSpec
@@ -247,10 +249,38 @@ def padlist(generator_settings: GeneratorSettings, config_file: str, output: str
 
     with click_spinner.spinner():
         try:
-            generate_padlist(generator_settings.doc_templates, padframe, Path(output))
+            generate_padlist(padframe, Path(output))
         except (DocGenException, TemplateRenderException) as e:
             raise ClickException("Padlist Generation failed") from e
         except Exception as e:
             logger.error("Padrick crashed while generating the padlist :-(")
             raise e
         logger.info(f"Successfully generated the padlist CSV file in {output}")
+
+
+@generate.command()
+@click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
+@click.argument('template', type=click.File(mode='r'))
+@click.argument('output', type=click.File(mode='w'))
+@click_log.simple_verbosity_option(logger)
+def custom(config_file:str, template, output):
+    """
+    Render a user-specified custom Mako Template TEMPLATE file using the parsed CONFIG_FILE pad configuration data.
+
+    This command is usefull for any kind of desired output format for which Padrick doesn't already ship with the
+    right template. The rendered template will be printed to OUTPUT. Both TEMPLATE and OUTPUT accept either a path to
+    a file or the special argument '-' to read from/write to stdin/stdout.
+    """
+    logger.info("Parsing configuration file...")
+    with click_spinner.spinner():
+        padframe = parse_config(Padframe, Path(config_file))
+    logger.info("Parsing successful.")
+    if not padframe:
+        raise UsageError("Failed to parse the configuration file")
+    logger.info("Rendering custom template")
+    try:
+        mk_template = Template(template.read())
+        output.write(mk_template.render(padframe=padframe))
+    except Exception as e:
+        logger.error(f"Error while rendering custom template for padframe {padframe.name}:\
+                            n{exceptions.text_error_template().render()}")
