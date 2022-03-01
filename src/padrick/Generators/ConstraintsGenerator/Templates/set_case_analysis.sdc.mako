@@ -1,6 +1,9 @@
 % for line in header_text.splitlines():
 # ${line}
 % endfor
+
+# Use current_instance <pad_mux_inst> to set the correct scope for applying the constraints
+
 <%
 from typing import Generator
 from natsort import natsorted
@@ -35,7 +38,7 @@ def get_sel_index_width(pad, port_group, port, pad_domain):
     sel_value, width = get_sel_index_width(pad_mode.pad_inst, pad_mode.port_sel[0], pad_mode.port_sel[1], constraints_mode.pad_domain)
 %>
 % for i, bit in enumerate(as_bin(sel_value, width)):
-set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/reg2hw\[${pad_mode.pad_inst.name}_mux_sel\]\[q\]${f"\[{i}\]" if width > 1 else ""}
+set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/u_${pad_mode.pad_inst.name}_mux_sel/q${f"\[{i}\]" if width > 1 else ""}
 % endfor
 
 % else:
@@ -46,7 +49,7 @@ set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_m
 % for ps, value in pad_mode.pad_cfg.items():
 # ${ps.name} -> ${value}
 % for i, bit in enumerate(as_bin(value, ps.size)):
-set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/reg2hw\[${pad_mode.pad_inst.name}_cfg\]\[${ps.name}\]\[q\]${f"\[{i}\]" if ps.size > 1 else ""}
+set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/u_${pad_mode.pad_inst.name}_cfg_${ps.name}/q${f"\[{i}\]" if ps.size > 1 else ""}
 %endfor
 
 % endfor
