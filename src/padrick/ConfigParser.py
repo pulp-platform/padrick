@@ -68,7 +68,9 @@ def parse_config(cls:Type[BaseModel], config_file: Path):
             logger.error(f"Encountered {len(e.errors())} validation errors while parsing the configuration file:")
             for error in e.errors():
                 if error['type'] == 'value_error.extra':
-                    error['msg'] = f'Unknown field {error["loc"][-1]}. Did you mispell the field name?'
+                    error['msg'] = f'Unknown field {error["loc"][-1]}. Did you misspell the field name?'
+                if error['type'] == 'value_error.missing':
+                    error['msg'] = f'Missing field {error["loc"][-1]}. Did you forget or misspell it?'
                 #error_path = get_human_readable_error_path(config_data, error["loc"])
                 (line, column), subtree = get_file_location(config_data, error["loc"])
                 error_context = get_error_context(config_file, line, column, context_after=10)
