@@ -752,6 +752,28 @@ specifies the default mux group ``ls_pads``, every port within ``i2c`` can be
 routed to any of the 4 low-speed pads, while any port of the hyperflash
 peripheral can be routed to any of the high_speed pads.
 
+Default Pad Roles
+.................
+
+By default, after reset each ``pad_instance``'s set of dynamic pad signals is
+fully controlled by the auto-generated configuration register file. I.e. in
+order to have your dynamic pads configured as inputs after power-on reset, you
+have to choose the right reset values in your pad_instance's ``connections``
+block. However, sometimes you want a pad multiplexing scheme with a default
+``port`` to ``pad_instance`` assignment right after reset. For these cases, you
+can use the optional `default_port` key when declaring a pad_instance to assign
+it a default port. The port name is specified using dot-notation, i.e.
+``<expanded_port_group_name>.<expanded_port_name>``.
+
+Here is an example:
+
+.. code-block:: yaml
+
+  - name: pad_05
+    pad_type: pull_down_pad
+    default_port: hs_gpio.gpio05
+
+.. hint:: At the moment, the `default_port` key **cannot** be combined with vectorized instantiation.
 ..
    Syntax Reference
    ================
