@@ -8,8 +8,8 @@ The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
 and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 
-Unreleased
-==========
+v0.2.0 - 2022-25-04
+===================
 
 Added
 -----
@@ -43,6 +43,7 @@ Added
   the custom templates.
 * Add 'generate constraints' command to auto-generate SDC constraints for set_case_analysis of pad_mux config registers.
 * Add new CLI generate command to render custom templates to support completely customized output formats
+* Add more documentation on usage and structure of generated padrick output
 
 Changed
 -------
@@ -50,6 +51,7 @@ Changed
 * Renamed `mux_group` key to `mux_groups` which now accepts a list of string instead of a single string.
 * Updated  sample config files to be compatible with new manifest format.
 * Switched to reg_interface version 3.1 and updated internal reggen version.
+* Config file types of various fields to support expression language (makes fields like `default_static_value` incompatible with YAML integers)
 
 Fixed
 -----
