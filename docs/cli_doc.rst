@@ -1,3 +1,5 @@
+.. _chapter_cli_reference:
+
 =============
 CLI Reference
 =============
@@ -7,3 +9,5 @@ This chapter contains the auto-generated documentation of the command line inter
 .. click:: padrick.CLIEntryPoint:cli
    :prog: padrick
    :nested: full
+
+   

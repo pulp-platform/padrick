@@ -61,9 +61,11 @@ def template_customization(output):
     rtl_templates_dir = Path(output)/"rtl_templates"
     driver_templates_dir = Path(output)/"driver_templates"
     doc_templates_dir = Path(output)/"doc_templates"
+    constraints_templates_dir = Path(output)/"constraints_templates"
     os.makedirs(rtl_templates_dir, exist_ok=True)
     os.makedirs(driver_templates_dir, exist_ok=True)
     os.makedirs(doc_templates_dir, exist_ok=True)
+    os.makedirs(constraints_templates_dir, exist_ok=True)
     for _,template in default_settings.rtl_templates:
         if isinstance(template, PadrickTemplate):
             template_file_name = rtl_templates_dir/template.template.resource
@@ -82,7 +84,13 @@ def template_customization(output):
             with template_file_name.open('w') as tf:
                 tf.write(resources.read_text(template.template.package, template.template.resource))
                 template.template = str(template_file_name)
-    with (Path(output)/"padrick_gen_settings.yml").open("w") as settings_file:
+    for _,template in default_settings.constraints_templates:
+        if isinstance(template, PadrickTemplate):
+            template_file_name = constraints_templates_dir / template.template.resource
+            with template_file_name.open('w') as tf:
+                tf.write(resources.read_text(template.template.package, template.template.resource))
+                template.template = str(template_file_name)
+    with (Path(output)/"padrick_generator_settings.yml").open("w") as settings_file:
         yaml.dump(default_settings.dict(), settings_file)
 
 
