@@ -28,6 +28,6 @@ jobs:
     - name: upload Appimage
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: Padrick-x86_64-$GITHUB_REF.Appimage
-        path: standalone_build/Padrick-x86_64.Appimage
+        name: Padrick-x86_64-${{github.ref_name}}-${{github.sha}}.AppImage
+        path: standalone_build/Padrick-x86_64.AppImage
         if-no-files-found: error
