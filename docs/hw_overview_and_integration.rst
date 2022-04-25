@@ -209,21 +209,21 @@ the entry defines which output file is supposed to be customized. There are 4
 different key value pairs you can specify for each entry:
 
 
-`name`
-  The `name` field is used for documentation and logging purposes only. It has
+``name``
+  The ``name`` field is used for documentation and logging purposes only. It has
   no effect on the actual template rendering.
 
-`target_file_name`
+``target_file_name``
   This is a Mako template that renders to the filename of the generated file.
   E.g. in the example above, the RTL generator will render the
-  `toplevel_sv_package` template using the filename: `pkg_<the name of your
-  padrame>.sv`.
+  ``toplevel_sv_package`` template using the filename: ``pkg_<the name of your
+  padrame>.sv``.
 
-`template`
+``template``
   The path to a mako template file used for rendering the output file. Here you
   can specify the path to your customized Mako template.
 
-`skip_generation`
+``skip_generation``
   If set to ``true``, the output file for this template is not generated.
   Usefull, if you want to e.g. avoid generating the legacy IPApprox
   ``src_files.yml`` file.
@@ -241,10 +241,64 @@ Generating Custom Output Files
 The generator settings file allows you to customize the output of existing
 padrick generators. However, you cannot add entirely new output formats. If you
 need to generate an additional file which padrick does not already have a
-dedicated generator for, you can use the generic template renderer.
+dedicated generator for, you can use the generic template render command
+`padrick generate custom`. This command, in addition to you padframe_config.yml
+file accepts an additional mako template file argument.
+
+.. hint:: With this command you can render your own custom templates and thus
+          generate new output file formats without modifying padrick's source
+          code. Still, if you wrote a template that might be of general interest
+          (not a tape-out specifig output format) consider contributing it
+          through a PR.
+
+Writing Custom templates
+........................
+
+As mentioned before, padrick uses the template rendering engine *mako* to create
+its output files. The advantage of mako over similar template rendering engines
+is, that it directly evaluates inline python expressions and thus allows very
+natural interaction between the template and a python data model.
+
+Providing a tutorial on mako is outside the scope of this documentation. Please
+refer to `<https://docs.makotemplates.org/en/latest/syntax.html>`_ for more
+information. However, an important aspect of every template rendering flow is
+the variables available in the template rendering context, i.e. how do you
+access the padframe config data when generating the template. Padrick uses an
+advanced data modeling library called `pydantic
+<https://pydantic-docs.helpmanual.io>`_ to validate your padframe configuration
+file and map it to a python class hierarchy. The mapped padframe configuration
+object (and instance of :py:class:`padrick.Model.Padframe`) is directly exposed
+to your template's rendering context under the variable name ``padframe``. Have a
+look at the built-in templates (use ``padrick generate template-customization``
+to create a modifiable copy of them) on how to use this data model or inspect
+the python class documentation directly.
+
+.. hint:: If you customize templates which are generated at the ``pad_domain``
+          level (i.e. one file is generated per pad_domain) the template, in
+          addition to the ``padframe`` variable is handed a
+          :py:class:`~padrick.Model.PadDomain` instance under the variable name
+          ``pad_domain``.
 
 HW Integration
 --------------
 
-SW Integration
---------------
+Integration of the generated Padframe RTL is straigth forward:
+
+1. In your toplevel module (or wherever you plan to instantiate the padframe),
+   declare helper connection signals of struct type:
+
+   - ``pkg_<padframe.name>::port_signals_pad2soc_t``,
+   - ``pkg_<padframe.name>::port_signals_soc2pad_t``,
+   - ``pkg_<padframe.name>::static_connection_signals_pad2soc_t`` and
+   - ``pkg_<padframe.name>::static_connection_signals_soc2pad_t``,
+
+2. Connect all your peripheral signals and static conneciton signals to the
+   helper struct signals.
+
+
+3. Instantiate the ``<padframe.name>.sv`` module and connect it's port to your helper signals.
+
+4. Connect your configuration bus to the the padframes configuration port. In
+   case you are using a different protocol than ``register_interface``, use one
+   of the available protocol converters in
+   `<https://github.com/pulp-platform/register_interface>`_.

@@ -272,16 +272,12 @@ suggest you to proceed as follows:
 * Check the `examples` folder and have a look at the sample configuration files.
   They showcase various of Padricks capabilites.
 * Read the chapter :ref:`Generated Hardware Overview and
-  Integration<hw_overview_and_integration>` to get a better understanding of the
+  Integration<chapter_hw_overview_and_integration>` to get a better understanding of the
   RTL that padrick generates and how to integrate it in your SoC project.
 * Have a look at the RTL that padrick generates from the example YAML files to better
   understand the structure of the generated pad multiplexer
 * Check the options available with the various CLI commands (either :ref:`online
   <chapter_cli_reference>` or directly in your terminal with the `-h` option).
-* If you are unsure how to specify a certain aspect of your padframe or if you
-  think that there must be a more efficient way to specify it, have a look at
-  the :ref:`Configuration Cookbook Chapter <chapter_config_cookbook>` for tipps
-  and tricks on how to specify various common pad multiplexing strategies.
 * Once you have your configuration ready, have a look at the generated source code.
 * In case something is unclear, state your question on `Github Discussions Forum
   <https://github.com/pulp-platform/padrick/discussions>`_
@@ -289,3 +285,10 @@ suggest you to proceed as follows:
   <https://github.com/pulp-platform/padrick/issues>`_ or if you already have a
   solution, file a `pull-request
   <https://github.com/pulp-platform/padrick/pulls>`_.
+
+
+..
+   * If you are unsure how to specify a certain aspect of your padframe or if you
+     think that there must be a more efficient way to specify it, have a look at
+     the :ref:`Configuration Cookbook Chapter <chapter_config_cookbook>` for tipps
+     and tricks on how to specify various common pad multiplexing strategies.
