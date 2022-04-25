@@ -126,7 +126,7 @@ While most of the string will probably be just a single SystemVerilog Module
 instantiation it also contains special markers that the *Mako* template library
 will replace with the appropriate content. The syntax of these template markers
 is quite simple if you are already familiar with Python. Check the quickstart
-guide on their webpage for more information [[https://www.makotemplates.org/]].
+guide on their webpage for more information `<https://www.makotemplates.org>`_.
 For the sake of understanding the above examples it suffices to know that
 ``${...}`` is special Mako syntax to mark a python expression. When rendering a
 Mako template, the template render function is supplied with some user variables
@@ -160,19 +160,15 @@ of all pad config signals like tx buffer enable, driving strenths, i/o signal,
 landing pads etc. Padrick does not contain a list of hardcoded IO config signals
 but leaves full control to the user.
 
-Each pad_type as a set of associated pad signals that are required to control
+Each pad_type has a set of associated pad signals that are required to control
 the pad. For a typical IO pad, there are at least three signals:
 
 - The signal connecting to the pads TX-buffer (SoC -> pad signal)
 - The signal connecting to the pads RX-buffer (pad -> SoC signal)
 - The pad signal itself which connectes to the toplevel of the RTL and is wired
-  to the bonding pads of the chip. In addition to these signals there are most
+  to the bonding pads/bumps of the chip. In addition to these signals there are most
   often numerous additional signals that control additional features of the pad
-  like driving strenght, optional schmidt-triggers etc.
-
-In addition to these signals there are most often numerous additional signals
-that control additional features of the pad like driving strenght, optional
-schmidt-triggers etc. 
+  like driving strength, optional schmidt-triggers etc.
 
 Here is a (well documented) example of a ``pad_signals`` section for a very rudimentary IO pad:
 
@@ -279,7 +275,7 @@ Connection Types
 The connection type of a pad_signal determines, whether this particular signal
 is later-on to be controlled statically or dynamically.
 
-Padsignals of type static do not have an input-multiplexer and thus cannot be
+Pad signals of type static do not have an input-multiplexer and thus cannot be
 controlled by the routable Port signals. Instead, they are either tied to a
 constant logic level (e.g. 1'b0 to tie it to zero) or a logic expression of
 external signals consisting of unary or binary operators and signal identifiers.
@@ -290,7 +286,7 @@ by a single external signal e.g. "~``global_power_down``" connected to RX_en and
 TX_en.
 
 For each **dynamic** pad signal, a configuration register is auto-generated for
-**every pad instance**. This provides the user with control control over the
+**every pad instance**. This provides the user with control over the
 signal in the default case, where no *Port* is routed to this particular pad
 instance's pad_signal. Thus, pad_signals of type dynamic can be controlled by
 all connectable (more on how to control connectivity in chapter `Port
@@ -317,7 +313,8 @@ Pad Instance List
 The pad list contains a list of concrete pad instantiations. This is the place
 where you actually define, how many pads there are within your design. Each pad
 instance specifies a name for the pad, references the particular Pad Type to use
-and a *static signal connection list*.
+(you might have multiple IO cell flavors to choose from) and a *static signal
+connection list*.
 
 Here is an example:
 
@@ -367,13 +364,13 @@ Here is an example:
 Static Signal Connections and Config Register Reset Values
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
-For each pad instance, the user can supply a ``connections`` entry that overrides
-how static pad signals of this particular pad instance are to be connected or
-what the reset value of the corresponding configuration register shall be. The
-~connections~ field contains a mapping of *Pad Signal names* to *expressions*.
-The pad signal name is just a reference to a **static** or **dynamic** pad_signal
-declared for the chosen pad type. The expression on the other hand must be a
-simplified subset of a SystemVerilog expression.
+For each pad instance, the user can supply a ``connections`` list entry that
+overrides how static pad signals of this particular pad instance are to be
+connected or what the reset value of the corresponding configuration register
+shall be. The ``connections`` field contains a mapping of *Pad Signal names* to
+*expressions*. The pad signal name is just a reference to a **static** or
+**dynamic** pad_signal declared for the chosen pad type. The expression on the
+other hand must be a simplified subset of a SystemVerilog expression.
 
 Expression may consist of simple SystemVerilog literals (e.g. ``45``, ``8'h0a``, ``'0``
 etc.), unary and binary operators and signal identifiers without subscripting
@@ -395,13 +392,14 @@ these signal with the appropriate SoC logic. E.g.:
 .. code-block:: yaml
 
    ...
-      connections:
-        pad2chip: scan_en_i
-        chip2pad: ~ #Leave unconnected, only legal for pad signals of kind
-                    #"input"
-        enable_rx: 1 #pad signals of kind "input" any SystemVerilog literal is
-                 #valid.
-        enable_tx: ~test_en_i & gpio1_en_rx
+     connections:
+       pad2chip: scan_en_i
+       chip2pad: ~ # '~' is YAML syntax for 'None'. In this context it means leave
+                   # the signal unconnected, only legal for pad signals of kind
+                   # "input"
+       enable_rx: 1 #pad signals of kind "input" any SystemVerilog literal is
+                    #valid.
+       enable_tx: ~test_en_i & gpio1_en_rx
    ...
 
 This will cause the pad_frame to expose the signals ``scan_en_i``, ``test_en_i`` and
@@ -427,22 +425,30 @@ They will all be connected to the same input signal ``input_buffers_en_i``.
 Ports and Port Groups
 .....................
 
-Port groups provide logical grouping of *ports* and *peripheral signals*.
-Peripheral signals are the signals your IO facing peripheral exposes. The
-**ports** within a port group provide a logical mapping between peripheral signals
-and the **pad signals** defined in the ``pad_types`` section.
+*Port groups* provide logical grouping of *ports* and *peripheral signals* which
+are muxed on you pad instances. Peripheral signals are the signals your IO
+facing peripheral exposes (e.g. ``i2c_sda_tx_en`` or ``uart_rx``). *Ports* on
+the other hand are roles assigned to an IO pad when muxed to it. A *port* might
+make have to make use of multiple peripheral signals when it is connected to a
+pad. E.g. when connecting an I2C ``sda`` port to some particular pad, you need
+not only to connect the ``i2c_sda`` signal to the pad but also some
+``i2c_sda_tx_en`` to control the pads directionality. The **ports** within a
+port group thus need to specify a logical mapping between peripheral signals and the
+**pad signals** defined in the ``pad_types`` section.
 
-Here is an example of a port group for an I2C peripheral:
+.. hint:: Static pads define their connected signals directly, see `<Static Signal Connections and Config Register Reset Values_>`_
+
+A concrete example should make things clearer. Here we define a port group for an I2C peripheral which consists of two ports (SDA and SCL):
 
 .. code-block:: yaml
 
    port_groups:
      - name: i2c_0
-       mux_groups: [all] # More on that later
+       mux_groups: [all] # You will learn about mux_groups in the next section.
        output_defaults: 1'b0
        ports:
          - name: i2c_scl
-           description: "Bidirection I2C clock signal"
+           description: "Bidirectional I2C clock signal"
            connections:
              chip2pad: scl_out
              scl_in: pad2chip
@@ -458,44 +464,66 @@ Here is an example of a port group for an I2C peripheral:
              enable_tx: ~oen & i2c_en #You can use verilog expression combining multiple peripheral signals in your connections
              enable_rx: oen & i2c_en
 
-Each port_group must be defined with a ``name``, some optional ``description``
-and a list of ports (we will elaborate more on the ``mux_groups`` key in chapter
-`Port Multiplexing <Port Multiplexing_>`_). Each port again is defined with a
-name and optional description and a ``connections`` block. The connections block
-tells padrick how to connect the peripheral signals to the target pad when the
-user configure the port to be connected to a particular pad. The individual
-connections can be read like assignments. The identifiers used are either
-``pad_signal`` names or implicitly defined peripheral signals.
+Each ``port_group`` must be defined with a ``name``, some optional
+``description`` and a list of ports (we will elaborate more on the
+``mux_groups`` key in chapter `Port Multiplexing <Port Multiplexing_>`_). Each
+port again is defined with a name and optional description and a ``connections``
+block. The connections block tells padrick how to connect the peripheral signals
+to the target pad when the user configures the port to be connected to a
+particular pad (muxing configuration registers). The individual connections can
+be read like assignments i.e. the signal on the left-hand-side is assigned the
+value of the expression on the right-hand-side. The identifiers used are either
+``pad_signal`` names or *implicitly* defined peripheral signals.
 
-Considering the example I2C port group above. Let's connect the ``i2c_scl`` port
-to pad some arbitrary pad ``mypad_08`` with the same ``pad_signals`` as defined
-in our earlier example. In that case the connection block instructs padrick to
-connect mypad_08's ``chip2pad`` signal to the ``scl_out`` peripheral signal. The
-IO pads ``pad2chip`` drives the peripheral signal ``scl_in``. The ``enable_tx``
+Considering the example I2C port group above. Let's assume connected (by writing
+to the auto-generated config register) the ``i2c_scl`` port to some pad
+``mypad_08`` whose pad instance uses the same ``pad_signals`` as defined in our
+earlier example. In that case the connection block instructs padrick to connect
+mypad_08's ``chip2pad`` signal to the ``scl_out`` peripheral signal. The IO pads
+``pad2chip`` drives the peripheral signal ``scl_in``. The ``enable_tx``
 pad_signal is driven with a logic expression that consists of the two peripheral
-signals ``oen`` (an active low output-enable) and ``i2c_en`` (global peripheral
-enable signal). The right hand side of a port connection can also be a literal
-e.g. if certain pad configuration signals should be tied to constant values when
-the peripheral is connected to the pad.
+signals ``oen`` (an active low output-enable) and ``i2c_en`` (some global
+peripheral enable signal). The right hand side of a port connection can also be
+a literal e.g. if certain pad configuration signals should be tied to constant
+values when the peripheral is connected to the pad (e.g. ``enable_tx: 1'b0`` if
+a port is always an output as would be the case for ``uart_rx``).
 
-.. important:: Note that we didn't explicitly define our peripheral signals
+.. important:: Note that we didn't explicitly define our *peripheral signals*
    anywhere. Merely specifying a signal name in the connections block of a port
    implicitly defines the peripheral signal and causes padrick to generate the
    necessary module ports and muxing logic in the generated pad multiplexer.
    *The scope of the implicitly defined peripheral signals is the whole port
-   group.* Thus in our above example, the ``enable_rx`` signals the ports
-   ``i2c_scl_`` and ``i2c_sda`` reference the exact same signal. Thus peripheral
-   signals may be shared amongst ports within the same port group.
+   group.* Thus in our above example, the ``enable_rx`` signals used in the
+   ports ``i2c_scl`` and ``i2c_sda`` reference the exact same signal. Therefore,
+   peripheral signals may be shared amongst ports within the same port group.
+
+From the example before it should have become clear, that your peripheral can
+control any pad signal you defined for your ``pad_type``. If you're peripheral
+needs to control driving strenghts, schmidt-triggers or whatever control signal
+your IO library exposes this is all possible. The more interesting question is
+however, what happens with the pad signals that you're *port* does **not** use?
+E.g. we didn't specify a connection for the ``driving_strenght`` signal. What
+driving strenght is used when our ``mypad_08`` is used as ``i2c_scl`` port? The
+answer is pretty simple:
+
+.. important:: Every (dynamic) ``pad_signal`` that is not mentioned in your
+               *port's* connection block will be controlled by an auto-generated
+               pad configuration register whose reset value is specifed in the
+               pad instance's ``connection`` block (see `<Static Signal
+               Connections and Config Register Reset Values_>`_). E.g. since we
+               did not specify any connection for the ``driving_strength``
+               signal, the driving strenght of ``mypad_08`` will remain
+               controlled by ``mypad_08``'s pad configuration registers.
 
 Generating Multiple Ports/Pads with Regular Structure
 =====================================================
 
-Generating pad instances or ports of a regular structure can be come quite
+Generating pad instances or ports of a regular structure can become quite
 verbose if every instance is explicitly described in the YAML config file.
 Therefore, Padrick contains a feature for templated vectorization of **pad
 instances**, **port_groups** and **ports**. Each of these entities accepts the
 optional ``multiple`` key to instruct Padrick to generate multiple copies of the
-entity. During vector expansion, padrick looks for a special markes containing a
+entity. During vector expansion, padrick looks for special text markers containing a
 mini expression language to generate the names, descriptions etc. of the
 vectorized entity. An example should make the explanation much easier:
 
@@ -510,7 +538,7 @@ vectorized entity. An example should make the explanation much easier:
 
 While parsing the config file, padrick will expand this vectorized pad_instance
 to 32 copies. Padrick will replace the name of each pad with ``gpio00``,
-``gpio01`` until ``gpio31``. The description is handled Similarly.
+``gpio01`` until ``gpio31``. The description is handled similarly.
 
 
 Mini Expression language
@@ -523,7 +551,7 @@ expressions (e.g. ``{i:2d}``).
 
 Each mini expression has the following format:
 
-``{<expression>:<format>}`` or ``{<expression>}`` (if you want to use the default format)
+``{<expression>:<format>}`` or ``{<expression>}`` (if you want to use the default format ``d``)
 
 ``expression`` can be any expression consisting of:
 
@@ -531,7 +559,7 @@ Each mini expression has the following format:
 * the unary operators '+', '-'
 * braces '()' to indicate associativity
 * integer literals
-* the loop variable ``i`` (a variable that starts counting from 0 during vector expansion and incremets by one for every instance copy).
+* the loop variable ``i`` (a variable that starts counting from 0 during vector expansion and increments by one for every instance copy).
 
 E.g.
 
@@ -544,7 +572,7 @@ Will be expaned to ``gpio0_1``, ``gpio0_2``, ``gpio1_1`` and ``gpio1_2``.
 The format specifier consists of ``[<lenght>]<format_class>``.
 
 Format Class ``d``:
-  Format result of the expression in decimal representation. The optional ``length`` specifies the amount of zero padding.
+  Format result of the expression in decimal representation. The optional ``length`` specifies the amount of **zero padding**.
 
 Format Class ``o``:
   Same as ``d`` but format expression in octal representation.
@@ -553,7 +581,7 @@ Format Class ``b``:
   Same as ``d`` but format expression in binary representation.
 
 Format Class ``x``:
-  Same as ``x`` but format expression in hexa decimal representation.
+  Same as ``d`` but format expression in hexa decimal representation.
 
 Format Class ``c``:
   Format expression in Base26 and map the individual 'digits' to the lowercase letters of the latin alphabet.
@@ -572,20 +600,29 @@ Here is another example:
 
 Expands to ``pad_a00``, ``pad_a01``, ``pad_a02``, ``pad_a03``, ``pad_b00``, ``pad_b01`` etc.
 
+.. hint:: You can use the padrick command ``padrick config <your_padrame.yml>``
+           to parse the config file and print it in expanded form. This will
+           resolve all cross links in your config file (e.g. references to
+           ``pad_types``) and will expand all vectorized ``port``,
+           ``pad_instance`` etc. This is quite helpfull to debug how padrick is treating your vectorized config files.
 
 Port Multiplexing
 =================
 
-By default, Padrick allows routing any *Port* to any *Pad Instance*. However,
-the degree of routability can be adjusted very finely. Padick uses so called
-*mux groups* to configure the connectivity between ports and pad instances.
-Every pad instance and every port is contained in *one or several* mux groups.
-Port can be routed to all pad instances which are contained in any of the port's
-mux groups. I.e. ``port_xy`` can be connected to ``pad_123`` if ``pad_123`` is
-part of one (or multiple) of ``port_xy``'s mux groups.
+By default, Padrick allows routing any *Port* to any (non-static) *Pad
+Instance*. However, the degree of routability can be adjusted very finely.
+Padrick uses so called *mux groups* to configure the connectivity between ports
+and pad instances. Every pad instance and every port is a member of *one or
+several* mux groups. Ports can be dynamically connected to all pad instances
+which are contained in any of the port's mux groups. I.e. ``port_xy`` can be
+connected to ``pad_123`` if ``pad_123`` is part of one (or multiple) of
+``port_xy``'s mux groups.
+In more mathematical terms; Each pad_instance and each port specify a set of
+labels (mux_groups), whenever there is set-intersection between a pad_instance
+and a port, they can be connected with each other.
 
-A mux group is denoted by a simple string identifier and declared with
-`mux_groups` key in the config file. E.g. the following config snipped declares
+A mux group is denoted by a simple string identifier and declared with the
+`mux_groups` key in the config file. E.g. the following config snippet declares
 a pad called ``my_pad`` that is member of the mux_groups ``mux1``, ``my_pads``,
 and ``all``:
 
@@ -593,7 +630,7 @@ and ``all``:
 
    pad_list:
      - name: my_pad
-       mux_groups: # some examples use the more compact notation [mux1 my_pads self]. Both styles are valid YAML.
+       mux_groups: # some examples use the more compact notation [mux1 my_pads self]. Both styles are valid YAML lists.
          - mux1
          - my_pads
          - all
@@ -603,13 +640,13 @@ and ``all``:
 
 Similar to *peripheral signals* or *static connection signals* you don't have to
 explicitly declare *mux groups*. The first usage of an identifier creates the
-new mux group. You can use any C-identifier like string as the mux group name.
+new mux group. You can use any C-identifier-like string as the mux group name.
 
-You probably noticed, that our previous config example snippets did not specify
-the ``mux_groups`` key. The key is optional and has the default value [all].
+You probably noticed, that our previous config example snippets most of the time did not specify
+the ``mux_groups`` key. The key is optional and has the default value ``[all]``.
 I.e. by default, all ports and all pads are member of a mux group called
 ``all``. If you followed our explanation so far you should realize now, why by
-default, all ports can be connected to all pads with such a default value.
+default, all ports can be connected to all pads with this default value.
 
 Apart from ports and pad instances, mux_groups can also be applied to a complete
 port group. In that case the declared mux_group acts as a default for any port
@@ -640,7 +677,7 @@ Lets have a look at small example with a couple of pads and a couple of ports:
            mux_groups: [mx1, mx2]
            ...
          - name: miso
-           ... # No mux_groups override specified for mosi
+           ... # No mux_groups specified for mosi thus the port_group's default (mx1) applies
 
 In this small example, we used 2 different mux groups called ``mx1`` and
 ``mx2``. We have the following connectivity for the 3 ports:
@@ -654,10 +691,10 @@ Mux Group Templating
 
 Combining this chapter with the knowledge from `mini expression language <Mini
 Expression language>`_ we now have all the ingredients to define more complex
-mux groups. The key realization is, that mux_groups can be templated using the
+IO multiplexing schemes. The key realization is, that mux_groups can be templated using the
 mini expression language like we templated the port/pad instance names and
-descriptions in the examples on *Generating Multiple Ports/Pads with Regular
-Structure*.
+descriptions in the examples on `<Generating Multiple Ports/Pads with Regular
+Structure_>`_.
 
 Lets consider the following example:
 
@@ -707,40 +744,52 @@ port group, an i2c port group and a hyperflash port group.
 Since the individual ports of a GPIO peripheral are usually all identical, it
 doesn't make much sense to waste the routing resources to allow routing e.g.
 ``GPIO0`` to ``pad4``, you just use ``GPIO4`` instead. To allow for such a
-routing scenario, each port in the ``hs_gpios`` port group declares is member of
-the corresponding pad's mux group. E.g. port ``gpio0`` of the ``hs_gpio`` port
-group is member of the ``hs_pad0`` mux group, port ``gpio1`` is member of
-``hs_pad1`` and so forth. This results in the intended scenario. Since the i2c
-port group specifies the default mux group ``ls_pads``, every port within ``i2c``
-can be routed to any of the 4 low-speed pads, while any port of the hyperflash
+routing scenario, each port in the ``hs_gpios`` port group is member of the
+corresponding pad's mux group. E.g. port ``gpio0`` of the ``hs_gpio`` port group
+is member of the ``hs_pad0`` mux group, port ``gpio1`` is member of ``hs_pad1``
+and so forth. This results in the intended scenario. Since the i2c port group
+specifies the default mux group ``ls_pads``, every port within ``i2c`` can be
+routed to any of the 4 low-speed pads, while any port of the hyperflash
 peripheral can be routed to any of the high_speed pads.
 
-Syntax Reference
-================
+..
+   Syntax Reference
+   ================
 
-Data Types
-----------
+   Data Types
+   ----------
 
-String
-......
-
-Identifier
-..........
-
-Signal Expression
-.................
+   String
+     An arbitrary string literal
 
 
+   Identifier
+     Any string that would pass as a legal SystemVerilog signal/module identifier.
 
-Config File Structure
----------------------
 
-Root level keys
-...............
+   Signal Expression
+     A string consisting of a combination of:
+     - SystemVerilog logic literals (e.g. ``8'h1f``)
+     - Any SystemVerilog binary or unary operator
+     - `Identifiers`
+     - Braces ('(' and ')') to indicate associativiy.
 
-`pad_domain`
-.............
-``name``: required, string
+   Mini Expression
+     A string consisting of the form ``{<expression>:<format>}``. (See `<Mini Expression language_>`_ for reference)
+
+   Number
+     Any legal YAML number
+
+
+   Config File Structure
+   ---------------------
+
+   Root level keys
+   ...............
+
+   ``pad_domain``
+   .............
+   ``name``: required, ``string``
 
 
 
