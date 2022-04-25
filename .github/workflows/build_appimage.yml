@@ -1,0 +1,33 @@
+name: build_appimage
+on:
+  release:
+    types: [released]
+  workflow_dispatch: ~
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    env:
+      PYOXIDIZER_CACHE_DIR: $RUNNER_TEMP/.pyoxidizer_cache
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3.1.2
+      with:
+        python-version: 3.9
+        cache: pip
+        cache-dependency-path: setup.cfg
+    - name: Cache
+      uses: actions/cache@v3.0.2
+      with:
+        path: $PYOXIDIZER_CACHE_DIR
+        key: pyoxidizer_cache
+    - name: install dependencies
+      run: pip install .[binary_build] pyoxidizer==0.20.0
+    - name: build Appimage
+      run: make -C standalone_build
+    - name: upload Appimage
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: Padrick-x86_64-$GITHUB_REF.Appimage
+        path: standalone_build/Padrick-x86_64.Appimage
+        if-no-files-found: error
