@@ -101,7 +101,7 @@ cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
     # while True:
-        #cli(['generate', 'template-customization'])
+        cli(['generate', 'template-customization'])
         cli(['generate', '-s', 'padrick_gen_settings.yml', 'rtl'])
         config_file = '../../examples/siracusa_pads.yml'
         output = '/home/meggiman/garbage/test_padrick_siracusa'
