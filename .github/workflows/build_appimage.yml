@@ -17,8 +17,10 @@ jobs:
     - name: Cache
       uses: actions/cache@v3.0.2
       with:
-        path: $RUNNER_TEMP/.pyoxidizer_cache
-        key: pyoxidizer_cache
+        path: |
+          $RUNNER_TEMP/.pyoxidizer_cache
+          standalone_build/appimagetool
+        key: pyoxidizer_build_env_cache
     - name: install dependencies
       run: pip install .[binary_build]
     - name: build Appimage
