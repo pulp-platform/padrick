@@ -7,8 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
-    env:
-      PYOXIDIZER_CACHE_DIR: $RUNNER_TEMP/.pyoxidizer_cache
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v3.1.2
@@ -19,12 +17,12 @@ jobs:
     - name: Cache
       uses: actions/cache@v3.0.2
       with:
-        path: $PYOXIDIZER_CACHE_DIR
+        path: $RUNNER_TEMP/.pyoxidizer_cache
         key: pyoxidizer_cache
     - name: install dependencies
-      run: pip install .[binary_build] pyoxidizer==0.20.0
+      run: pip install .[binary_build]
     - name: build Appimage
-      run: make -C standalone_build
+      run: PYOXIDIZER_CACHE_DIR=$RUNNER_TEMP/.pyoxidizer_cache make -C standalone_build
     - name: upload Appimage
       uses: actions/upload-artifact@v3.0.0
       with:
