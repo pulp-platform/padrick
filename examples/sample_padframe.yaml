@@ -66,7 +66,7 @@ pad_domains:
                               # padlist or described globally with the
                               # default_static_value.
             default_reset_value: 0
-            default_static_value: 0
+            default_static_value: 3'b0
           - name: rx_en
             description: "Input buffer enable"
             size: 1
@@ -129,7 +129,7 @@ pad_domains:
           chip2pad: 1'b0
           rx_en: 1'b1 #pad signals of kind "input" any SystemVerilog literal is
                    #valid.
-          driving_strength: 0
+          driving_strength: 3'b0
       - name: pad_gpioa{i}
         mux_groups: [all, self] # Mux groups are arbitrary identifiers that
                                 # declares the possible connectivities between
@@ -249,11 +249,12 @@ pad_domains:
                          # increasing index (starting from 0)
             name: GPIO{i}
             description: "The signal number {i} of the GPIO peripheral"
-            mux_groups:  [pad_gpioa{i}] # Assign each gpio port to the individual
-                                       # ports of pad_gpiob. We don't need to
-                                       # mux the gpio port signals as they are
-                                       # all identical in functionality anyways.
-                                       # This creates a one-to-one mapping.
+            mux_groups: ["pad_gpioa{i}"] # Assign each gpio port to the
+                                         # individual ports of pad_gpiob. We
+                                         # don't need to mux the gpio port
+                                         # signals as they are all identical in
+                                         # functionality anyways. This creates a
+                                         # one-to-one mapping.
             connections:
               chip2pad: gpio{i}_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc. 
               gpio{i}_o: pad2chip
