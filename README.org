@@ -47,7 +47,7 @@
   over the IO Pads.
 * Getting Started
 
-** Installation  
+** Installation
   Installation of padrick is straight forward:
 
   #+BEGIN_SRC bash
@@ -71,7 +71,7 @@
   Both installation schemes will automatically install all the required
   dependencies. This will install the new command line tool ~padrick~.
 
-** Write the Padframe Configuration File  
+** Write the Padframe Configuration File
   Now that you installed padrick, you can start writing your padframe
   configuration file. Have a look at some of the examples in the ~examples~
   folder to become familiar with the syntax and read the [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick-doc][documentation]].
@@ -95,12 +95,12 @@
    folder will also be populated with appropriate Bender and IPApprox IP
    configuration file to simplify the integration of the auto-generated
    padframe.
-   
+
 ** Instantiating the Padframe within your Design
    Now that your padframe IP is generated you can instantiate it within your
    design. The toplevel module for user instantiation is called
    ~<padframe.name>_top.sv~. The structs that make up the interface of this
    SystemVerilog module are defined in ~pkg_<padframe.name>.sv~.
 * Documentation
-  For more in-depth documentatin of Padrick, visit the project Documentation
-  site at [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick-doc]].
+  For more in-depth documentation of Padrick, visit the project Documentation
+  site at [[https://padrick.readthedocs.io/en/latest/]]
