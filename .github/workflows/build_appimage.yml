@@ -1,7 +1,5 @@
 name: build_appimage
 on:
-  release:
-    types: [released]
   workflow_dispatch: ~
   push:
 jobs:
@@ -25,9 +23,15 @@ jobs:
       run: pip install .[binary_build]
     - name: build Appimage
       run: PYOXIDIZER_CACHE_DIR=$RUNNER_TEMP/.pyoxidizer_cache make -C standalone_build
-    - name: upload Appimage
-      uses: actions/upload-artifact@v3.0.0
+    # Generate release notes and upload asset if we pushed a release tag
+    - name: generate release notes
+      run: python3 update_changelog.py CHANGELOG.rst ${{github.ref_name}} > release_info.txt
+      if: startsWith(github.ref, 'refs/tags/v')
+    - name: create release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/v')
       with:
-        name: Padrick-x86_64-${{github.ref_name}}-${{github.sha}}.AppImage
-        path: standalone_build/Padrick-x86_64.AppImage
-        if-no-files-found: error
+        files: standalone_build/Padrick-x86_64.AppImage
+        name: v${{github.ref_name}}
+        body_path: release_info.txt
+        draft: True
