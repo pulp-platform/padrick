@@ -74,7 +74,7 @@
 ** Write the Padframe Configuration File
   Now that you installed padrick, you can start writing your padframe
   configuration file. Have a look at some of the examples in the ~examples~
-  folder to become familiar with the syntax and read the [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick-doc][documentation]].
+  folder to become familiar with the syntax and read the [[https://padrick.readthedocs.io/en/latest/][documentation]].
 
 ** Generating the Padframe
    With your padframe configuration file ready you can now invoke the ~padrick~
