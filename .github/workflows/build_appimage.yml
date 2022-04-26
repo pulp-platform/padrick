@@ -24,15 +24,36 @@ jobs:
     - name: build Appimage
       run: PYOXIDIZER_CACHE_DIR=$RUNNER_TEMP/.pyoxidizer_cache make -C standalone_build
     - name: test appimage
-      run: standalone_build/Padrick-x86_64.AppImage validate sample_padframe.yaml
+      run: standalone_build/Padrick-x86_64.AppImage validate examples/sample_padframe.yaml
+    - name: upload Appimage
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: Padrick-x86_64-${{github.ref_name}}-${{github.sha}}.AppImage
+        path: standalone_build/Padrick-x86_64.AppImage
+        if-no-files-found: error
 
     # Generate release notes and upload asset if we pushed a release tag
+  release:
+    runs-on: ubuntu-18.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build]
+    permissions:
+      repository-projects: write
+    steps:
+    - name: download appimage
+      uses: actions/download-artifact@v3
+      with:
+        name: Padrick-x86_64-${{github.ref_name}}-${{github.sha}}.AppImage
+        path: standalone_build/Padrick-x86_64.AppImage
+    # File permissions are not maintained during artifact download. Set it again
+    - name: Display downloaded appimage
+      run: ls -la standalone_build
+    - name: make appimage executable
+      run: chmod a+x standalone_build/Padrick-x86_64.AppImage
     - name: generate release notes
       run: python3 update_changelog.py CHANGELOG.rst ${{github.ref_name}} > release_info.txt
-      if: startsWith(github.ref, 'refs/tags/v')
     - name: create release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/v')
       with:
         files: standalone_build/Padrick-x86_64.AppImage
         name: v${{github.ref_name}}
