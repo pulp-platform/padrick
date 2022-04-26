@@ -9,7 +9,7 @@
   upstream:
   {
     url: https://github.com/pulp-platform/register_interface.git
-    rev: 7b46e0734a513ace1a90a51a9e6b1454e05bc099
+    rev: ca1b3fda2620ab1eae042e010564cafc32c52130
     only_subdir: vendor/lowrisc_opentitan/util
   }
 }

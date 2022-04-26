@@ -1,9 +1,12 @@
 from enum import Enum
-from typing import Optional, Set
+from typing import Optional, Set, Dict, Union
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
 from pydantic import BaseModel, constr, conint, validator, PrivateAttr, root_validator, Extra
+
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+
 
 class PadSignalKind(str, Enum):
     input = "input"
@@ -20,7 +23,7 @@ class ConnectionType(str, Enum):
     dynamic = "dynamic"
 
 class Signal(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
+    name: TemplatedIdentifierType
     size: conint(ge=1, le=32) = 1
     _direction: Optional[SignalDirection] = PrivateAttr(None)
 
@@ -49,6 +52,7 @@ class PadSignal(Signal):
     default_reset_value: Optional[int]
     default_static_value: Optional[SignalExpressionType]
     _static_signals: Set[Signal] = PrivateAttr(default=set())
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
     @property
     def direction(self):

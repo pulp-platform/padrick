@@ -1,3 +1,6 @@
+% for line in header_text.splitlines():
+// ${line}
+% endfor
 module ${padframe.name}_${pad_domain.name}_muxer
   import pkg_internal_${padframe.name}_${pad_domain.name}::*;
   import pkg_${padframe.name}::*;
@@ -46,53 +49,49 @@ module ${padframe.name}_${pad_domain.name}_muxer
 
 <%
 all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
+# Remap the port signal names to the hierarchical identifier for index the
+# signal from the struct
+signal_name_remap = {}
+for port_group in pad_domain.port_groups:
+    signal_name_remap[port_group.name] = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
 %>
    // SoC -> Pad Multiplex Logic
 % for pad in pad_domain.pad_list:
-% for i in range(pad.multiple):
 <%
    import math
-   pad_suffix = i if pad.multiple > 1 else ""
-   pad_subscript = f"[{i}]" if pad.multiple > 1 else ""
    sel_bitwidth = round(math.log2(len(all_ports)+1))
 %>\
 % if pad.dynamic_pad_signals_soc2pad:
-   // Pad ${pad.name}${pad_suffix}
-% for pad_signal in pad.dynamic_pad_signals_soc2pad:
-   // Pad Signal ${pad_signal.name}
+   // Pad ${pad.name}
    always_comb begin
-     unique case (s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q)
-       PAD_MUX_GROUP_${pad.mux_group.upper()}_SEL_DEFAULT: begin
-         mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+     unique case (s_reg2hw.${pad.name}_mux_sel.q)
+       PAD_MUX_GROUP_${pad.mux_group_name}_SEL_DEFAULT: begin
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
+         mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+% endfor
        end
-<% port_idx = 1 %>\
 % for port_group in pad_domain.port_groups:
-<%
-   # Remap the port signal names to the hierarchical identifier for index the signal from the struct
-   signal_name_remap = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
-%>\
-% for port in port_group.ports:
-% if port.mux_group == pad.mux_group:
-       PAD_MUX_GROUP_${pad.mux_group.upper()}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
+% for port in port_group.get_ports_in_mux_groups(pad.mux_groups):
+       PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()}: begin
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
-          mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap).expression};
+          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name])};
 % else:
-          mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+          mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
 % endif
-<% port_idx += 1 %>\
+% endfor
        end
-% endif
 % endfor
 % endfor
        default: begin
-         mux_to_pads_o.${pad.name}${pad_suffix}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg${pad_subscript}.${pad_signal.name}.q;
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
+         mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+% endfor
        end
      endcase
    end // always_comb
 
-% endfor
 % endif
-% endfor
 % endfor
 
   // Pad -> SoC Multiplex Logic
@@ -102,33 +101,24 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
   // Port Group ${port_group.name}
 % for port in port_group.ports:
 <%
-dynamic_pads = [pad for pad in pad_domain.pad_list if pad.dynamic_pad_signals if pad.mux_group == port.mux_group]
-dynamic_pad_count = sum([pad.multiple for pad in dynamic_pads])
+dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
 %>
 % for port_signal in port.port_signals_pad2chip:
   // Port Signal ${port_signal.name}
-  logic [${dynamic_pad_count-1}:0] port_mux_sel_req_${port_group.name}_${port_signal.name};
-  logic [PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_WIDTH-1:0] port_mux_sel_${port_group.name}_${port_signal.name};
+  logic [${len(dynamic_pads)-1}:0] port_mux_sel_${port_group.name}_${port_signal.name}_req;
+  logic [PORT_MUX_GROUP_${port.mux_group_name}_SEL_WIDTH-1:0] port_mux_sel_${port_group.name}_${port_signal.name}_arbitrated;
   logic port_mux_sel_${port_group.name}_${port_signal.name}_no_connection;
 
 % for pad in dynamic_pads:
-% if pad.mux_group == port.mux_group:
-% for i in range(pad.multiple):
-<%
-   pad_subscript = f"[{i}]" if pad.multiple > 1 else ""
-   pad_suffix = i if pad.multiple > 1 else ""
-%>\
-   assign port_mux_sel_req_${port_group.name}_${port_signal.name}[PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_${pad.name.upper()}${pad_suffix}] = s_reg2hw.${pad.name}_mux_sel${pad_subscript}.q == PAD_MUX_GROUP_${port.mux_group.upper()}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
-% endfor
-% endif
+   assign port_mux_sel_${port_group.name}_${port_signal.name}_req[PORT_MUX_GROUP_${port.mux_group_name}_SEL_${pad.name.upper()}] = s_reg2hw.${pad.name}_mux_sel.q == PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
 % endfor
 
    lzc #(
-     .WIDTH(${dynamic_pad_count}),
+     .WIDTH(${len(dynamic_pads)}),
      .MODE(1'b0)
    ) i_port_muxsel_${port_group.name}_${port_signal.name}_arbiter (
-     .in_i(port_mux_sel_req_${port_group.name}_${port_signal.name}),
-     .cnt_o(port_mux_sel_${port_group.name}_${port_signal.name}),
+     .in_i(port_mux_sel_${port_group.name}_${port_signal.name}_req),
+     .cnt_o(port_mux_sel_${port_group.name}_${port_signal.name}_arbitrated),
      .empty_o(port_mux_sel_${port_group.name}_${port_signal.name}_no_connection)
    );
 
@@ -136,23 +126,18 @@ dynamic_pad_count = sum([pad.multiple for pad in dynamic_pads])
      if (port_mux_sel_${port_group.name}_${port_signal.name}_no_connection) begin
         port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
      end else begin
-        unique case (port_mux_sel_${port_group.name}_${port_signal.name})
+        unique case (port_mux_sel_${port_group.name}_${port_signal.name}_arbitrated)
 % for pad in dynamic_pads:
-% if pad.mux_group == port.mux_group:
-% for i in range(pad.multiple):
 <%
-  pad_suffix = i if pad.multiple > 1 else ""
-  pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{pad.name}{pad_suffix}.{pad_signal.name}" for pad_signal in pad.dynamic_pad_signals_pad2soc}
+  pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{pad.name}.{pad_signal.name}" for pad_signal in pad.dynamic_pad_signals_pad2soc}
 %>\
-          PORT_MUX_GROUP_${port.mux_group.upper()}_SEL_${pad.name.upper()}${pad_suffix}: begin
+          PORT_MUX_GROUP_${port.mux_group_name}_SEL_${pad.name.upper()}: begin
 % if port_signal in port.connections:
-            port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping).expression};
+            port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(pad_signal_remapping)};
 % else:
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
 % endif
           end
-% endfor
-% endif
 % endfor
           default: begin
             port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};

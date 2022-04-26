@@ -3,7 +3,7 @@ import os
 from importlib import resources
 from pathlib import Path
 
-from padrick.Generators.TemplateRenderJob import TemplateRenderJob
+from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.Padframe import Padframe
 

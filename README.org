@@ -51,12 +51,12 @@
   Installation of padrick is straight forward:
 
   #+BEGIN_SRC bash
-    pip install git+ssh://git@iis-git.ee.ethz.ch/utilities/padrick.git
+    pip install git+ssh://git@github.com:pulp-platform/padrick.git
   #+END_SRC
 
   Or if you prefer an https connection over SSH:
   #+BEGIN_SRC bash
-    pip install git+https://iis-git.ee.ethz.ch/utilities/padrick
+    pip install git+https://github.com/pulp-platform/padrick
   #+END_SRC
 
   If you plan to modify or frequently update padrick you might want to install
@@ -64,7 +64,7 @@
   effect immediately to all Python environments were you installed padrick.
 
   #+BEGIN_SRC bash
-    git clone https://iis-git.ee.ethz.ch/utilities/padrick
+    git clone https://github.com/pulp-platform/padrick
     pip install -e ./padrick
   #+END_SRC
 
@@ -74,7 +74,7 @@
 ** Write the Padframe Configuration File  
   Now that you installed padrick, you can start writing your padframe
   configuration file. Have a look at some of the examples in the ~examples~
-  folder to become familiar with the syntax and read the [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick][documentation]].
+  folder to become familiar with the syntax and read the [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick-doc][documentation]].
 
 ** Generating the Padframe
    With your padframe configuration file ready you can now invoke the ~padrick~
@@ -103,4 +103,4 @@
    SystemVerilog module are defined in ~pkg_<padframe.name>.sv~.
 * Documentation
   For more in-depth documentatin of Padrick, visit the project Documentation
-  site at [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick]].
+  site at [[https://iis-people.ee.ethz.ch/~meggiman/tools/padrick-doc]].

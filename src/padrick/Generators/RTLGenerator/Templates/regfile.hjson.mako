@@ -2,22 +2,28 @@
   import math
   import string
   from padrick.Model.PadSignal import SignalDirection
+  from natsort import natsorted
+
+  def sort_by_name(seq):
+    return natsorted(seq, lambda x: x.name)
 
 %>
 {
+% for line in header_text.splitlines():
+    # ${line}
+% endfor
     name: "${padframe.name}_${pad_domain.name}_config"
     clock_primary: "clk_i"
     reset_primary: "rst_ni"
-    bus_device: "reg",
-    bus_host: "",
+    bus_interfaces: [
+        { protocol: "reg_iface", direction: "device"}
+    ]
     regwidth: 32,
     registers: [
         {skipto: "${start_address_offset}"},
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
 <%
-  multireg_preamble = "{ multireg: " if pad.multiple > 1 else ""
-  multireg_postamble = "}" if pad.multiple > 1 else ""
   # Calculate how many config registers we need to accomodate all dynamic
   # pad signals that need a register.
   total_dynamic_padsignal_bits = sum([signal.size for signal in pad.dynamic_pad_signals])
@@ -50,15 +56,11 @@
       return cfg_suffix
 %> \
 % for i, pad_signals in enumerate(pad_signals_grouping):
-${multireg_preamble}{
+     {
           name: ${pad.name.upper()}_CFG${cfg_suffix(i)}
           desc: '''
             Pad signal configuration.
           '''
-% if pad.multiple > 1:
-          count: "${pad.multiple}"
-          cname: "${pad.name.upper()}"
-% endif
           swaccess: "rw"
           fields: [
 % for pad_signal, (msb, lsb) in pad_signals:
@@ -74,46 +76,46 @@ ${multireg_preamble}{
             },
 % endfor
           ]
-      }${multireg_postamble}
+      }
 % endfor
 % endif
 % if pad.dynamic_pad_signals:
 <%
-  all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
-  multireg_preamble = "{ multireg: " if pad.multiple > 1 else ""
-  multireg_postamble = "}" if pad.multiple > 1 else ""
+    # The reset value depends on whether the dynamic pad has a default_port or not. If it doesn't the resvalue is
+    # zero (connect to register file value). If it has one, we need to find the right select value that corresponds
+    # to the port.
+    connectable_ports = []
+    idx = 0
+    reset_value = 0
+    for port_group in sort_by_name(pad_domain.port_groups):
+      for port in sort_by_name(port_group.ports):
+        if port.mux_groups.intersection(pad.mux_groups):
+          connectable_ports.append((port_group, port))
+          idx += 1
+          if pad.default_port and pad.default_port[0].name == port_group.name and pad.default_port[1].name == port.name:
+            reset_value = idx
 %>
-      ${multireg_preamble}{
+       {
           name: ${pad.name.upper()}_MUX_SEL
           desc: '''
               Pad signal port multiplex selection for pad ${pad.name}. The programmed value defines which port
-              is connected to the pad. 
+              is connected to the pad.
           '''
-% if pad.multiple > 1:
-          count: "${pad.multiple}"
-          cname: "${pad.name.upper()}"
-% endif
           swaccess: "rw"
           hwaccess: "hro"
-          resval: 0
+          resval: ${reset_value}
           fields: [
               {
-                  bits: "${max(0,math.ceil(math.log2(len([port for port in all_ports if port.mux_group == pad.mux_group])+1))-1)}:0"
+                  bits: "${max(0,math.ceil(math.log2(len(pad_domain.get_ports_in_mux_groups(pad.mux_groups))+1))-1)}:0"
                   enum: [
-                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register. This is the default value."}
-<% idx = 0 %>\
-% for port_group in pad_domain.port_groups:
-% for port in port_group.ports:
-% if port.mux_group == pad.mux_group:
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+%for idx, (port_group, port) in enumerate(connectable_ports):
                       { value: "${idx+1}", name: "port_${port_group.name}_${port.name.lower()}", desc: "Connect port ${port.name} from port group ${port_group.name} to this pad." }
-<% idx += 1 %>\
-% endif
-% endfor
-% endfor
+%endfor
                   ]
               }
           ]
-      }${multireg_postamble}
+      }
 % endif
 
 % endfor

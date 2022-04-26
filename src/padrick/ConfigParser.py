@@ -1,11 +1,10 @@
 from pathlib import Path
 import logging
-from typing import List, Union, Tuple, Mapping
+from typing import List, Union, Tuple, Mapping, Type, TypeVar
 
 import click
 import click_log
-from padrick.Model.ParseContext import PARSE_CONTEXT
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from ruamel.yaml.comments import CommentedMap
 
 logger = logging.getLogger("padrick.Configparser")
@@ -13,8 +12,6 @@ click_log.basic_config(logger)
 from ruamel.yaml import YAML, YAMLError
 
 yaml = YAML()
-
-from padrick.Model.Padframe import Padframe
 
 def get_error_context(config_file: Path, line, column, context_before = 4, context_after = 4):
     lines_to_return = []
@@ -57,8 +54,7 @@ def get_file_location(config_data: CommentedMap, error_location: List[Union[str,
             break
     return location, subtree
 
-
-def parse_config(config_file: Path) -> Union[Padframe,None]:
+def parse_config(cls:Type[BaseModel], config_file: Path):
     with config_file.open() as file:
         try:
             config_data = yaml.load(file)
@@ -66,13 +62,15 @@ def parse_config(config_file: Path) -> Union[Padframe,None]:
             logger.error(f"Error while parsing config_file:\n{e}")
             return None
         try:
-            padframe_model = Padframe.parse_obj(config_data)
+            padframe_model = cls.parse_obj(config_data)
             return padframe_model
         except ValidationError as e:
             logger.error(f"Encountered {len(e.errors())} validation errors while parsing the configuration file:")
             for error in e.errors():
                 if error['type'] == 'value_error.extra':
-                    error['msg'] = f'Unknown field {error["loc"][-1]}. Did you mispell the field name?'
+                    error['msg'] = f'Unknown field {error["loc"][-1]}. Did you misspell the field name?'
+                if error['type'] == 'value_error.missing':
+                    error['msg'] = f'Missing field {error["loc"][-1]}. Did you forget or misspell it?'
                 #error_path = get_human_readable_error_path(config_data, error["loc"])
                 (line, column), subtree = get_file_location(config_data, error["loc"])
                 error_context = get_error_context(config_file, line, column, context_after=10)

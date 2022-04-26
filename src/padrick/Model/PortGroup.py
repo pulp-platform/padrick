@@ -1,29 +1,35 @@
-from typing import Optional, List, Set, Mapping, Union
+from typing import Optional, List, Set, Mapping, Union, Dict
 
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conlist, validator, root_validator, Extra
+from pydantic import BaseModel, constr, conint, validator, root_validator, Extra, conset
 
-from padrick.Model.Utilities import sort_signals
+from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.TemplatedString import TemplatedStringType
+from padrick.Model.Utilities import sort_signals, sort_ports, cached_property
 
 
 class PortGroup(BaseModel):
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
-    mux_group: Optional[constr(strip_whitespace=True, regex=SYSTEM_VERILOG_IDENTIFIER)]
+    name: TemplatedIdentifierType
+    description: Optional[TemplatedStringType]
+    mux_groups: Optional[conset(TemplatedIdentifierType, min_items=1)]
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
+    multiple: conint(ge=1) = 1
+    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    _method_cache = {}
 
     class Config:
         extra = Extra.forbid
+        underscore_attrs_are_private = True
 
     @validator('output_defaults')
     def expand_default_value_for_connection_defaults(cls, output_defaults, values):
         if isinstance(output_defaults, SignalExpressionType):
             port_signals_pad2soc = set()
-            for port in values['ports']:
+            for port in values.get('ports', []):
                 port_signals_pad2soc.update(port.port_signals_pad2chip)
             output_defaults = {port_signal.name: output_defaults for port_signal in port_signals_pad2soc}
         return output_defaults
@@ -74,6 +80,26 @@ class PortGroup(BaseModel):
 
 
     @validator('ports')
+    def expand_multi_ports(cls, ports):
+        """
+        Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
+        """
+        expanded_ports = []
+        for port in ports:
+            expanded_ports.extend(port.expand_port())
+        return expanded_ports
+
+    @validator('ports')
+    def check_ports_are_unique(cls, ports):
+        port_names_seen = set()
+        for port in ports:
+            if port.name in port_names_seen:
+                raise ValueError(f"Duplicate port name {port.name}. Ports within a port group must be unique.")
+            else:
+                port_names_seen.add(port.name)
+        return ports
+
+    @validator('ports')
     def check_port_signals_are_not_bidirectional(cls, v):
         port_signals = set()
         for port in v:
@@ -103,67 +129,32 @@ class PortGroup(BaseModel):
                     port_signals.add(port_signal)
         return v
 
-    @validator('ports', each_item=True)
-    def override_port_mux_group(cls, port, values):
-        if values.get('mux_group', None):
-            port.mux_group = values['mux_group']
-        return port
-
-    @validator('ports')
-    def expand_multi_ports(cls, ports, values):
-        """
-        Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
-        """
-        expanded_ports = []
-        for port in ports:
-            for i in range(port.multiple):
-                expanded_port : Port = port.copy()
-                replace_token = lambda s: s.replace('<>', str(i)) if isinstance(s, str) else s
-                expanded_port.name = replace_token(expanded_port.name)
-                expanded_port.description = replace_token(expanded_port.description)
-                expanded_port.mux_group = replace_token(expanded_port.mux_group)
-                expanded_port.multiple = 1
-                expanded_connections = {}
-                for key, value in expanded_port.connections.items():
-                    if isinstance(key, SignalExpressionType):
-                        key = replace_token(key.expression)
-                    elif isinstance(key, Signal):
-                        key = replace_token(key.name)
-                    elif isinstance(key, str):
-                        key = replace_token(str)
-                    if isinstance(value, SignalExpressionType):
-                        value = replace_token(value.expression)
-                    elif isinstance(value, Signal):
-                        value = replace_token(value.name)
-                    elif isinstance(value, str):
-                        value = replace_token(str)
-                    expanded_connections[key] = value
-                expanded_port.connections = expanded_connections
-                expanded_ports.append(expanded_port)
-        return expanded_ports
-
-
-    @property
+    @cached_property
     def port_signals(self) -> List[Signal]:
         return sort_signals(set.union(*[set(port.port_signals) for port in self.ports]))
 
-    @property
+    @cached_property
     def port_signals_soc2pads(self) -> List[Signal]:
         return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
                                  SignalDirection.soc2pads]))
 
-    @property
+    @cached_property
     def port_signals_pads2soc(self) -> List[Signal]:
         return sort_signals(set([signal for signal in self.port_signals if signal.direction ==
                                  SignalDirection.pads2soc]))
 
-    def get_port_signals_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set.union(*[set(port.port_signals) for port in self.ports if port.mux_group == mux_group]))
+    def get_ports_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+        ports_in_mux_group = [port for port in self.ports if mux_groups.intersection(port.mux_groups)]
+        return sort_ports(ports_in_mux_group)
 
-    def get_port_signals_soc2pads_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.soc2pads]))
+    def expand_port_group(self) -> List['PortGroup']:
+        expanded_port_groups = []
+        for i in range(self.multiple):
+            expanded_port_group: PortGroup = self.copy()
+            expanded_port_group.name = expanded_port_group.name.evaluate_template(i)
+            expanded_port_group.description = expanded_port_group.description.evaluate_template(i) if expanded_port_group.description else None
+            expanded_port_group.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port_group.mux_groups)) if expanded_port_group.mux_groups else None
+            expanded_port_group.multiple = 1
+            expanded_port_groups.append(expanded_port_group)
+        return expanded_port_groups
 
-    def port_signals_pads2soc_for_mux_group(self, mux_group: str) -> List[Signal]:
-        return sort_signals(set([signal for signal in self.get_port_signals_for_mux_group(mux_group) if signal.direction ==
-                    SignalDirection.pads2soc]))

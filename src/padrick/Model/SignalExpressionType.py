@@ -6,13 +6,16 @@ from lark.lark import Lark
 from lark.tree import Tree
 from lark.visitors import Transformer
 
+from padrick.Model.TemplatedIndexGrammar import templated_index_grammar, TemplatedIdxEvaluator, \
+    TemplatedIdxToStringTransformer
+
 expression_language = r"""
 ?start: expression
 
 ?expression: _primary
-          | UNARY_OP _primary -> unary_operation
-          | "(" expression ")"
-          | expression BINARY_OP expression -> binary_operation
+          | UNARY_OP WS? _primary -> unary_operation
+          | "(" WS? expression WS? ")"
+          | expression WS? BINARY_OP WS? expression -> binary_operation
           | empty_expression
           
 empty_expression: WS*
@@ -24,7 +27,7 @@ literal: integral_number
 
 signal_expression: signal //("[" constant_range_expression "]")*
 
-signal: CNAME -> signal_name
+signal: (UNDERSCORE|LETTER) (UNDERSCORE|LETTER|DIGIT|idx_template)* -> signal_name
 
 ?constant_range_expression: constant_expression
                          | constant_part_select_range
@@ -115,9 +118,7 @@ UCASE_LETTER: "A".."Z"
 LETTER: UCASE_LETTER | LCASE_LETTER
 WORD: LETTER+
 
-CNAME: ("_"|LETTER) ("_"|LETTER|DIGIT|ARRAY_PLACEHOLDER)*
-
-ARRAY_PLACEHOLDER: "<>"
+CNAME: ("_"|LETTER) ("_"|LETTER|DIGIT)*
 
 //
 // Whitespace
@@ -136,24 +137,20 @@ CPP_COMMENT: /\/\/[^\n]*/
 C_COMMENT: "/*" /(.|\n)*?/ "*/"
 SQL_COMMENT: /--[^\n]*/
 
-%ignore WS
+//%ignore WS
 """
 
-simple_expression_parser = Lark(expression_language)
-
-class ExprToStringTransformer(Transformer):
-    def __default__(self, data, children, meta):
-        return "".join(children)
-    def __default_token__(self, token):
-        return str(token)
+simple_expression_parser = Lark(expression_language+templated_index_grammar, parser="earley")
 
 class SignalNameRemapTransformer(Transformer):
     def __init__(self, signal_name_mapping: Mapping[str, str]):
         super().__init__()
         self._map = signal_name_mapping
 
-    def CNAME(self, name):
+    def signal_name(self, characters):
+        name = "".join(characters)
         return self._map.get(name, name)
+
 
 
 class SignalExpressionType(str):
@@ -163,17 +160,23 @@ class SignalExpressionType(str):
     def __init__(self, expression: str):
         super().__init__()
         if expression == None:
-            expression = ""
-        self._ast = simple_expression_parser.parse(str(expression))
-
-
-    def __str__(self):
-        return ExprToStringTransformer().transform(self._ast)
+            self._ast = ""
+        elif isinstance(expression, str):
+            try:
+                self._ast = simple_expression_parser.parse(expression)
+            except UnexpectedInput as e:
+                raise ValueError("Illegal signal expresion: "+str(e))
+        else:
+            raise ValueError("Expression must be a string or None")
 
     def get_mapped_expr(self, signal_name_mapping: Mapping[str, str]) -> 'SignalExpressionType':
-        clone = deepcopy(self)
-        clone._ast = SignalNameRemapTransformer(signal_name_mapping).transform(clone._ast)
-        return clone
+        return (SignalNameRemapTransformer(signal_name_mapping)*TemplatedIdxToStringTransformer()).transform(self.ast)
+
+    def evaluate_template(self, i):
+        if not isinstance(self.ast, str):
+            return SignalExpressionType((TemplatedIdxEvaluator(i)*TemplatedIdxToStringTransformer()).transform(self.ast))
+        else:
+            return self
 
     @property
     def expression(self) -> str:
@@ -199,7 +202,7 @@ class SignalExpressionType(str):
     def signal_collection(self):
         signal_collection = set()
         for signal_name in self.ast.find_data('signal_name'):
-            signal_collection.add(signal_name.children[0])
+            signal_collection.add(TemplatedIdxToStringTransformer().transform(signal_name))
         return signal_collection
 
     @classmethod
@@ -218,8 +221,12 @@ class SignalExpressionType(str):
         return self.expression
 
 if __name__ == "__main__":
-    expr = SignalExpressionType.validate("clk_i+1")
+    expr = SignalExpressionType.validate("1'b0")
     print(expr.expression)
     print(expr.signal_collection)
     print(expr.is_const_expr)
     print(expr.is_single_signal)
+    evaluated_expr = expr.evaluate_template(41)
+    print(evaluated_expr)
+    mapped_expr = evaluated_expr.get_mapped_expr({'clk41_i':'test_o'})
+    print(mapped_expr)

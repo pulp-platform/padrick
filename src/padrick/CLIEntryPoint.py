@@ -8,12 +8,15 @@ from mako.template import Template
 import padrick.Generators.CLIGeneratorCommands
 import click
 import click_completion
+import click_spinner
 import click_log
 import json
+
+from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
-from padrick.Model import Padframe
+from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
@@ -24,6 +27,7 @@ click_completion.init()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
+@click.version_option()
 def cli():
     """
     Generate padframes for SoC
@@ -48,27 +52,31 @@ def install_completions(append, case_insensitive, shell, path):
 def validate(file):
     """ Parse and validate the given config file
     """
-    model = parse_config(Path(file))
-    if model != None:
-        click.echo(f"Successfully parsed configuration file.")
-    else:
-        click.echo(f"Error while parsing configuration file {file}")
+    with click_spinner.spinner():
+        model = parse_config(Padframe, Path(file))
+        if model != None:
+            click.echo(f"Successfully parsed configuration file.")
+        else:
+            click.echo(f"Error while parsing configuration file {file}")
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
 @click_log.simple_verbosity_option(logger)
 def config(file):
     """ Print the parsed padframe configuration file """
-    model = parse_config(Path(file))
+    with click_spinner.spinner():
+        model = parse_config(Padframe, Path(file))
     if model != None:
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):
                 return str(o)
-            def __sanitize_keys_and_values(self, o):
+            def sanitize(self, o):
                 if isinstance(o, list):
-                    return [self.__sanitize_keys_and_values(v) for v in o]
+                    return [self.sanitize(v) for v in o]
+                if isinstance(o, tuple):
+                    return tuple([self.sanitize(v) for v in o])
                 elif isinstance(o, dict):
-                    return {self.__sanitize_keys_and_values(key): self.__sanitize_keys_and_values(v) for key, v in o.items()}
+                    return {self.sanitize(key): self.sanitize(v) for key, v in o.items()}
                 elif isinstance(o, Template):
                     return o.source
                 elif isinstance(o, SignalExpressionType):
@@ -81,33 +89,33 @@ def config(file):
                 else:
                     return o
             def encode(self, o):
-                return super().encode(self.__sanitize_keys_and_values(o))
-
+                return super().encode(self.sanitize(o))
         click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
 
 # Register first level subcommand
-#cli.add_command(Rosetta.rosetta)
-#cli.add_command(Vega.vega)
 cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)
 
 # For debugging purposes only
 if __name__ == '__main__':
     #cli(['rosetta', '-o' 'test.avc', 'write-mem', '0x1c008080=0xdeadbeef'])
     # while True:
-    #     config_file = '../../examples/kraken_padframe.yml'
-    #     output = '/home/meggiman/garbage/test_padrick'
-        # try:
-        #     padframe = parse_config(Path(config_file))
-        #     generate_rtl(padframe, Path(output))
-        #     print("Generated RTL")
-        # except Exception as e:
-        #     traceback.print_exc()
-        #     pass
+        cli(['generate', 'template-customization'])
+        cli(['generate', '-s', 'padrick_gen_settings.yml', 'rtl'])
+        config_file = '../../examples/siracusa_pads.yml'
+        output = '/home/meggiman/garbage/test_padrick_siracusa'
+        try:
+            padframe = parse_config(Padframe, Path(config_file))
+            if padframe:
+                generate_rtl(RTLTemplates(), padframe, Path(output), header_text="")
+                print("Generated RTL")
+        except Exception as e:
+            traceback.print_exc()
+            pass
         # time.sleep(5)
 
-    cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
-             '../../examples/sample_padframe.yaml'])
+    # cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
+    #          '../../examples/sample_padframe.yaml'])
 
     #cli(['config', '../../examples/kraken_padframe.yml'])
