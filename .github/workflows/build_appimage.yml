@@ -23,6 +23,9 @@ jobs:
       run: pip install .[binary_build]
     - name: build Appimage
       run: PYOXIDIZER_CACHE_DIR=$RUNNER_TEMP/.pyoxidizer_cache make -C standalone_build
+    - name: test appimage
+      run: standalone_build/Padrick-x86_64.AppImage validate sample_padframe.yaml
+
     # Generate release notes and upload asset if we pushed a release tag
     - name: generate release notes
       run: python3 update_changelog.py CHANGELOG.rst ${{github.ref_name}} > release_info.txt
