@@ -49,14 +49,13 @@ def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_
             raise RTLGenException(f"Error parsing regfile.") from e
         address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj.reg_blocks[None].offset)
         next_pad_domain_reg_offset = obj.reg_blocks[None].offset
-        address_space_size = next_pad_domain_reg_offset-4
         return_code = reggen_gen_rtl.gen_rtl(obj, (dir/"src").as_posix())
         if return_code != 0 and not (return_code is None):
             logger.error(f"Regtool template rendering of register file for pad domain {pad_domain.name} failed")
             raise RTLGenException("Reggen Rendering failed")
 
     templates.toplevel_module.render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges,
-                               address_space_size=address_space_size, header_text=header_text)
+                               address_space_size=next_pad_domain_reg_offset, header_text=header_text)
     templates.assign_header_file.render(dir / "include" / padframe.name, logger=logger, padframe=padframe, header_text=header_text)
 
     templates.bender_project_file.render(dir, logger=logger, padframe=padframe, header_text=header_text)
