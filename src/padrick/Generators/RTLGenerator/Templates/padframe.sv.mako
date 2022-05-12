@@ -85,7 +85,7 @@ module ${padframe.name}
   import math
   config_req_o_collection    = ", ".join(f"{pad_domain.name}_config_req" for pad_domain in reversed(padframe.pad_domains))
   config_resp_i_collection = ", ".join(f"{pad_domain.name}_config_resp" for pad_domain in reversed(padframe.pad_domains))
-  reg_addr_width = math.ceil(math.log2(address_space_size))
+  reg_addr_width = math.ceil(math.log2(address_space_size+1))
   num_pad_domains = len(padframe.pad_domains)
 %>
    localparam int unsigned NUM_PAD_DOMAINS = ${num_pad_domains};
