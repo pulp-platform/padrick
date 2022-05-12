@@ -56,6 +56,7 @@ Changed
 Fixed
 -----
 * Fixed bug in toplevel padfram struct generation
+* Fix address width bug in address demux rules when generating padframes with power's of two number of registers
 
 0.1.0 - 2021-03-30
 ==================
