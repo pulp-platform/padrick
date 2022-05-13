@@ -23,7 +23,7 @@
       field_type = "uint16_t"
   else:
       field_type = "uint32_t"
-  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_OFFSET"
+  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_REG_OFFSET"
   all_ports_in_mux_group = pad_domain.get_ports_in_mux_groups(pad.mux_groups)
   sel_size = max(1,math.ceil(math.log2(len(all_ports_in_mux_group)+1)))
   field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_{ps.name.upper()}"
@@ -36,7 +36,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_
 %else:
   reg = bitfield_bit32_write(reg, ${field_name}_BIT, value);
 %endif
-  REG_WRITE32(address, v);
+  REG_WRITE32(address, reg);
 }
 
 ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get() {
@@ -51,13 +51,13 @@ ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get
 % endfor
 % if pad.dynamic_pad_signals_soc2pad:
 <%
-  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_OFFSET"
+  address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_REG_OFFSET"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
   const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
   const uint32_t sel_size = ${sel_size};
   uint32_t field_mask = 1<<sel_size-1;
-  REG_WRITE32(address, value & field_mask);
+  REG_WRITE32(address, mux_sel & field_mask);
 }
 
 ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get() {
