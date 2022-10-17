@@ -8,6 +8,13 @@ The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
 and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 
+Unreleased
+==========
+
+Fixed
+=====
+* Fix address width bug in address demux rules when generating padframes with power's of two number of registers
+
 v0.2.0 - 2022-25-04
 ===================
 
@@ -56,7 +63,6 @@ Changed
 Fixed
 -----
 * Fixed bug in toplevel padfram struct generation
-* Fix address width bug in address demux rules when generating padframes with power's of two number of registers
 
 0.1.0 - 2021-03-30
 ==================
