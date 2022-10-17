@@ -2,7 +2,7 @@ Padrick-x86_64.AppImage: appimagetool
 	pyoxidizer build --release --target-triple x86_64-unknown-linux-gnu
 	mkdir -p appdir/usr/bin
 	cp -R build/x86_64-unknown-linux-gnu/release/install/* appdir/usr/bin
-	./appimagetool appdir
+	./appimagetool --appimage-extract-and-run appdir
 
 appimagetool:
 	wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O ./appimagetool
