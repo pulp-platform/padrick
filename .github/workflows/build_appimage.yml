@@ -5,13 +5,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-18.04
+    container:
+      image: mceggimann/padrick-build:centos7.9
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3.1.2
+#    - uses: actions/setup-python@v3.1.2
+#      with:
+#        python-version: 3.9
+#        cache: pip
+#        cache-dependency-path: setup.cfg
+    - uses: conda-incubator/setup-miniconda@v2
       with:
+        miniconda-version: "latest"
         python-version: 3.9
-        cache: pip
-        cache-dependency-path: setup.cfg
     - name: Cache
       uses: actions/cache@v3.0.2
       with:
@@ -19,9 +25,17 @@ jobs:
           $RUNNER_TEMP/.pyoxidizer_cache
           standalone_build/appimagetool
         key: pyoxidizer_build_env_cache
+    - name: debug conda
+      run: env
     - name: install dependencies
-      run: pip install .[binary_build]
+      shell: bash -l {0}
+      env:
+        SETUPTOOLS_SCM_DEBUG: 1
+      run: |
+        git config --global --add safe.directory /__w/padrick/padrick
+        pip install .[binary_build]
     - name: build Appimage
+      shell: bash -l {0}
       run: PYOXIDIZER_CACHE_DIR=$RUNNER_TEMP/.pyoxidizer_cache make -C standalone_build
     - name: test appimage
       run: standalone_build/Padrick-x86_64.AppImage validate examples/sample_padframe.yaml
