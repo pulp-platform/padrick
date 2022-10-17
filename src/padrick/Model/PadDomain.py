@@ -27,7 +27,7 @@ class PadDomain(BaseModel):
     description: Optional[str]
     pad_types: conlist(PadType, min_items=1)
     pad_list: conlist(PadInstance, min_items=1)
-    port_groups: List[PortGroup]
+    port_groups: List[PortGroup] = []
     user_attr: Optional[Dict[str, Union[str, int, bool]]]
 
 
@@ -150,28 +150,46 @@ class PadDomain(BaseModel):
         return values
 
     @root_validator(skip_on_failure=True)
-    def warn_about_orphan_pads_and_ports(cls, values):
-        port_mux_groups = set.union(*[port.mux_groups for port_group in values['port_groups'] for port in
-                                      port_group.ports])
-        # We need to handle pads differently since they do not expand the 'self' keyword
-        pad_mux_groups = set()
-        for pad in values['pad_list']:
-            if pad.dynamic_pad_signals:
-                expanded_mux_groups = set()
-                for mux_group in pad.mux_groups:
-                    for i in range(pad.multiple):
-                        expanded_mux_groups.add(mux_group.replace('<>', str(i)))
-                if not expanded_mux_groups.intersection(port_mux_groups):
-                    logger.warning(
-                        f"Found pad {pad.name} with mux_groups {str(pad.mux_groups)} but no port specifies any of these mux groups.")
-                pad_mux_groups.update(expanded_mux_groups)
+    def error_on_empty_port_groups_but_existing_dynamic_pads(cls, values):
+        if not values['port_groups']:
+            if any(not pad.is_static for pad in values['pad_list']):
+                raise ValueError(f"The pad configuration of pad domain {values['name']} declares dynamic pads but "
+                                 f"declares no port groups. Please specify port groups and corresponding port signals to connect "
+                                 f"to the dynamic pads.")
+        return values
 
-        for port_group in values['port_groups']:
-            for port in port_group.ports:
-                if not port.mux_groups.intersection(pad_mux_groups):
-                    logger.warning(
-                        f"Found port {port.name} in port group {port_group.name} with mux_groups"
-                        f" {str(port.mux_groups)} but no pad specifies any of these mux groups.")
+    @root_validator(skip_on_failure=True)
+    def error_on_nonempty_port_groups_but_without_any_dynamic_pads(cls, values):
+        if values['port_groups']:
+            if all(pad.is_static for pad in values['pad_list']):
+                raise ValueError(f"The pad configuration of pad domain {values['name']} declares port groups but no "
+                                 f"dynamic pads. Please declare some dynamic pads to which the ports shall be connected.")
+        return values
+
+    @root_validator(skip_on_failure=True)
+    def warn_about_orphan_pads_and_ports(cls, values):
+        if values['port_groups']:
+            port_mux_groups = set.union(*[port.mux_groups for port_group in values['port_groups'] for port in
+                                          port_group.ports])
+            # We need to handle pads differently since they do not expand the 'self' keyword
+            pad_mux_groups = set()
+            for pad in values['pad_list']:
+                if pad.dynamic_pad_signals:
+                    expanded_mux_groups = set()
+                    for mux_group in pad.mux_groups:
+                        for i in range(pad.multiple):
+                            expanded_mux_groups.add(mux_group.replace('<>', str(i)))
+                    if not expanded_mux_groups.intersection(port_mux_groups):
+                        logger.warning(
+                            f"Found pad {pad.name} with mux_groups {str(pad.mux_groups)} but no port specifies any of these mux groups.")
+                    pad_mux_groups.update(expanded_mux_groups)
+
+            for port_group in values['port_groups']:
+                for port in port_group.ports:
+                    if not port.mux_groups.intersection(pad_mux_groups):
+                        logger.warning(
+                            f"Found port {port.name} in port group {port_group.name} with mux_groups"
+                            f" {str(port.mux_groups)} but no pad specifies any of these mux groups.")
         return values
 
     @property

@@ -21,6 +21,26 @@
     regwidth: 32,
     registers: [
         {skipto: "${start_address_offset}"},
+        {
+            name: INFO
+            desc: "Read-only IP Information register"
+            swaccess: "ro"
+            hwaccess: "hro"
+            fields: [
+              {
+                bits: "15:0"
+                name: HW_VERSION
+                desc: "Hardware version ID."
+                resval: ${hw_version}
+              },
+              {
+                  bits:"31:16"
+                  name: PADCOUNT
+                  desc: "The number of muxable pads in this IP."
+                  resval: "${len([pad for pad in pad_domain.pad_list if not pad.is_static])}"
+              }
+            ]
+        }
 % for pad in pad_domain.pad_list:
 % if pad.dynamic_pad_signals_soc2pad:
 <%

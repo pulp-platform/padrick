@@ -11,6 +11,14 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ==========
 
+Added
+=====
+* Added read-only IP info register with version id and pad count values to RTL template
+
+Changed
+=======
+* Allow padframe generation without any muxed pads
+
 Fixed
 =====
 * Fix address width bug in address demux rules when generating padframes with power's of two number of registers

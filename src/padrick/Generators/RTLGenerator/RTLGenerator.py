@@ -8,6 +8,7 @@ import click_log
 import hjson
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Generators.GeneratorSettings import RTLTemplates
+from padrick.Model import Constants
 from padrick.Model.Padframe import Padframe
 from reggen import gen_rtl as reggen_gen_rtl
 from reggen import validate as reggen_validate
@@ -36,7 +37,7 @@ def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_
         templates.internal_pkg.render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain, header_text=header_text)
         templates.pad_mux_module.render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain, header_text=header_text)
         templates.regfile_hjson.render(dir/"src", logger=logger, padframe=padframe, pad_domain=pad_domain,
-                                   start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text)
+                                   start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text, hw_version=Constants.HARDWARE_VERSION)
 
 
         # Generate Register file using lowRisc reg_tool
