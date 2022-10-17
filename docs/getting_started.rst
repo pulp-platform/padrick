@@ -9,6 +9,45 @@ describes the structure of your SoCs pad multiplexing and IO mapping scheme. The
 very first step of ussing padrick is thus installing it. There are two ways to
 install padrick on your system;
 
+
+
+Downloading a Binary Distribution/Using Padrick without Python
+..............................................................
+
+The preferred installation method if you don't modify padrick or need the most
+bleeding edge version of it is to just use a self-sufficient binary. This is
+especially usefull if your development environment does not provide a reccent
+Python 3 installation or you are unable to install any additional python
+dependencies. The binary appimage distribution of Padrick wraps its own python
+interpreter in a Rust executable to interpret the padrick python source code
+embedded within the binary itself (this is enabled by a project called
+`Pyoxidizer <https://pyoxidizer.readthedocs.io>`_). Any Linux distribution with
+glibc version 2.14 or newer should be able to run the Appimage binary. This
+includes but is not limited to the following or newer Linux Distributions:
+
+* Debian 8
+* Fedora 16
+* OpenSUSE 12.1
+* RHEL/CentOS 7
+* Ubuntu 12.04
+
+You can find the latest binary x86 release on the github `release
+page<https://github.com/pulp-platform/padrick/releases>`_.
+
+Use the following snippet to download the appimage in your current path::
+
+  curl https://api.github.com/repos/pulp-platform/padrick/releases/latest \
+  | grep "Padrick-x86_64.AppImage" \
+  | cut -d : -f 2,3 \
+  | tr -d \" \
+  | wget -qi -
+  mv Padrick-x86_64.AppImage padrick
+  chmod a+x padrick
+
+Now you can directly start using the downloaded binary. E.g. use this command to
+show the built-in help::
+  ./padrick --help
+
 Installing Padrick as a Python Package
 .......................................
 
@@ -31,29 +70,6 @@ immediately to all Python environments were you installed padrick::
 These approaches will install all the required python dependencies automatically
 and make the command line tool ``padrick`` available for your shell.
 
-
-Downloading a Binary Distribution/Using Padrick without Python
-..............................................................
-
-If your development environment does not provide a reccent Python 3 installation
-or you are unable to install any additional python dependencies you can use
-binary appimage distribution of Padrick. The binary wraps its own python
-interpreter in a Rust executable to interpret the padrick python source code
-embedded within the binary itself (this is enabled by a project called
-`Pyoxidizer <https://pyoxidizer.readthedocs.io>`_). Any Linux distribution with
-glibc version 2.3.3 or newer should be able to run the Appimage binary. This
-includes but is not limited to the following or newer LInux Distributions:
-
-* Debian 6
-* Fedora 16
-* OpenSUSE 11.4
-* RHEL/CentOS 6
-* Ubuntu 12.04
-
-
-.. note:: Once the Padrick is open-sourced, you can find these binaries in the
-          release section. Until then, please ask the author for the binaries
-          directly.
 
 
 Writing a Padframe Configuration File
