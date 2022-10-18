@@ -47,8 +47,31 @@
   over the IO Pads.
 * Getting Started
 
-** Installation
-  Installation of padrick is straight forward:
+** Download Padrick Binary
+   You can find the latest binary x86 release on the github [[https://github.com/pulp-platform/padrick/releases][release page]].
+
+   Use the following snippet to download the appimage in your current path:
+
+   #+BEGIN_SRC  bash
+     curl https://api.github.com/repos/pulp-platform/padrick/releases/latest \
+         | grep "Padrick-x86_64.AppImage" \
+         | cut -d : -f 2,3 \
+         | tr -d \" \
+         | wget -qi -
+     mv Padrick-x86_64.AppImage padrick
+     chmod a+x padrick
+   #+END_SRC
+
+   Now you can directly start using the downloaded binary. E.g. use this command to
+   show the built-in help::
+
+   #+BEGIN_SRC bash
+     ./padrick --help
+   #+END_SRC
+
+** Installation with Python pip
+  If you want to modify padrick yourself or don't want to use one of the binary
+  releases, installation of padrick is straight forward:
 
   #+BEGIN_SRC bash
     pip install git+ssh://git@github.com:pulp-platform/padrick.git
