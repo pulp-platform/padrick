@@ -8,8 +8,22 @@ The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
 and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 
+
 Unreleased
 ==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+0.3.0 - 2022-10-18
+==================
 
 Added
 =====
@@ -42,7 +56,7 @@ Added
 * Add validation of manifest version. The CLI now prints out an error message if
   the manifest version is not supported anymore with a help message which
   version of Padrick supports the out-dated manifest version.
-* Add mini expression language for template tokens. 
+* Add mini expression language for template tokens.
 * Render assignment macros in systemverilog package to simplify hierarchical assignements of port groups.
 * Add optional format code feature to index templates.
 * RTL generate command now supports supplying file headers to insert into the auto-generated files

@@ -61,4 +61,4 @@ def update_changelog(changelog: Path, version: semver.VersionInfo):
     print(*unreleased_section)
 
 if __name__ == '__main__':
-    update_changelog(["CHANGELOG.rst.bak", "v0.2.0"])
+    update_changelog()
