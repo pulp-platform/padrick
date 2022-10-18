@@ -74,7 +74,7 @@ jobs:
         files: |
           artifact/Padrick-x86_64.AppImage
           CHANGELOG.rst
-        name: v${{github.ref_name}}
+        name: ${{github.ref_name}}
         body_path: release_notes.txt
         draft: True
         fail_on_unmatched_files: True
