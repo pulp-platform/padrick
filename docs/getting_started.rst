@@ -31,8 +31,7 @@ includes but is not limited to the following or newer Linux Distributions:
 * RHEL/CentOS 7
 * Ubuntu 12.04
 
-You can find the latest binary x86 release on the github `release
-page<https://github.com/pulp-platform/padrick/releases>`_.
+You can find the latest binary x86 release on the github `release page <https://github.com/pulp-platform/padrick/releases>`_.
 
 Use the following snippet to download the appimage in your current path::
 
