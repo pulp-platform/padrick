@@ -47,4 +47,4 @@ def get_changelog(changelog: Path, version: semver.VersionInfo):
         raise click.BadParameter(f"Failed to get the release section for {version}. Did you forget to update the changelog file before tagging?")
 
 if __name__ == '__main__':
-    get_changelog(["CHANGELOG.rst", "v0.2.0"])
+    get_changelog()

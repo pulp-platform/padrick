@@ -26,15 +26,15 @@ v0.3.0 - 2022-10-18
 ===================
 
 Added
-=====
+-----
 * Added read-only IP info register with version id and pad count values to RTL template
 
 Changed
-=======
+-------
 * Allow padframe generation without any muxed pads
 
 Fixed
-=====
+-----
 * Fix address width bug in address demux rules when generating padframes with power's of two number of registers
 
 v0.2.0 - 2022-25-04
