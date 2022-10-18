@@ -2,7 +2,6 @@
 import fileinput
 from datetime import datetime
 from pathlib import Path
-from click
 
 import click
 import semver
