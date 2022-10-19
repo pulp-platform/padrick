@@ -10,6 +10,7 @@ import hjson
 
 from padrick.Generators.GeneratorSettings import DriverTemplates
 from padrick.Generators.PadrickTemplate import PadrickTemplate
+from padrick.Model import Constants
 from padrick.Model.Padframe import Padframe
 from reggen import gen_cheader as reggen_gen_header
 from reggen import validate as reggen_validate
@@ -32,7 +33,8 @@ def generate_driver(templates:DriverTemplates, padframe: Padframe, dir: Path,  h
     address_ranges: Mapping[str, Tuple[int, int]] = {} # dictionary of pad_domain to start- end-address tupple
     for pad_domain in padframe.pad_domains:
         templates.regfile_hjson.render(dir, logger=logger, padframe=padframe, pad_domain=pad_domain,
-                                   start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text)
+                                   start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text,
+                                   hw_version=Constants.HARDWARE_VERSION)
 
         logger.debug("Invoking reggen to generate C header file for the padframe configuration registers.")
         hjson_reg_file = dir/f"{padframe.name}_{pad_domain.name}_regs.hjson"
