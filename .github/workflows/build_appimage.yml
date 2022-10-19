@@ -53,10 +53,6 @@ jobs:
       repository-projects: write
       contents: write
     steps:
-    - name: Show standalone dir content
-      run: ls -la standalone_build/
-    - name: Delete cached appimage file
-      run: rm -rf standalone_build/Padrick-x86_64.AppImage
     - name: download appimage
       uses: actions/download-artifact@v3
       with:
