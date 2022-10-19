@@ -2,6 +2,10 @@ name: build_appimage
 on:
   workflow_dispatch: ~
   push:
+    branches:
+      - main
+    tags:
+      - v*
 jobs:
   build:
     runs-on: ubuntu-latest
