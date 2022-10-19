@@ -9,6 +9,7 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 
 
 
+
 Unreleased
 ==========
 
@@ -20,6 +21,20 @@ Changed
 
 Fixed
 -----
+
+
+v0.3.1 - 2022-10-19
+==================
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+* Regression in driver template rendering that caused an error during the register file generation.
 
 
 v0.3.0 - 2022-10-18

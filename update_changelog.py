@@ -39,7 +39,7 @@ def update_changelog(changelog: Path, version: semver.VersionInfo):
     skip_line = False
     unreleased_section = []
     in_unreleased_section = False
-    version_string = f'{str(version)} - {datetime.now().date().strftime("%Y-%m-%d")}'
+    version_string = f'v{str(version)} - {datetime.now().date().strftime("%Y-%m-%d")}'
     for line in fileinput.input(changelog, inplace=True):
         if line.startswith("Unreleased"):
             print(UNRELEASED_SECTION_STRING)
