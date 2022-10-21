@@ -12,6 +12,7 @@ from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.TemplatedPortIdentifier import TemplatedPortIdentifierType
 from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.Utilities import sort_signals, cached_property
 
@@ -24,7 +25,7 @@ class PadInstance(BaseModel):
     is_static: bool = False
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
-    default_port: Optional[Union[constr(regex="^[_a-zA-Z](?:[_a-zA-Z0-9])*\.[_a-zA-Z](?:[_a-zA-Z0-9])*"), Tuple[PortGroup, Port]]]
+    default_port: Optional[Union[TemplatedPortIdentifierType, Tuple[PortGroup, Port]]]
     user_attr: Optional[Dict[str, Union[str, int, bool]]]
     _method_cache: Mapping = {}
 
@@ -100,11 +101,6 @@ class PadInstance(BaseModel):
                     raise ValueError("Padsignals of kind pad cannot be referenced in the connections list.")
         return values
 
-    @root_validator(skip_on_failure=True)
-    def no_default_port_for_multi_pad(cls, values):
-        if values.get('multiple') > 1 and not values.get('default_port') is None:
-            raise ValueError("Cannot specify default port on a pad_instance with multiple > 1.")
-        return values
 
     @property
     def static_connection_signals(self) -> List[Signal]:
@@ -203,6 +199,8 @@ class PadInstance(BaseModel):
             expanded_pad.description = expanded_pad.description.evaluate_template(i) if expanded_pad.description else None
             expanded_pad.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_pad.mux_groups))
             expanded_pad.multiple = 1
+            if expanded_pad.default_port:
+                expanded_pad.default_port = expanded_pad.default_port.evaluate_template(i)
             expanded_connections = {}
             if expanded_pad.connections:
                 for key, value in expanded_pad.connections.items():

@@ -132,9 +132,14 @@ class PadDomain(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_and_link_default_ports(cls, values):
         pad: PadInstance
+        default_port2pad = {}
         for pad in values['pad_list']:
             # Try to find the port in the port in the list of muxable ports for this pad_instance
             if isinstance(pad.default_port, str):
+                if not pad.default_port in default_port2pad:
+                    default_port2pad[pad.default_port] = [pad]
+                else:
+                    default_port2pad[pad.default_port].append(pad)
                 (default_port_group_name, default_port_name) = pad.default_port.split(".", maxsplit=1)
                 linked_default_port = None
                 for port_group in values['port_groups']:
@@ -147,6 +152,12 @@ class PadDomain(BaseModel):
                     pad.default_port = linked_default_port
                 else:
                     raise ValueError(f"Default_port {pad.default_port} for pad {pad.name} is not in the list of connectable ports.")
+        # Now check all default_port -> pad mappings to see if there are any pads with identical default port. If there
+        # are issue a warning because this is very likely an error.
+        for default_port, pads in default_port2pad.items():
+            if len(pads) > 1:
+                logger.warning(f"Found duplicate usage of default_port '{default_port}' for pads:"
+                               +", ".join([f"'{pad.name}'" for pad in pads]))
         return values
 
     @root_validator(skip_on_failure=True)

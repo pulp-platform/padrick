@@ -773,7 +773,6 @@ Here is an example:
     pad_type: pull_down_pad
     default_port: hs_gpio.gpio05
 
-.. hint:: At the moment, the `default_port` key **cannot** be combined with vectorized instantiation.
 ..
    Syntax Reference
    ================

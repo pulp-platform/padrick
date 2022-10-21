@@ -15,9 +15,11 @@ Unreleased
 
 Added
 -----
+Added support for templated ``default_port`` in vectorized pad instances (pads with ``multiple`` > 1).
 
 Changed
 -------
+Removed now obsolete hint about ``default_port`` with vectorized pad instances compatibility.
 
 Fixed
 -----
