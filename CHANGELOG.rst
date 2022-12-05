@@ -10,8 +10,22 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 
 
 
+
 Unreleased
 ==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+v0.3.3 - 2022-12-05
+===================
 
 Added
 -----
