@@ -2,6 +2,13 @@ name: low_power_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
 manifest_version: 2
+user_attr: # This is an option entry where you can add custom key value pairs.
+           # These key-value pairs are also exposed during template rendering so
+           # you can refer to them in customized templates. They also come in
+           # handy if you need to parametrize certain aspects of your config
+           # file, e.g. the number of pads. You can use YAML anchors and aliases
+           # to refer to those parameters.
+  gpio_count: &gpio_count 32
 pad_domains:
   - name: always_on_pads # User defined name of the pad_domain
     pad_types: # This section contains a list of pads
@@ -144,7 +151,7 @@ pad_domains:
                                 # you implicitly create a mux group for every
                                 # instance of a multi pad.
         description: "General Purpose Input and Outpud pads. These pads can be configured to connect to any peripheral pad port."
-        multiple: 32 #Generate 32 instances of this pad. Each instance will have
+        multiple: *gpio_count #Generate 32 instances of this pad. Each instance will have
                      #its signal and instance names postfixed with the index
                      #number.
         pad_type: pull_down_pad

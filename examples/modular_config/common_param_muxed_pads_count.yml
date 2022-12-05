@@ -1,0 +1,4 @@
+# This file just defines the number pads that should be generated. It showcases
+# one way how you could automatically adjust the number of IO pads using e.g. a
+# Makefile target to modify this file.
+32

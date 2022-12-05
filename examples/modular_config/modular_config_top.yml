@@ -1,0 +1,27 @@
+# This padframe config showcases how to write modular padframe config files for
+# easier reuse across different technologies or simulation/emulation targets.
+# The basis of it is the usage of the custom YAML directive !include <fle to
+# yaml, toml, ini, csv or txt file>. The directive also supports wildcard
+# inclusion of multiple files. Checkout the documentation of pyyaml-inlcude for
+# the complete syntax "https://pypi.org/project/pyyaml-include/".
+
+# This particular example defines the padframe for Xilinx Virtex 7 FPGAs. For an
+# ASIC version, you could write new my_asic_tech_padtypes.yml and
+# my_asic_tech_pads.yml files, create a copy of this file and change the include
+# paths.
+
+name: modular_padframe 
+manifest_version: 2
+pad_domains:
+  - name: domain
+    # Here we include some technology specific config file. This one defines the
+    # pad templates. If we want to change the technology we could just change
+    # the include path.
+    pad_types: !include xilinx_virtex7_padtypes.yml
+
+    pad_list: !include xilinx_virtex7_pads.yml
+
+    port_groups: !include common_peripherals.yml
+
+    
+
