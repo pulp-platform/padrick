@@ -15,6 +15,7 @@ Unreleased
 
 Added
 -----
+* Added support for modular config file using pyyaml !include directives.
 
 Changed
 -------

@@ -1,0 +1,105 @@
+# This file defines the available pad primitives for Xilinx Virtex 7 FPGAs. It
+# is part of the modular configuration example.
+- name: IOBUF
+  description: |
+    IOBUF primitive in Xilinx Ultrascale FPGAs. Although the primitive
+    only support output enable, we keep the same pad signal list in order
+    to not alter the register space of the auto-generated configuration
+    registers. If we would change the pad_signal list, we would end up
+    with different configuration registers which renders compiled binaries
+    that alter the pad configuraiton incompatible between ASIC version and
+    FPGA version.
+  template: |
+    IOBUF ${instance_name} (
+      .T(~${conn["tx_en"]}),
+      .I(${conn["chip2pad"]}),
+      .O(${conn["pad2chip"]}),
+      .IO(${conn["pad"]})
+    );
+  pad_signals: !include common_pad_signals.yml
+
+- name: IBUF
+  description: |
+    IBUF primitive in Xilinx Ultrascale FPGAs. We keep the same pad signal
+    list in order to not alter the register space of the auto-generated
+    configuration registers. If we would change the pad_signal list, we
+    would end up with different configuration registers which renders
+    compiled binaries that alter the pad configuraiton incompatible
+    between ASIC version and FPGA version.
+  template: |
+    IBUF ${instance_name} (
+      .O(${conn["pad2chip"]}),
+      .I(${conn["pad"]})
+    );
+  pad_signals: !include common_pad_signals.yml
+
+- name: OBUF
+  description: |
+    OBUF primitive in Xilinx Ultrascale FPGAs. We keep the same pad signal
+    list in order to not alter the register space of the auto-generated
+    configuration registers. If we would change the pad_signal list, we
+    would end up with different configuration registers which renders
+    compiled binaries that alter the pad configuraiton incompatible
+    between ASIC version and FPGA version.
+  template: |
+    OBUF ${instance_name} (
+      .I(${conn["chip2pad"]}),
+      .O(${conn["pad"]})
+    );
+  pad_signals: !include common_pad_signals.yml
+
+- name: IBUFGDS
+  description: |
+    Differential to single-ended clock conversion primitive in Xilinx Ultrascale  FPGAs.
+  template: |
+    IBUFGDS ${instance_name} (
+      .I(${conn["pad_p"]}),
+      .IB(${conn["pad_n"]}),
+      .O(${conn["pad2chip"]})
+    );
+  pad_signals:
+    - name: pad_p
+      size: 1
+      kind: pad
+
+    - name: pad_n
+      size: 1
+      kind: pad
+
+    - name: pad2chip
+      description: "The signal that connects to the pad's RX buffer"
+      size: 1
+      kind: output
+      conn_type: dynamic
+
+
+
+- name: FEEDTHROUGH_INPUT
+  description: |
+    Direct feedthrough by means of continuous assignment. This "pad" is
+    needed since certain pins (e.g. clock reference) must be directly
+    feedthrough withouth any IOBUF cells in between. We keep the same pad signal list
+    in order to not alter the register space of the auto-generated
+    configuration registers. If we would change the pad_signal list, we
+    would end up with different configuration registers which renders
+    compiled binaries that alter the pad configuraiton incompatible
+    between ASIC version and FPGA version.
+  template: |
+    // Dummy input pad ${instance_name}
+    assign ${conn["pad2chip"]} = ${conn["pad"]};
+  pad_signals: !include common_pad_signals.yml
+
+- name: FEEDTHROUGH_OUTPUT
+  description: |
+    Direct feedthrough by means of continuous assignment. This "pad" is
+    needed since certain pins (e.g. clock reference) must be directly
+    feedthrough withouth any IOBUF cells in between. We keep the same pad signal list
+    in order to not alter the register space of the auto-generated
+    configuration registers. If we would change the pad_signal list, we
+    would end up with different configuration registers which renders
+    compiled binaries that alter the pad configuraiton incompatible
+    between ASIC version and FPGA version.
+  template: |
+    // Dummy output pad ${instance_name}
+    assign ${conn["pad"]} = ${conn["chip2pad"]};
+  pad_signals: !include common_pad_signals.yml

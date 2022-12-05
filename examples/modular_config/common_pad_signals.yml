@@ -1,0 +1,41 @@
+# This file defines the common pad signal names used in this project. The reason
+# we want to define these in a common place is, that if we stick to the same
+# signal names regardless the target platform/technology, we can leave the
+# port_groups specification untouched while only changing the pad_types. This
+# means that we should add all the pad signals to this file that might be used
+# in a peripheral connection in the port_groups section. Signals like 'driving
+# strenght' are probably not necessary to add here and are anyway highly
+# technology dependend in their semantic.
+- name: pad
+  size: 1
+  kind: pad
+
+- name: chip2pad
+  description: "Connects to pad's TX driver"
+  size: 1
+  kind: input
+  conn_type: dynamic
+  default_reset_value: 0
+  default_static_value: 1'b0
+
+- name: pad2chip
+  description: "The signal that connects to the pad's RX buffer"
+  size: 1
+  kind: output
+  conn_type: dynamic
+
+- name: rx_en
+  description: "RX enable, active high"
+  size: 1
+  kind: input
+  conn_type: static
+  default_reset_value: 1
+  default_static_value: 1'b1
+
+- name: tx_en
+  description: "TX driver enable, active low"
+  size: 1
+  kind: input
+  conn_type: dynamic
+  default_reset_value: 0
+  default_static_value: 1'b0

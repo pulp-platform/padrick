@@ -1,0 +1,77 @@
+# This file defines the peripherals of the SoC. For most SoC designs this file
+# would be completely platform agnostic so it can be shared for various
+# platforms.
+
+- name: gpio
+  output_defaults: 1'b0
+  ports:
+    - name: gpio{i:2d}
+      multiple: !include common_param_muxed_pads_count.yml
+      mux_groups: ["pad_io{i:2d}"]
+      description: "Bidirectional GPIO{i} signal"
+      connections:
+        chip2pad: gpio{i:2d}_out
+        gpio{i:2d}_in: pad2chip
+        tx_en: gpio{i:2d}_tx_en
+
+- name: i2c{i:1d}
+  multiple: 1
+  mux_groups: [all_gpios]
+  output_defaults:
+    sda_i: 1'b1
+    scl_i: 1'b1
+  ports:
+    - name: sda
+      description: "Bidirectional I2C SDA signal"
+      connections:
+        chip2pad: sda_o
+        sda_i: pad2chip
+        tx_en: sda_oe
+
+    - name: scl
+      description: "I2C clock signal"
+      connections:
+        chip2pad: scl_o
+        scl_i: pad2chip
+        tx_en: scl_oe
+
+- name: uart{i:1d}
+  multiple: 1
+  mux_groups: [all_gpios]
+  output_defaults:
+    rx_i: 1'b1
+  ports:
+    - name: rx
+      description: "UART RX signal"
+      connections:
+        chip2pad: 1'b1
+        rx_i: pad2chip
+        tx_en: 1'b0
+    - name: tx
+      description: "UART TX signal"
+      connections:
+        chip2pad: tx_o
+        tx_en: 1'b1
+
+- name: qspim{i:1d}
+  multiple: 1
+  mux_groups: [all_gpios]
+  output_defaults: 1'b0
+  ports:
+    - name: sdio{i:1d}
+      description: "IO data port of the SPI master peripheral"
+      multiple: 4
+      connections:
+        chip2pad: sd{i:1d}_o
+        sd{i:1d}_i: pad2chip
+        tx_en: sd{i:1d}_oe
+    - name: sck
+      connections:
+        chip2pad: sck_o
+        tx_en: 1'b1
+    - name: csn{i:1d}
+      description: "IO data port of the SPI master peripheral"
+      multiple: 4
+      connections:
+        chip2pad: csn{i:1d}_o
+        tx_en: 1'b1

@@ -1,0 +1,99 @@
+# This file specifies how many and what kind of pads we have in particular for
+# the FPGA target. Each target platform/technology would specify its own file
+# or, if you always want the same number of pads and muxing structure, you
+# specify one shared file for all platforms and always use the same generic
+# pad_type name (e.g. inout_pad, pull_down_pad etc.). In this example we assume
+# different pad structures for each platform so we use more specific pad type
+# names.
+
+- name: pad_ref_clk
+  description: "32kHz reference clock for on-chip PLLs"
+  pad_type: IBUFGDS
+  is_static: true
+  connections:
+    pad2chip: ref_clk
+
+- name: pad_clk_byp
+  description: |
+    PLL clock bypass enable, active-high. If asserted the PLLs VCO is bypassed
+    and the system uses the ref_clk directly
+  pad_type: IBUF
+  is_static: true
+  connections:
+    pad2chip: clk_byp
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_reset_n
+  description:  |
+    Active-low asynchronous reset. Internally synchronized to rising edge.
+  pad_type: FEEDTHROUGH_INPUT
+  is_static: true
+  connections:
+    pad2chip: rst_n
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_debug_en
+  description: |
+    Debug enable signal. Activates the obversvability of internal MRAM debug
+    signals on IO pads (debug role)
+  pad_type: IBUF
+  is_static: true
+  connections:
+    pad2chip: debug_mode_en
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_jtag_tck
+  description: "JTAG clock input"
+  pad_type: FEEDTHROUGH_INPUT
+  is_static: true
+  connections:
+    pad2chip: jtag_tck
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_jtag_trst
+  description: "JTAG interface reset"
+  pad_type: FEEDTHROUGH_INPUT
+  is_static: true
+  connections:
+    pad2chip: jtag_trst
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_jtag_tms
+  description: "JTAG test mode select"
+  pad_type: FEEDTHROUGH_INPUT
+  is_static: true
+  connections:
+    pad2chip: jtag_tms
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_jtag_tdi
+  description: "JTAG interface data input"
+  pad_type: FEEDTHROUGH_INPUT
+  is_static: true
+  connections:
+    pad2chip: jtag_tdi
+    rx_en: 1'b1
+    tx_en: 1'b0
+
+- name: pad_jtag_tdo
+  description: "JTAG interface data output"
+  pad_type: FEEDTHROUGH_OUTPUT
+  is_static: true
+  connections:
+    chip2pad: jtag_tdo
+    rx_en: 1'b0
+    tx_en: 1'b1
+
+
+- name: pad_io{i:2d}
+  mux_groups: [all_gpios, self]
+  description: "General purpose pad that can expose various internal peripherals"
+  multiple: !include common_param_muxed_pads_count.yml
+  pad_type: IOBUF
+  is_static: false

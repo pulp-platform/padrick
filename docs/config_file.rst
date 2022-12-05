@@ -52,6 +52,12 @@ Configuration File Syntax
   configuration files. Especially the "anchor" and "reference" feature is quite
   usefull for this particular tool since it avoids copy-paste hell.
 
+.. note:: The YAML engine in padrick supports inclusions of external files to
+   modularize your config file. You can e.g. have a common config file to define
+   the peripherals in your system that you combine with your technology specific
+   YAML file. The examples folder contains an example config file that showcases
+   the feature.
+
   At the root, the configuration file contains three key-value pairs:
 
   - name: The name of the pad_frame to generate (usefull if there is more than

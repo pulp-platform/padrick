@@ -1,6 +1,9 @@
-name: kraken_padframe # This name is used as the prefix for all
-                         # auto-generated modules to avoid naming conflicts in
-                         # case multiple padframes are generated.n
+# This is another sample padframe configuration that was used for a real
+# tapeout. However, this config file does not showcase all of the available
+# features of padrick and might implement things in a way that have been made
+# simpler since. Have a look at the 'sample_padframe.yml' file for a more
+# up-to-date example of the config file format and it's features.
+name: kraken_padframe
 manifest_version: 2
 pad_domains:
   - name: aon # User defined name of the pad_domain
