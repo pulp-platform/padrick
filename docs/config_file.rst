@@ -548,7 +548,7 @@ to 32 copies. Padrick will replace the name of each pad with ``gpio00``,
 
 
 Mini Expression language
-........................
+------------------------
 
 
 During expansion of the vectorized entity, padrick scans ``name``,
@@ -570,6 +570,7 @@ Each mini expression has the following format:
 E.g.
 
 .. code-block:: yaml
+
    name: gpio{i/2}_{i%2+1}
    multiple: 4
 
@@ -693,7 +694,7 @@ In this small example, we used 2 different mux groups called ``mx1`` and
 * Port ``miso`` does not specify a mux group, thus the default value of the *mux group* applies (if the mux group doesn't specify one, ``[all]`` is used). Therefore, ``miso`` can be routed to either ``pad1`` or ``pad2``.
 
 Mux Group Templating
-....................
+--------------------
 
 Combining this chapter with the knowledge from `mini expression language <Mini
 Expression language>`_ we now have all the ingredients to define more complex
@@ -759,7 +760,7 @@ routed to any of the 4 low-speed pads, while any port of the hyperflash
 peripheral can be routed to any of the high_speed pads.
 
 Default Pad Roles
-.................
+-----------------
 
 By default, after reset each ``pad_instance``'s set of dynamic pad signals is
 fully controlled by the auto-generated configuration register file. I.e. in
@@ -779,9 +780,41 @@ Here is an example:
     pad_type: pull_down_pad
     default_port: hs_gpio.gpio05
 
-..
-   Syntax Reference
-   ================
+For multi pads, i.e. pads with a ``multiple`` field larger than 1, the situation
+is a bit more complex. Since Padrick ``v0.3.4``, you can also supply a
+dictionary of evaluated mappings to specifiy individual default_ports for
+multi-pads. An example makes this much easier to understand:
+
+
+.. code-block:: yaml
+
+   - name: pad_io{i}
+     pad_type: pull_down_pad
+     multiple: 32
+     default_port:
+       '*': gpio.gpio{i}
+       pad_io5: uart.tx
+       pad_io6: uart.rx
+       pad_io16: spi.sck
+       pad_io17: spi.mosi
+       pad_io18: spi.miso
+
+This example snippet in the ``pad_list`` section defines 32 io pads with the
+expanded names ``pad_io0``, ``pad_pio1``, ..., ``pad_io31``. The second entry in
+the ``default_port`` matches with instance ``pad_io5`` and assigns it the
+default port ``uart.tx``. Like for most fields in padrick, the port specifier
+string can contain miniexpressions and will be expanded accordingly. The entries
+are applied in the order they are listed and can override each other. This
+behavior is leveraged by the first entry; it uses the wildcard padname ``'*'``
+which matches with every expanded pad. Thus every ``pad_io<xy>`` instance will
+be assigned the default role ``gpio.gpio<xy>``. However, since the other entries
+are listed afterwards, they override this default assignment.
+
+.. important:: The order of the ``default_port`` mapping matters since the
+               mappings can override each other. If you use the wildcard match
+               entry ``'*'``, make sure it is the first entry in the list.
+
+.. Syntax Reference ================
 
    Data Types
    ----------
