@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
-from typing import Optional, Mapping, List, Union, Set, Tuple, Dict, Literal
+from typing import Optional, Mapping, List, Union, Set, Tuple, Dict
+from typing_extensions import Literal
 
 from natsort import natsorted
 
