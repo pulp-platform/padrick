@@ -8,11 +8,21 @@ The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
 and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 
-
-
-
 Unreleased
 ==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+v0.3.4 - 2022-12-06
+===================
 
 Added
 -----
@@ -61,7 +71,7 @@ Removed now obsolete hint about ``default_port`` with vectorized pad instances c
 
 
 v0.3.1 - 2022-10-19
-==================
+===================
 
 Added
 -----
