@@ -21,13 +21,15 @@ from itertools import count
 from mako.template import Template
 
 import padrick
-from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
+from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, \
+    OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, MANIFEST_VERSION_COMPATIBILITY
 from padrick.Model.PadDomain import PadDomain
 from pydantic import BaseModel, constr, conint, conlist, validator
 from typing import List, Optional, Dict, Union
 
 from padrick.Model.PadSignal import PadSignal, Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
+from padrick.Model.UserAttrs import UserAttrs
 
 logger = logging.getLogger("padrick.Configparser")
 
@@ -41,11 +43,11 @@ class Padframe(BaseModel):
         description (str): An optional short description of the padframes.
         pad_domains (List[PadDomain): A list of PadDomains within this padframe.
     """
-    manifest_version: conint(le=MANIFEST_VERSION)
+    manifest_version: int
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     pad_domains: conlist(PadDomain, min_items=1)
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    user_attr: Optional[UserAttrs]
 
     #Pydantic Model Config
     class Config:
@@ -63,6 +65,18 @@ class Padframe(BaseModel):
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
         if version != MANIFEST_VERSION:
-            raise ValueError(f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
-                             f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
+            if version in MANIFEST_VERSION_COMPATIBILITY:
+                logger.warning(
+                    f"Your padframe config file is using the outdated manifest version {version}. This version of padrick "
+                    f"is still compatible but newer versions of padrick might eventually drop support for it. "
+                    f"Consider upgrading your config files to version {MANIFEST_VERSION}.")
+            else:
+                if version > MANIFEST_VERSION:
+                    raise ValueError(f"Manifest version {version} of the padframe config file is newer than this version "
+                                     f"of padrick support. Either upgrade to the latest padrick version or change to an"
+                                     f" older manifest version. This padrick version supports the following Manifests versions: "
+                                     f"{', '.join([str(v) for v in MANIFEST_VERSION_COMPATIBILITY])}")
+                if version < MANIFEST_VERSION:
+                    raise ValueError(f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
+                                     f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
         return version

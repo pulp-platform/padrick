@@ -24,6 +24,7 @@ from pydantic import BaseModel, constr, conint, validator, root_validator, Extra
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.TemplatedString import TemplatedStringType
+from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals, sort_ports, cached_property
 
 
@@ -34,7 +35,7 @@ class PortGroup(BaseModel):
     ports: List[Port]
     output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
     multiple: conint(ge=1) = 1
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    user_attr: Optional[UserAttrs]
     _method_cache = {}
 
     class Config:
@@ -169,6 +170,7 @@ class PortGroup(BaseModel):
             expanded_port_group: PortGroup = self.copy()
             expanded_port_group.name = expanded_port_group.name.evaluate_template(i)
             expanded_port_group.description = expanded_port_group.description.evaluate_template(i) if expanded_port_group.description else None
+            expanded_port_group.user_attr = expanded_port_group.user_attr.expand_user_attrs(i) if expanded_port_group.user_attr else None
             expanded_port_group.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port_group.mux_groups)) if expanded_port_group.mux_groups else None
             expanded_port_group.multiple = 1
             expanded_port_groups.append(expanded_port_group)

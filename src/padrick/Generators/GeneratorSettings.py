@@ -13,19 +13,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 
 from pydantic import BaseModel, conint, validator
 from pydantic.dataclasses import dataclass
 
 import padrick
 from padrick.Generators.PadrickTemplate import PadrickTemplate
-from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
+from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, \
+    MANIFEST_VERSION_COMPATIBILITY
 
 RTLTemplatePackage = 'padrick.Generators.RTLGenerator.Templates'
 DriverTemplatePackage = 'padrick.Generators.DriverGenerator.Templates'
 DocTemplatePackage = 'padrick.Generators.DocGenerator.Templates'
 ConstraintsTemplatePackage = 'padrick.Generators.ConstraintsGenerator.Templates'
 
+logger = logging.getLogger("padrick.Configparser")
 
 class RTLTemplates(BaseModel):
     toplevel_sv_package = PadrickTemplate(
@@ -123,7 +126,18 @@ class GeneratorSettings(BaseModel):
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
         if version != MANIFEST_VERSION:
-            raise ValueError(
-                f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
-                f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
+            if version in MANIFEST_VERSION_COMPATIBILITY:
+                logger.warning(f"Your generator settings file is using the outdated manifest version {version}. This version of padrick "
+                               f"is still compatible but newer versions of padrick might eventually drop support for it. "
+                               f"Consider upgrading your config files to version {MANIFEST_VERSION}.")
+            else:
+                if version > MANIFEST_VERSION:
+                    raise ValueError(f"Manifest version {version} of the generator settings file is newer than this version "
+                                     f"of padrick support. Either upgrade to the latest padrick version or change to an"
+                                     f"older manifest version. This padrick version supports the following Manifests versions: "
+                                     f"{', '.join([str(v) for v in MANIFEST_VERSION_COMPATIBILITY])}")
+                if version < MANIFEST_VERSION:
+                    raise ValueError(f"Manifest version {version} of the generator settings file is incompatible with the current version of padrick ({padrick.__version__}.\n"
+                                     f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
         return version
+

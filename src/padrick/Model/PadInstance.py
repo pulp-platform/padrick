@@ -13,23 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-from typing import Optional, Mapping, List, Union, Set, Tuple, Dict
+import logging
+from typing import Optional, Mapping, List, Union, Set, Tuple, Dict, Literal
 
 from natsort import natsorted
 
@@ -45,8 +30,10 @@ from pydantic import BaseModel, constr, validator, root_validator, Extra, conint
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.TemplatedPortIdentifier import TemplatedPortIdentifierType
 from padrick.Model.TemplatedString import TemplatedStringType
+from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals, cached_property
 
+logger = logging.getLogger("padrick.Configparser")
 
 class PadInstance(BaseModel):
     name: TemplatedIdentifierType
@@ -56,8 +43,8 @@ class PadInstance(BaseModel):
     is_static: bool = False
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
-    default_port: Optional[Union[TemplatedPortIdentifierType, Tuple[PortGroup, Port]]]
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]]
+    user_attr: Optional[UserAttrs]
     _method_cache: Mapping = {}
 
     #pydantic model config
@@ -223,15 +210,31 @@ class PadInstance(BaseModel):
 
     def expand_padinstance(self) -> List['PadInstance']:
         expanded_pads = []
+        # We use the following variable to detect if a default port mapping contains any mappings that are not used which
+        # most likely is a user typo. We want to warn the user about this.
+        matched_default_port_mappings = set()
         for i in range(self.multiple):
             expanded_pad = self.copy()
             expanded_pad._method_cache = {}
             expanded_pad.name = expanded_pad.name.evaluate_template(i)
             expanded_pad.description = expanded_pad.description.evaluate_template(i) if expanded_pad.description else None
+            expanded_pad.user_attr = expanded_pad.user_attr.expand_user_attrs(i) if expanded_pad.user_attr else None
             expanded_pad.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_pad.mux_groups))
             expanded_pad.multiple = 1
             if expanded_pad.default_port:
-                expanded_pad.default_port = expanded_pad.default_port.evaluate_template(i)
+                # Default port can be a single TemplatedPortIdentifier that we should expand or it can
+                # be a mapping from expanded pad names to TemplatedPortIdentifier. Expand both options
+                # in the right way.
+                if isinstance(expanded_pad.default_port, Mapping):
+                    default_port = None
+                    for pad_name_tmpl, port_tmpl in expanded_pad.default_port.items():
+                        if pad_name_tmpl == "*" or expanded_pad.name == pad_name_tmpl.evaluate_template(i):
+                            default_port = port_tmpl.evaluate_template(i)
+                            matched_default_port_mappings.add(pad_name_tmpl)
+                    expanded_pad.default_port = default_port
+                else:
+                     expanded_pad.default_port = expanded_pad.default_port.evaluate_template(i)
+
             expanded_connections = {}
             if expanded_pad.connections:
                 for key, value in expanded_pad.connections.items():
@@ -240,4 +243,14 @@ class PadInstance(BaseModel):
                     expanded_connections[key] = value
                 expanded_pad.connections = expanded_connections
             expanded_pads.append(expanded_pad)
+        # For default_port mappings, check if all user supplied mappings have been matched to an expanded pad. If not,
+        # this is most likely a user error (typo) and we should warn about it.
+        if isinstance(self.default_port, Mapping) and matched_default_port_mappings != set(self.default_port.keys()):
+            msg = f"The default_port entry for pad {self.name} contains the following entries that did not match to any of the expanded pad names:"
+            msg += "\n"
+            msg += ','.join([f'"{v}"' for v in set(self.default_port.keys()).difference(matched_default_port_mappings)])
+            msg += "\nMaybe there is a typo in one of your mappings?"
+            msg += f"\nThe current default_port settings for this pad are as follows:\n"
+            msg += f"{chr(10).join([f'{pad.name}: {pad.default_port}' for pad in expanded_pads])}"
+            logger.warning(msg)
         return expanded_pads

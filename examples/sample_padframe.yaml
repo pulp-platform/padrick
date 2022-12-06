@@ -1,3 +1,8 @@
+# This is an example padframe config file that showcases most of Padricks
+# features. It is not the cleanest and most readable example but contains
+# extensive documentation of the features in action. Have a look at some of the
+# other config files for a reference how a minimal config file for your SoC
+# could look like.
 name: low_power_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
@@ -158,6 +163,13 @@ pad_domains:
         is_static: false #False is the default value, thus explicitly specifying
                          #static as false is optional. With this option, each
                          #pad_signal assumes the declared conn_type.
+        default_port: # Choose the port that should be exposed by
+                      # default after reset.
+          '*': gpio_a.GPIO{i:2d} # '*' means match all expanded pad names
+          pad_gpioa0: spi.sck  # mappings are evaluated in order so this one overrides the wildcard mapping above
+          pad_gpioa1: spi.csn
+          pad_gpioa2: spi.mosi
+          pad_gpioa3: spi.miso
       - name: pad_gpiob{i}
         mux_groups: [gpio_setb] # Only ports (or entire portgroups) with this
                                 # mux_group can be routed to these pad
@@ -172,13 +184,13 @@ pad_domains:
       # configurable via the pad_frames configuration interface. I.e. an SPI
       # master peripheral exposes the SCK, MOSI, MISO and CS ports. These ports
       # can be routed to an arbitrary pad within the same pad_domain.
-      - name: spi0
+      - name: spi
         output_defaults: #For each pad -> SoC port signal you have to specify
                          #what value shall be applied when the port is not
                          #connected to any Pad.
           miso: 1'b0
         ports:
-          - name: spi0_mosi
+          - name: mosi
             description: "MOSI port of the SPI master peripheral" # An optional description of the signal
             connections:
               # Every port contains a mapping of *dynamic* pad_signal to port signal
@@ -186,10 +198,10 @@ pad_domains:
               # connected to a non-static pad instance. E.g. in default config the
               # GPIO3 pad receives all its signals (actual I/O and pad_config
               # signals) from auto genenrated config registers. However, when the
-              # user at runtime connects the spi0_mosi port to this pad, the
-              # chip2pad signal is supplied by the external spi0_mosi.mosi signal,
-              # the output_en signal is supplied by !spi0_mosi.oen and rx_en is
-              # connected to spi0_mosi.oen. A dedicated struct is generated for each
+              # user at runtime connects the mosi port to this pad, the
+              # chip2pad signal is supplied by the external mosi.mosi signal,
+              # the output_en signal is supplied by !mosi.oen and rx_en is
+              # connected to mosi.oen. A dedicated struct is generated for each
               # port. It contains each signal that is referenced at least once on
               # the right-hand side of the 'connections' connection dictionary. Each
               # of those inferred signals is of same bitwidth as the first
@@ -202,7 +214,7 @@ pad_domains:
               # signals are driven by the auto-generated configuration
               # register only. The '~' character can be used to negate the
               # signal connection.
-          - name: spi0_miso
+          - name: miso
             connections:
               miso: pad2chip
               rx_en: 1'b1 # You can also use static values for port signals. In that
@@ -210,9 +222,14 @@ pad_domains:
               # whenever that particular port is connected to the pad. Any
               # Verilog literal can be used for this purpose.
               output_en: 1'b0
-          - name: spi0_sck
+          - name: sck
             connections:
               chip2pad: sck
+              rx_en: 1'b0
+              output_en: 1'b1
+          - name: csn
+            connections:
+              chip2pad: csn
               rx_en: 1'b0
               output_en: 1'b1
       - name: i2c
@@ -222,7 +239,7 @@ pad_domains:
         output_defaults: 
           sda_i: 1'b0
         ports:
-          - name: i2c_sda
+          - name: sda
             description: "Bidirectional I2C SDA signal"
             connections:
               chip2pad: sda_o
@@ -230,7 +247,7 @@ pad_domains:
               output_en: out_en
               rx_en: ~out_en
 
-          - name: i2c_scl
+          - name: scl
             description: "I2C clock signal"
             connections:
               chip2pad: scl
@@ -254,7 +271,7 @@ pad_domains:
                          # 'name', 'description', 'mux_group' and signal
                          # mappings in 'connections' is replaced with an
                          # increasing index (starting from 0)
-            name: GPIO{i}
+            name: GPIO{i:2d}
             description: "The signal number {i} of the GPIO peripheral"
             mux_groups: ["pad_gpioa{i}"] # Assign each gpio port to the
                                          # individual ports of pad_gpiob. We

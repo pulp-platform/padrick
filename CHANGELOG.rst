@@ -16,9 +16,19 @@ Unreleased
 
 Added
 -----
+* User attributes now support nested dictionaries i.e. besides a string, boolean
+  or an integer the value of an attribute can be another dictionary.
+* The ``default_port`` field of pad_instances now support dictionaries of pad_name
+  to port mappings. See the correspondingly updated ``default_port`` section in
+  the docs.
 
 Changed
 -------
+* User Attributes of ports, port_groups and pad_instances are now
+  expanded as well when instantiated multiple times. The same mini
+  expression languages applies.
+* Improved manifest version warning messages
+* Bumped manifest version to 3.
 
 Fixed
 -----

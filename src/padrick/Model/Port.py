@@ -27,6 +27,7 @@ from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
 
 from padrick.Model.TemplatedString import TemplatedStringType
+from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals
 
 
@@ -37,7 +38,7 @@ class Port(BaseModel):
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
         {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     multiple: conint(ge=1) = 1
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    user_attr: Optional[UserAttrs]
 
     #pydantic model config
     class Config:
@@ -150,6 +151,7 @@ class Port(BaseModel):
             expanded_port: Port = self.copy()
             expanded_port.name = expanded_port.name.evaluate_template(i)
             expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None
+            expanded_port.user_attr = expanded_port.user_attr.expand_user_attrs(i) if expanded_port.user_attr else None
             expanded_port.mux_groups = set(map(lambda mux_group: mux_group.evaluate_template(i), expanded_port.mux_groups))
             expanded_port.multiple = 1
             expanded_connections = {}

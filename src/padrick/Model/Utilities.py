@@ -14,18 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Iterable, List
+from typing import Iterable, List, Optional, Dict, Union
 
 from natsort import natsorted
+
+from padrick.Model.TemplatedString import TemplatedStringType
+
 
 def sort_signals(seq: Iterable['Signal']):
     return natsorted(seq, key=lambda x: x.name)
 
+
 def sort_ports(seq: Iterable['Port']):
     return natsorted(seq, key=lambda x: x.name)
 
+
 def sort_pads(seq: Iterable['PadInstance']):
     return natsorted(seq, key=lambda x: x.name)
+
 
 def cached_property(func):
     @property
@@ -37,4 +43,3 @@ def cached_property(func):
         return self._method_cache[func.__name__]
 
     return wrapper
-

@@ -23,13 +23,15 @@ from mako import exceptions
 from mako.template import Template
 from pydantic import BaseModel, constr, validator, conlist, Extra
 
+from padrick.Model.UserAttrs import UserAttrs
+
 
 class PadType(BaseModel):
     name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
     description: Optional[str]
     template: str
     pad_signals: List[PadSignal] = []
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    user_attr: Optional[UserAttrs]
 
     #pydantic model config
     class Config:

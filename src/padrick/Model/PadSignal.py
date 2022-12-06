@@ -22,6 +22,7 @@ from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel, constr, conint, validator, PrivateAttr, root_validator, Extra
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
+from padrick.Model.UserAttrs import UserAttrs
 
 
 class PadSignalKind(str, Enum):
@@ -68,7 +69,7 @@ class PadSignal(Signal):
     default_reset_value: Optional[int]
     default_static_value: Optional[SignalExpressionType]
     _static_signals: Set[Signal] = PrivateAttr(default=set())
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    user_attr: Optional[UserAttrs]
 
     @property
     def direction(self):
