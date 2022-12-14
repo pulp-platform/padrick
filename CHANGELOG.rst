@@ -9,6 +9,7 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 
 
 
+
 Unreleased
 ==========
 
@@ -20,6 +21,14 @@ Changed
 
 Fixed
 -----
+
+
+v0.3.6 - 2022-12-14
+===================
+
+Changed
+-------
+* Prepare Metadata for Pypi release
 
 
 v0.3.5 - 2022-12-14
