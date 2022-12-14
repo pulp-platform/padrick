@@ -15,6 +15,10 @@ Unreleased
 
 Added
 -----
+* Added experimental feature to mark dynamic pads as quasi_static. If this flag
+  is set on a pad_instance, the config file parser will verify that there is
+  exactly one and only one port connected to this pad_instance and will
+  automatically set the default_port value to it.
 
 Changed
 -------

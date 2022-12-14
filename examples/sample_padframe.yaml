@@ -6,7 +6,7 @@
 name: low_power_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
-manifest_version: 3
+manifest_version: 4
 user_attr: # This is an option entry where you can add custom key value pairs.
            # These key-value pairs are also exposed during template rendering so
            # you can refer to them in customized templates. They also come in
@@ -178,6 +178,19 @@ pad_domains:
         pad_type: pull_down_pad
         is_static: false
 
+      - name: pad_gpioc{i}
+        mux_groups: [self]
+        multiple: 16
+        pad_type: pull_down_pad
+        quasi_static: true # A quasi_static pad behaves similar to a static pad
+                           # but you connect ports to it rather than static
+                           # connection signals. Padrick enforces them to be
+                           # muxable to one and only one port (issuing an error
+                           # if you choose illegal mux_group settings) and will
+                           # connect the pad by default to that port. This is an
+                           # experimental feature that is still under
+                           # development!
+
     port_groups:
       # A port is a collection of signals intended to be multiplexed to one
       # particular pad within the pad domain. The connectivity is runtime
@@ -283,4 +296,13 @@ pad_domains:
               chip2pad: gpio{i}_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc. 
               gpio{i}_o: pad2chip
               rx_en: dir{i}_i
-
+      - name: gpio_c
+        output_defaults: "'0"
+        ports:
+          - multiple: 16
+            name: GPIOC{i:2d}
+            mux_groups: ["pad_gpioc{i}"]
+            connections:
+              chip2pad: gpio{i}_i # Will be replaced with gpio0_i, gpio1_i, gpio2_i etc.
+              gpio{i}_o: pad2chip
+              rx_en: dir{i}_i
