@@ -4,7 +4,7 @@
 # simpler since. Have a look at the 'sample_padframe.yml' file for a more
 # up-to-date example of the config file format and it's features.
 name: kraken_padframe
-manifest_version: 2
+manifest_version: 3
 pad_domains:
   - name: aon # User defined name of the pad_domain
     pad_types: # This section contains a list of pads  

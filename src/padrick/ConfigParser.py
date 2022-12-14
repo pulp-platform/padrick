@@ -15,13 +15,14 @@
 # limitations under the License.
 from pathlib import Path
 import logging
-from typing import List, Union, Tuple, Mapping, Type, TypeVar
+from typing import List, Union, Tuple, Mapping, Type, TypeVar, Optional
 
 import click
 import click_log
 from pydantic import ValidationError, BaseModel
 from ruamel.yaml.comments import CommentedMap
 from yamlinclude import YamlIncludeConstructor
+from yamlinclude.constructor import IgnoreIncludeConstructor
 
 logger = logging.getLogger("padrick.ConfigParser")
 click_log.basic_config(logger)
@@ -77,12 +78,17 @@ def get_file_location(config_data: CommentedMap, error_location: List[Union[str,
 
 T = TypeVar('T', bound=BaseModel)
 
-def parse_config(cls: T, config_file: Path) -> Union[T, None]:
+def parse_config(cls: T, config_file: Path, include_base_dir: Optional[Path] = None, ignore_includes = False) -> Union[T, None]:
     with config_file.open() as file:
         try:
             yaml = ruamel.yaml.YAML(typ='rt')
             # enable support for !include directives (see pyyaml-include package)
-            include_constructor = YamlIncludeConstructor(base_dir=str(config_file.parent))
+            if not include_base_dir:
+                include_base_dir = config_file.parent
+            if not ignore_includes:
+                include_constructor = YamlIncludeConstructor(base_dir=str(include_base_dir))
+            else:
+                include_constructor = IgnoreIncludeConstructor
             yaml.register_class(include_constructor)
             config_data = yaml.load(file)
             #config_data = ruamel.yaml.load(file, Loader=ruamel.yaml.RoundTripLoader)

@@ -30,14 +30,14 @@ export_include_dirs:
 - include
 
 sources:
-  - src/pkg_${padframe.name}.sv
+  - src/${templates.toplevel_sv_package.target_file_name.format(padframe=padframe)}
 % for pad_domain in padframe.pad_domains:
-  - src/pkg_internal_${padframe.name}_${pad_domain.name}.sv
+  - src/${templates.internal_pkg.target_file_name.format(padframe=padframe, pad_domain = pad_domain)}
   - src/${padframe.name}_${pad_domain.name}_config_reg_pkg.sv
   - src/${padframe.name}_${pad_domain.name}_config_reg_top.sv
-  - src/${padframe.name}_${pad_domain.name}_pads.sv
-  - src/${padframe.name}_${pad_domain.name}_muxer.sv
-  - src/${padframe.name}_${pad_domain.name}.sv
+  - src/${templates.pad_inst_module.target_file_name.format(padframe=padframe, pad_domain = pad_domain)}
+  - src/${templates.pad_mux_module.target_file_name.format(padframe=padframe, pad_domain = pad_domain)}
+  - src/${templates.pad_domain_top.target_file_name.format(padframe=padframe, pad_domain = pad_domain)}
 % endfor
-  - src/${padframe.name}.sv
+  - src/${templates.toplevel_module.target_file_name.format(padframe=padframe)}
 

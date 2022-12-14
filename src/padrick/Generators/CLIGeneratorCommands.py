@@ -298,9 +298,9 @@ def custom(config_file:str, template, output):
     logger.info("Parsing configuration file...")
     with click_spinner.spinner():
         padframe = parse_config(Padframe, Path(config_file))
-    logger.info("Parsing successful.")
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
+    logger.info("Parsing successful.")
     logger.info("Rendering custom template")
     try:
         mk_template = Template(template.read())

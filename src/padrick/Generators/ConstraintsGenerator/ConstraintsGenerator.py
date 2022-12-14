@@ -28,7 +28,7 @@ click_log.basic_config(logger)
 
 template_package = 'padrick.Generators.RTLGenerator.Templates'
 
-def generate_constraints(templates: ConstraintsTemplates, padframe: Padframe, constraints_spec: ConstraintsSpec, dir: Path, header_text: str):
+def generate_constraints(templates: ConstraintsTemplates, padframe: Padframe, constraints_spec: ConstraintsSpec, dir: Path, header_text: str, **extra_template_kwargs):
     os.makedirs(dir, exist_ok=True)
     for constraints_mode in constraints_spec.modes:
-        templates.case_analysis.render(dir, logger=logger, padframe=padframe, header_text=header_text, constraints_mode=constraints_mode)
+        templates.case_analysis.render(dir, logger=logger, padframe=padframe, header_text=header_text, constraints_mode=constraints_mode, **extra_template_kwargs)

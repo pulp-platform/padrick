@@ -1,0 +1,60 @@
+CAPI=2:
+name: pulp-platform.org:utils:padrick:0.3.4
+generators:
+  padrick:
+    interpreter: python3
+    command: padrick_generator.py
+    description: Generates IO Multiplexer IPs using Padrick
+    usage: |
+      The padrick FuseSoC generator allows automatic invocation of Padrick to
+      generate IO multiplexer & padframe configuration IPs for advanced SoCs.
+      Padrick is a feature-packed IP generator that generates complete IPs ready
+      for integration in a modular fashion. This generator assumes, that padrick
+      is already available in your path. You can achieve this by installing
+      padrick as a pyhton package in your python environment or by downloading
+      the padrick standalone binary in a suitable location.
+
+      Parameters:
+
+      The padrick generator uses the following parameters:
+
+        padrick_cmd (cmd): The command to invoke padrick. If you downlaoded the
+        binary version of padrick, point to the binary's location. Defaults to
+        `padrick` which should work out of the box if you installed padrick as a
+        python package into the same environment as FuseSoC.
+      
+        padframe_manifest (required, path relative to calling core aka. files_root):
+
+          With this parameter you supply the location of your padframe
+          configuration YAML file to padrick. Check out
+          https://padrick.readthedocs.io/en/latest/config_file.html for a
+          complete documentation of the configuraiton format.
+
+        generate_steps (required):
+
+          With this parameter you define a list of generation steps that Padrick
+          should invoke for you. Besides the obvious RTL generation step,
+          padrick also supports various other output generators for e.g. C
+          Header file generation, custom template rendering etc. The core file
+          generator of Padrick currently only supports RTL generation and custom
+          Mako template file rendering. I.e. the output corresponding to the
+          `padrick generate rtl` and the `padrick generate custom` commands. You
+          specify the desired generate steps as a YAML list in the following format:
+
+            generate_steps:
+              - kind: rtl
+              - kind: custom
+                template_file: <path to a mako template file relative to root_files>
+                output_filename: <path where to save the rendered output>
+              - kind: custom
+                template_file: <some other template>
+                output_filename: <some other output filename>
+
+        generator_settings (optional):
+
+          This parameter entry is optional and lets you point to a padrick
+          generator settings file. This file is used in advanced use-case
+          scenarios and allows you to control the usage of custom Mako templates
+          for generated padrick output. Checkout
+          https://padrick.readthedocs.io/en/latest/hw_overview_and_integration.html#customizing-padrick-output-with-a-generator-settings-file
+          for more information.

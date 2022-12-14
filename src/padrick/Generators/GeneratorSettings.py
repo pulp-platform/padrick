@@ -86,6 +86,11 @@ class RTLTemplates(BaseModel):
         target_file_name="ips_list.yml",
         template=(RTLTemplatePackage, 'ips_list.yml.mako')
     )
+    fusesoc_core_file = PadrickTemplate(
+        name=f'FuseSoC core file',
+        target_file_name="{padframe.name}.core",
+        template=(RTLTemplatePackage, 'FuseSoC.core.mako')
+    )
 
 class DriverTemplates(BaseModel):
     regfile_hjson = PadrickTemplate(

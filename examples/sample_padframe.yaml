@@ -6,7 +6,7 @@
 name: low_power_padframe # This name is used as the prefix for all
                          # auto-generated modules to avoid naming conflicts in
                          # case multiple padframes are generated.n
-manifest_version: 2
+manifest_version: 3
 user_attr: # This is an option entry where you can add custom key value pairs.
            # These key-value pairs are also exposed during template rendering so
            # you can refer to them in customized templates. They also come in

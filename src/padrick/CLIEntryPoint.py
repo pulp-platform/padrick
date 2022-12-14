@@ -28,6 +28,7 @@ import click_spinner
 import click_log
 import json
 
+from padrick.Generators.FuseSoCGenerator.FuseSoCGenerator import generate_core
 from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
@@ -109,6 +110,18 @@ def config(file):
         click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
+
+@cli.command()
+@click.argument('config_file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
+def fusesoc_gen(config_file):
+    """Generator invocation for FuseSoC.
+
+    Parses the supplied config_file command and generates RTL + Core files in the current direcotry.
+    Check the documentation for more information about available FuseSoC Generator parameters.
+    """
+    click.echo("Padrick started in FuseSoC generator mode.")
+    generate_core(Path(config_file))
+    click.echo("Finished core generation")
 
 # Register first level subcommand
 cli.add_command(padrick.Generators.CLIGeneratorCommands.generate)

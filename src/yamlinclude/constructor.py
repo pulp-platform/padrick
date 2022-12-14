@@ -10,6 +10,8 @@ from glob import iglob
 from re import Pattern
 from sys import version_info
 from typing import Sequence, Tuple
+
+import ruamel.yaml
 from ruamel import yaml
 from ruamel.yaml import YAML
 
@@ -172,3 +174,15 @@ class YamlIncludeConstructor:
         reader_clz = get_reader_class_by_path(path, self._reader_map)
         reader_obj = reader_clz(path, encoding=encoding, include_constructor=self)
         return reader_obj()
+
+class IgnoreIncludeConstructor:
+    """Dummy version of the YamlIncludeConstructor that ignores all includes"""
+    yaml_tag = '!include'
+
+    @classmethod
+    def to_yaml(cls, representer: ruamel.yaml.Representer, node):
+        return representer.represent_str(node)
+
+    @classmethod
+    def from_yaml(cls, constructor, node):
+        return f"Ignored include: {node}"
