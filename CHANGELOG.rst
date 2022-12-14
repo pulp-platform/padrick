@@ -8,6 +8,7 @@ The format is based on `Keep a Changelog <http://keepachangelog.com/en/1.0.0/>`_
 and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.html>`_.
 
 
+
 Unreleased
 ==========
 
@@ -20,6 +21,14 @@ Changed
 Fixed
 -----
 
+
+v0.3.5 - 2022-12-14
+===================
+
+Added
+-----
+* Support for FuseSoC. Padrick now generated core files and can be invoked
+  natively as a FuseSoC Generator.
 
 v0.3.4 - 2022-12-06
 ===================
