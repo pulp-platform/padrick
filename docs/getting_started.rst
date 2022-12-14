@@ -275,6 +275,106 @@ padframe configuration at runtime.
    converters within the generated module exposing the protocol of your liking
    to the toplevel.
 
+
+FuseSoC Support
+---------------
+
+Since version v0.3.5 Padrick has built-in support for FuseSoC. That is, it
+generates FuseSoC core files as part of the RTL generation process and the CLI
+containts a dedicated subcommand for Padrick to behave as a FuseSoC generator.
+In order to integrate Padrick into your flow you can copy the generator core
+file and the invocation script from the `fuseSoC_generator` directory in the
+main repository into your project.
+
+Like any FuseSoC generator, you supply `parameters` to padrick when you call the
+generator in your `generate` sections. Here is an example of a small core file
+to generate a padframe:
+
+.. code-block:: yaml
+
+   CAPI=2:
+
+   name: "padrick:ip:padframe"
+   description: "My SoC's padframe"
+
+
+   filesets:
+     padframe_deps:
+       depend:
+         - pulp-platform.org::common_cells:^1.21.0
+         - pulp-platform.org::register_interface:^0.3.1
+         - pulp-platform.org:utils:padrick
+
+   generate:
+     padframe_rtl:
+       generator: padrick
+       parameters:
+         padrick_cmd: padrick
+         generate_steps:
+           - kind: rtl
+         padframe_manifest: padframe.yaml
+
+   targets:
+     default:
+       filesets:
+         - padframe_deps
+       generate:
+         - padframe_rtl
+
+At the very beginning of the core file we register a couple of cores as
+dependencies since the auto-generated padframe makes use of some of their
+modules internally. They are:
+
+- `common_cells <https://github.com/pulp-platform/common_cells>`_
+- `register_interface <https://github.com/pulp-platform/register_interface>`_
+
+As you can see, the `parameters` sections contains three essential key-value pairs:
+
+`padrick_cmd`
+  This parameter tells the small `padrick_generator.py` script how
+  to find and invoke padrick. The command you mention here will first be looked
+  up in your PATH and if it cannot be found there, it will try to find an
+  executable relative to this core file to inoke. In other words you can either
+  point to a downloaded padrick binary or just rely on the specified command
+  being in your PATH (e.g. if you installed padrick into your python
+  environment).
+
+`generate_steps`
+  Here you specify what padrick should generate for you as a list
+  of step entries. The following `kind` of generate steps are currently supported:
+
+  RTL Generation Step:
+
+.. code-block:: yaml
+
+   - kind: rtl
+
+This entry tells padrick to generate all the RTL output files, as if you were
+the invoke the `generate rtl` subcommand of Padrick's CLI.
+
+  Custom Template Rendering Step:
+
+.. code-block:: yaml
+
+   - kind: custom
+     template_file: my_custom_mako_template_file.sv.mako
+     output_filename: my_pad_list.csv
+
+This generate step invokes padrick's custom template render command with the
+provided template file (relative to the current core file) and the desired
+output Path (generated relative to the FuseSoC managed build directory for
+generators). In contrast to the RTL generate step, you can register multiple
+custom rendering commands with different template files and targets.
+
+`padframe_manifest`
+  In this required parameter you tell padrick where to find the padframe
+  configuration YAML file. The path is once again relative to the location of
+  the calling core file I.e. in the example above it expects to find the file
+  `padframe.yml` right next to the core file itself. The output of Padrick is
+  generated in a build directory auto-created by FuseSoC for every Generator and
+  automatically registered in your build dependencies. Checkout FuseSoC's
+  Generator documentation for more information.
+
 Next Steps
 ----------
 
