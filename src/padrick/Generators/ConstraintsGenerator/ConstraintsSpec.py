@@ -16,6 +16,7 @@
 
 import logging
 import re
+from typing_extensions import Literal
 
 import click_log
 from pydantic import BaseModel, conint, constr, validator, root_validator
@@ -41,17 +42,18 @@ class ConstraintsGenException(Exception):
 
 class ConstraintsPadMode(BaseModel):
     pad_inst: Union[TemplatedIdentifierType, PadInstance]
-    port_sel: Optional[Union[TemplatedStringType, Tuple[PortGroup, Port]]]
-    pad_cfg: Optional[Mapping[Union[PadSignal, str], Union[constr(regex=r"(0x|0b)?[0-9a-f]+"), int]]]
+    port_sel: Optional[Union[Literal["res_val"], TemplatedStringType, Tuple[PortGroup, Port]]]
+    pad_cfg: Optional[Mapping[Union[PadSignal, str], Union[Literal["res_val"], constr(regex=r"(0x|0b)?[0-9a-f]+"), int]]]
     multiple: conint(gt=1) = 1
 
     @validator("pad_cfg")
     def validate_pad_cfg_expression_valid(cls, pad_cfg: Mapping[Union[PadSignal, str], str]):
         for key, value in pad_cfg.items():
-            try:
-                pad_cfg[key] = int(value)
-            except ValueError:
-                raise ValueError(f"{value} is not a valid literal. You must only use hex (0x...), binary (0b) or decimal literals (42).")
+            if value != "res_val":
+                try:
+                    pad_cfg[key] = int(value)
+                except ValueError:
+                    raise ValueError(f"{value} is not a valid literal. You must only use hex (0x...), binary (0b) or decimal literals (42).")
         return pad_cfg
 
     def expand_pad_mode(self) -> List['ConstraintsPadMode']:
@@ -71,18 +73,24 @@ class ConstraintsPadMode(BaseModel):
         else:
             self.pad_inst = p
         if self.port_sel:
-            if not(re.match("^[_a-zA-Z](?:[_a-zA-Z0-9])*\.[_a-zA-Z](?:[_a-zA-Z0-9])*", self.port_sel)):
-                raise ConstraintsGenException(f"Illegal port_sel specifier {self.port_sel}. Must be of the form <port_group>.<port_name>.")
-            (port_group_name, port_name) = self.port_sel.split(".", maxsplit=1)
-            port_group = next((pg for pg in pad_domain.port_groups if pg.name == port_group_name), None)
-            if not port_group:
-                raise ConstraintsGenException(f"Unknown port group '{port_group_name}'")
-            port = next((port for port in port_group.ports if port.name == port_name), None)
-            if not port:
-                raise ConstraintsGenException(f"Cannot find port '{port_name}' in port_group {port_group.name}")
-            if port not in pad_domain.get_ports_in_mux_groups(self.pad_inst.mux_groups):
-                raise ConstraintsGenException(f"Port {self.port_sel} is not connectable to pad {self.pad_inst.name}")
-            self.port_sel = (port_group, port)
+            if self.port_sel == "res_val":
+                if p.default_port:
+                    self.port_sel = p.default_port
+                else:
+                    self.port_sel = 0
+            else:
+                if not(re.match("^[_a-zA-Z](?:[_a-zA-Z0-9])*\.[_a-zA-Z](?:[_a-zA-Z0-9])*", self.port_sel)):
+                    raise ConstraintsGenException(f"Illegal port_sel specifier {self.port_sel}. Must be of the form <port_group>.<port_name>.")
+                (port_group_name, port_name) = self.port_sel.split(".", maxsplit=1)
+                port_group = next((pg for pg in pad_domain.port_groups if pg.name == port_group_name), None)
+                if not port_group:
+                    raise ConstraintsGenException(f"Unknown port group '{port_group_name}'")
+                port = next((port for port in port_group.ports if port.name == port_name), None)
+                if not port:
+                    raise ConstraintsGenException(f"Cannot find port '{port_name}' in port_group {port_group.name}")
+                if port not in pad_domain.get_ports_in_mux_groups(self.pad_inst.mux_groups):
+                    raise ConstraintsGenException(f"Port {self.port_sel} is not connectable to pad {self.pad_inst.name}")
+                self.port_sel = (port_group, port)
         if self.pad_cfg:
             linked_pad_cfgs = {}
             for ps_name, expression in self.pad_cfg.items():
@@ -91,7 +99,10 @@ class ConstraintsPadMode(BaseModel):
                     raise ConstraintsGenException(f"Unknown pad signal {ps_name}")
                 if ps not in self.pad_inst.dynamic_pad_signals_soc2pad:
                     raise ConstraintsGenException(f"Pad signal {ps_name} is not dynamic or has the wrong directionality. You can only constrain dynamic pad signals with direction chip2pad.")
-                linked_pad_cfgs[ps] = expression
+                if expression == "res_val":
+                    linked_pad_cfgs[ps] = ps.default_reset_value
+                else:
+                    linked_pad_cfgs[ps] = expression
             self.pad_cfg = linked_pad_cfgs
 
 class ConstraintsMode(BaseModel):

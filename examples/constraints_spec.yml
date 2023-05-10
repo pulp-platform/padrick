@@ -1,0 +1,56 @@
+# This is a sample constraints specification for the SDC set_case_analysis
+# generator in padrick (generate constraints command). Do not confuse this with
+# a padframe_config file. Check the othe files in this directory for valid
+# padframe config files example.
+#
+# This file applies to the sample_padframe.yml in this directory
+#
+manifest_version: 4 # The same version you use in your padframe_config.yml file
+modes:
+  - name: i2c_exposed_others_gpio # Each mode will end up in its own SDC
+                                      # file during generation
+
+    pad_domain: always_on_pads # The name of the pad_domain for which this
+                               # mode applies. One mode per domain.
+
+    pad_mode: # A list of all pads for which we want to generate
+              # set_case_analysis statements
+
+      - pad_inst: pad_gpiob0 # The name of the pad instance
+
+        port_sel: i2c.sda # The name of the port to connect using
+                          # set_case_analysis. Must be in
+                          # <port_group.name>.<port.name> notation.
+
+        pad_cfg: # You can also generate set_case_analysis for dynamic
+                 # pad_signals
+
+          pull_up_en: 1
+          output_en: 0 # !!! The set_case_analysis is only applied to the
+                       # regfile output bits. I.e. in this case the case
+                       # analysis will not have any effect since the i2c.scl
+                       # port is controlling this signal. Only specify signals
+                       # here that are actually controlled by the register
+                       # value under the given port_sel value.
+
+      - pad_inst: pad_gpiob1
+        port_sel: i2c.scl
+
+
+      - pad_inst: pad_gpioa{i} # Similar to the padframe config file you can
+                                 # use the multiple key and mini expressions
+                                 # to avoid copy paste hell.
+        multiple: 32
+        port_sel: gpio_a.GPIO{i:2d}
+
+  - name: after_hard_reset
+    pad_domain: always_on_pads
+    pad_mode:
+      - pad_inst: "pad_gpioa{i}"
+        multiple: 32
+        port_sel: "res_val" # res_val is a special token that means, create a
+                            # set_case_analysis that matches the config
+                            # register's reset value, i.e. the default_port in
+                            # your padframe config file.
+        pad_cfg:
+          pull_up_en: "res_val"
