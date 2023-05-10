@@ -118,7 +118,11 @@ class ConstraintsTemplates(BaseModel):
     )
 
 class DocTemplates(BaseModel):
-    pass
+    mux_graph = PadrickTemplate(
+        name='A graphviz dot graph to visualize the multiplexing structure',
+        target_file_name="{padframe.name}.dot",
+        template=(DocTemplatePackage, 'connectivity_matrix.dot.mako')
+    )
 
 class GeneratorSettings(BaseModel):
     manifest_version: conint(le=MANIFEST_VERSION) = MANIFEST_VERSION

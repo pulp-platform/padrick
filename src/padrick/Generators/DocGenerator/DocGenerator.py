@@ -15,19 +15,26 @@
 # limitations under the License.
 
 import csv
+import logging
 import os
 from importlib import resources
 from pathlib import Path
 
+from padrick.Generators.GeneratorSettings import DocTemplates
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.Padframe import Padframe
+
+logger = logging.getLogger("padrick.DocGenerator")
 
 template_package = 'padrick.Generators.DocGenerator.Templates'
 
 class DocGenException(Exception):
     pass
 
+def generate_padmux_illustration(templates: DocTemplates, padframe: Padframe, dir: Path, header_text: str):
+    logger.info("Generating Graphviz dot file...")
+    templates.mux_graph.render(dir, logger=logger, padframe=padframe, header_text = header_text)
 
 def generate_padlist(padframe: Padframe, dir: Path):
     os.makedirs(dir, exist_ok=True)
