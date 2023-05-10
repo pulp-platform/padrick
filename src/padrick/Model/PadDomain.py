@@ -145,6 +145,41 @@ class PadDomain(BaseModel):
                 pad_names_seen.add(pad.name)
         return pads
 
+
+    @root_validator(skip_on_failure=True)
+    def validate_and_set_quasi_static_pad_instances(cls, values):
+        pad: PadInstance
+        # Generate list of all port to pad connections and pad to port connections,
+        # the check if there is a 1:1 mux correlation for all the quasi-static pads.
+        port2mux_groups = {}
+        if values['port_groups']:
+            for port_group in values['port_groups']:
+                port2mux_groups.update({f"{port_group.name}.{port.name}": port.mux_groups for port in port_group.ports})
+
+        pad2mux_groups = {pad.name: pad.mux_groups for pad in values['pad_list'] if not pad.is_static}
+        port2pads = {}
+        pad2ports = {pad.name: [] for pad in values['pad_list']}
+        for port, port_mux_groups in port2mux_groups.items():
+            pads = [pad for pad, pad_mux_groups in pad2mux_groups.items() if port_mux_groups.intersection(pad_mux_groups)]
+            port2pads[port] = pads
+            for pad in pads:
+                pad2ports[pad].append(port)
+
+        # Now iterate over all quasi_static pads
+        for pad in values['pad_list']:
+            if pad.quasi_static:
+                if len(pad2ports[pad.name]) != 1:
+                    raise ValueError(f"Illegal mux configuration. Pad instance {pad.name} which has the 'quasi_static' flag set has more than one muxed port connection. Connectable ports are: {pad2ports[pad.name]}")
+                port = pad2ports[pad.name][0]
+                if len(port2pads[port]) > 1:
+                    raise ValueError(f"Illegal mux configuration. Pad instance {pad.name} has the 'quasi_static' flag set but its associated port {port} is connectable to several pads: {port2pads[port]}")
+                else:
+                    # We verified that there is indeed a 1:1 correlation between this pad and one port. We now set this as the default_port
+                    # to force the fixed association.
+                    pad.default_port = port
+                    logger.info(f"Pad {pad.name} is marked as a quasi static pad. Setting default role for pad to {port}")
+        return values
+
     @root_validator(skip_on_failure=True)
     def validate_and_link_default_ports(cls, values):
         pad: PadInstance
@@ -175,6 +210,7 @@ class PadDomain(BaseModel):
                 logger.warning(f"Found duplicate usage of default_port '{default_port}' for pads:"
                                +", ".join([f"'{pad.name}'" for pad in pads]))
         return values
+
 
     @root_validator(skip_on_failure=True)
     def error_on_empty_port_groups_but_existing_dynamic_pads(cls, values):
@@ -281,7 +317,7 @@ class PadDomain(BaseModel):
         ports_in_mux_groups = list(itertools.chain(*[port_group.get_ports_in_mux_groups(mux_groups) for port_group in self.port_groups]))
         return ports_in_mux_groups
 
-    def get_dynamic_pads_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+    def get_dynamic_pads_in_mux_groups(self, mux_groups: Set[str]) -> List[PadInstance]:
         pads_in_mux_groups = [pad for pad in self.pad_list if mux_groups.intersection(pad.mux_groups) and pad.dynamic_pad_signals]
         return sort_pads(pads_in_mux_groups)
 

@@ -42,6 +42,7 @@ class PadInstance(BaseModel):
     multiple: conint(ge=1) = 1
     pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
     is_static: bool = False
+    quasi_static: bool = False
     mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
     connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
     default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]]
@@ -120,7 +121,11 @@ class PadInstance(BaseModel):
                     raise ValueError("Padsignals of kind pad cannot be referenced in the connections list.")
         return values
 
-
+    @root_validator(skip_on_failure=True)
+    def quasi_static_flag_and_is_static_mutually_exclusive(cls, values):
+        if values['quasi_static'] and values['is_static']:
+            raise ValueError("The quasi_static flag the is_static flag are mutually exclusive.")
+        return values
     @property
     def static_connection_signals(self) -> List[Signal]:
         """
@@ -168,8 +173,9 @@ class PadInstance(BaseModel):
         if self.is_static:
             return []
         else:
-            return sort_signals([pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
-                                 and pad_signal.conn_type == ConnectionType.dynamic])
+            dynamic_pad_signals = [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
+                                 and pad_signal.conn_type == ConnectionType.dynamic]
+            return sort_signals(dynamic_pad_signals)
 
     @cached_property
     def dynamic_pad_signals_soc2pad(self) -> List[PadSignal]:

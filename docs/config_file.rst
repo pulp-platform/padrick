@@ -814,6 +814,28 @@ are listed afterwards, they override this default assignment.
                mappings can override each other. If you use the wildcard match
                entry ``'*'``, make sure it is the first entry in the list.
 
+Quasi Static Pads
+-----------------
+
+Quite often, we want to have a fixed assignment of peripherals to IO pads. While
+these pads classically would be handled by defining ``static`` pad instances
+(``is_static = 1``) an alternative approach would be to use so-called
+`quasi_static` pads. These pads are defined like regular dynamic pads, i.e.
+``is_static= 0`` but instead have the optional ``quasi_static`` flag set to 1
+(default is 0). This tells padrick to treat the pad similar as if it was static,
+i.e. padrick will check that there is exactly one and only one port muxable to
+this pad instance (otherwise you will get an error) and padrick will implicitly
+set the pad instance's ``default_port`` to this port. In other words, padrick
+implicitly chooses the only connected port as the pad's default_port after
+reset.
+
+.. important:: This is an experimental feature that is still under development.
+               I.e. at the moment the mux select registers and dynamic pad
+               configuration signals for the pad are still generated although
+               they are not needed for a `quasi` static pad. In the future the
+               internal templates of padrick might be enhanced to automatically
+               ommit the generation of these obsolete pad instance registers.
+
 .. Syntax Reference ================
 
    Data Types
