@@ -23,6 +23,8 @@ Added
   supports the special token `res_val` to specify the default reset value for
   ``port_sel`` and ``pad_cfg`` entries (see the newly written docs section `Case
   Analysis Generator for Timing Constraints`
+* Added a new ``generate mux-graph`` command to generate a PDF containing a
+  schematic with the configured multiplexing structure.
 
 Changed
 -------

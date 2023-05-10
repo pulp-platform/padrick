@@ -24,6 +24,7 @@ from padrick.Generators.GeneratorSettings import DocTemplates
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.Padframe import Padframe
+from plumbum import local, CommandNotFound
 
 logger = logging.getLogger("padrick.DocGenerator")
 
@@ -32,10 +33,16 @@ template_package = 'padrick.Generators.DocGenerator.Templates'
 class DocGenException(Exception):
     pass
 
-def generate_padmux_illustration(templates: DocTemplates, padframe: Padframe, dir: Path, header_text: str):
+def generate_padmux_illustration(templates: DocTemplates, padframe: Padframe, dir: Path, header_text: str, **kwargs):
     logger.info("Generating Graphviz dot file...")
-    templates.mux_graph.render(dir, logger=logger, padframe=padframe, header_text = header_text)
-
+    templates.mux_graph.render(dir, logger=logger, padframe=padframe, header_text = header_text, **kwargs)
+    logger.info(f"Dot file rendered successfully in {dir/templates.mux_graph.target_file_name.format(padframe=padframe)}")
+    logger.info("Rendering PDF using graphviz...")
+    try:
+        dot_cmd = local.get("dot")
+        (dot_cmd["-Tpdf", str(dir/templates.mux_graph.target_file_name.format(padframe=padframe))] > f"{padframe.name}_muxing.pdf") ()
+    except CommandNotFound:
+        logger.error("Could not find graphviz dot command in your path. Is it installed?")
 def generate_padlist(padframe: Padframe, dir: Path):
     os.makedirs(dir, exist_ok=True)
     output_file_path = dir/f"{padframe.name}.csv"

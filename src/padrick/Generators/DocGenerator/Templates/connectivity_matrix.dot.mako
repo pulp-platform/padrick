@@ -17,9 +17,12 @@
 # ${line}
 % endfor
 
+<% from fnmatch import fnmatch %>
+
+
 graph g {
 	node[shape=box]
-	ranksep=5
+	ranksep=${rank_sep}
 	nodesep=0.25
 	rankdir="LR"
 
@@ -33,6 +36,7 @@ graph g {
             label = "Port Groups"
             margin=20
 % for port_group in pad_domain.port_groups:
+% if any(fnmatch(port_group.name, filter) for filter in port_group_filters):
             subgraph cluster_${prefix}_PortGroup_${port_group.name}{
                 margin=10
                 label = "${port_group.name}"
@@ -40,13 +44,14 @@ graph g {
                 "${prefix}_port_${port_group.name}.${port.name}" [label = "${port.name}"]
 % endfor
             }
+% endif
 % endfor
         }
 
         subgraph cluster_${prefix}_Pads {
             label = "IO-Pads"
 % for pad in pad_domain.pad_list:
-% if not pad.is_static:
+% if not pad.is_static and any(fnmatch(pad.name, filter) for filter in pad_filters):
              "${prefix}_pad_${pad.name}" [label = ${pad.name}]
 % endif
 % endfor
@@ -54,18 +59,19 @@ graph g {
 	    # Dynamic Connections
 % for port_group in pad_domain.port_groups:
 % for port in port_group.ports:
-<% port_node = f"{prefix}_port_{port_group.name}.{port.name}" %>
+% if any(fnmatch(port_group.name, filter) for filter in port_group_filters):
+<% port_node = f"{prefix}_port_{port_group.name}.{port.name}" %> \
 % for connected_pad in pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups):
+% if any(fnmatch(connected_pad.name, filter) for filter in pad_filters):
 % if connected_pad.default_port and connected_pad.default_port[0].name == port_group.name and port.name == connected_pad.default_port[1].name:
         "${port_node}" -- "${prefix}_pad_${connected_pad.name}" [color = green]
 % else:
         "${port_node}" -- "${prefix}_pad_${connected_pad.name}"
 % endif
+% endif
 % endfor
-
+% endif
 % endfor
-
-
 % endfor
 	}
 

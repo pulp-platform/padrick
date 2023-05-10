@@ -287,9 +287,12 @@ def padlist(generator_settings: GeneratorSettings, config_file: str, output: str
 @click.option('-o', '--output', type=click.Path(dir_okay=True, file_okay=False, path_type=pathlib.Path), default=".", help="Directory where to save the padlist CSV")
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. ")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
+@click.option('--horizontal_separation', 'rank_sep', type=int, default=5, show_default=True, help="The horizontal separation between the ports and the pads (graphviz rank_sep value).")
+@click.option('--pads', "pad_filters", multiple=True, type=str, help="The pad instances to add in the illustration. Supports wildcards.")
+@click.option('--port_groups', "port_group_filters", multiple=True, type=str, help="The Port groups to add in the illustration. Supports wildcards.")
 @click_log.simple_verbosity_option(logger)
 @pass_generator_settings
-def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string):
+def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string, pad_filters, port_group_filters, **kwargs):
     """
     Generate a dot graph file for visualization of the Multiplexing structure.
 
@@ -315,7 +318,12 @@ def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: s
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
 
-    generate_padmux_illustration(generator_settings.doc_templates, padframe, output, header_text=header_text)
+    if not pad_filters:
+        pad_filters = ("*",)
+    if not port_group_filters:
+        port_group_filters = ("*",)
+
+    generate_padmux_illustration(generator_settings.doc_templates, padframe, output, header_text=header_text, pad_filters=pad_filters, port_group_filters=port_group_filters, **kwargs)
 
 @generate.command()
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
