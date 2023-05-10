@@ -15,13 +15,19 @@ Unreleased
 
 Added
 -----
+* The constraints specification file for the ``generate constraints`` now
+  supports the special token `res_val` to specify the default reset value for
+  ``port_sel`` and ``pad_cfg`` entries (see the newly written docs section `Case
+  Analysis Generator for Timing Constraints`
 
 Changed
 -------
+* Add documentation for ``generate constraints`` command.
 
 Fixed
 -----
-
+* Fix a bug in the generated SDC case analysis constraints. The bit assignments
+  where in reversed order.
 
 v0.3.6 - 2022-12-14
 ===================

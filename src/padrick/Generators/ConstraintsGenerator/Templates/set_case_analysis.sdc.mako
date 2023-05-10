@@ -13,7 +13,6 @@
 ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
-
 % for line in header_text.splitlines():
 # ${line}
 % endfor
@@ -32,14 +31,21 @@ def as_bin(value:int, width:int):
 def sort_by_name(seq):
     return natsorted(seq, lambda x: x.name)
 
-def get_sel_index_width(pad, port_group, port, pad_domain):
+def get_sel_index_width(pad, port_sel, pad_domain):
+    if isinstance(port_sel, int):
+      port_group_name = ""
+      port_name = ""
+      sel_value = port_sel
+    else:
+      port_group_name = port_sel[0].name
+      port_name = port_sel[1].name
+      sel_value = 0
     idx = 1
-    sel_value = 0
     mux_groups = pad.mux_groups
     for p_group in sort_by_name(pad_domain.port_groups):
       for p in sort_by_name(p_group.ports):
         if p.mux_groups.intersection(mux_groups):
-          if p_group.name == port_group.name and p.name == port.name:
+          if p_group.name == port_group_name and p.name == port_name:
             sel_value = idx
           idx += 1
     return sel_value, ceil(log2(idx))
@@ -48,15 +54,18 @@ def get_sel_index_width(pad, port_group, port, pad_domain):
 # Pad Domain: ${constraints_mode.pad_domain.name}
 
 % for pad_mode in constraints_mode.pad_mode:
-% if pad_mode.port_sel:
-# Pad ${pad_mode.pad_inst.name} -> ${pad_mode.port_sel[0].name}.${pad_mode.port_sel[1].name}
+% if not pad_mode.port_sel is None:
+% if isinstance(pad_mode.port_sel, int):
+# Pad ${pad_mode.pad_inst.name} -> Sel Value: ${pad_mode.port_sel}\
+% else:
+# Pad ${pad_mode.pad_inst.name} -> ${pad_mode.port_sel[0].name}.${pad_mode.port_sel[1].name}\
+% endif
 <%
-    sel_value, width = get_sel_index_width(pad_mode.pad_inst, pad_mode.port_sel[0], pad_mode.port_sel[1], constraints_mode.pad_domain)
+    sel_value, width = get_sel_index_width(pad_mode.pad_inst, pad_mode.port_sel, constraints_mode.pad_domain)
 %>
-% for i, bit in enumerate(as_bin(sel_value, width)):
+% for i, bit in enumerate(reversed(list(as_bin(sel_value, width)))):
 set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/u_${pad_mode.pad_inst.name}_mux_sel/q${f"\[{i}\]" if width > 1 else ""}
 % endfor
-
 % else:
 # Pad ${pad_mode.pad_inst.name}
 % endif
@@ -64,10 +73,11 @@ set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_m
 # Pad Signal Config (${pad_mode.pad_inst.name})
 % for ps, value in pad_mode.pad_cfg.items():
 # ${ps.name} -> ${value}
-% for i, bit in enumerate(as_bin(value, ps.size)):
+% for i, bit in enumerate(reversed(list(as_bin(value, ps.size)))):
 set_case_analysis ${bit} i_${constraints_mode.pad_domain.name}/i_${constraints_mode.pad_domain.name}_muxer/i_regfile/u_${pad_mode.pad_inst.name}_cfg_${ps.name}/q${f"\[{i}\]" if ps.size > 1 else ""}
 %endfor
-
 % endfor
 % endif
+
+
 % endfor

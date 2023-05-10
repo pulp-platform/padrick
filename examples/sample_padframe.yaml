@@ -116,6 +116,13 @@ pad_domains:
                       # padframe module and no type, override signals or default
                       # values are allowed.
 
+          - name: pull_up_en
+            description: "Enable the pads weak pull-up resistor"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
 
       - name: low_leakage_pad
         description: Low leakage pad used for low-speed, low poewer applications
