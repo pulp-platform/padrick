@@ -36,7 +36,7 @@ class PadrickTemplate(BaseModel):
             output_file_path = output_dir / self.target_file_name.format(padframe=padframe, **kwargs)
             with output_file_path.open(mode='w') as f:
                 if isinstance(self.template, TemplatePackageResource):
-                    tp = Template(resources.read_text(self.template.package, self.template.resource))
+                    tp = Template(resources.files(self.template.package).joinpath(self.template.resource).read_text())
                 else:
                     tp = Template(filename=str(self.template))
                 try:
