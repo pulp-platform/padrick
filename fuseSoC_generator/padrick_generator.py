@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Copyright 2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
+
+
 # This is a trampoline script to invoke padrick as a generator. It only parses
 # the padrick_cmd parameter of the config file to determine the command to
 # invoke. 

@@ -1,3 +1,8 @@
+# Copyright 2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
+
 from enum import Enum
 from pathlib import Path
 from typing import Optional, List, Union
