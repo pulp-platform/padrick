@@ -1,0 +1,89 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+name: release
+on:
+  workflow_dispatch: ~
+  push:
+    branches: [main]
+    tags: ['v*']
+
+env:
+  PYINSTALLER_ARGS: >-
+    --onefile
+    --collect-data padrick --collect-data reggen --collect-data topgen
+    --collect-submodules reggen --collect-submodules topgen
+    standalone_build/entry.py
+
+jobs:
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: aarch64
+    runs-on: ${{ matrix.runner }}
+    # manylinux_2_28 (glibc 2.28) keeps the binary runnable on RHEL8-era hosts
+    container:
+      image: quay.io/pypa/manylinux_2_28_${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # setuptools_scm derives the package version from git tags
+          fetch-depth: 0
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: /opt/python/cp312-cp312/bin/python -m venv venv
+      - run: venv/bin/pip install . pyinstaller
+      - run: venv/bin/pyinstaller --name padrick-linux-${{ matrix.arch }} $PYINSTALLER_ARGS
+      - run: dist/padrick-linux-${{ matrix.arch }} validate examples/sample_padframe.yaml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: padrick-linux-${{ matrix.arch }}
+          path: dist/padrick-linux-${{ matrix.arch }}
+          if-no-files-found: error
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install . pyinstaller
+      - run: pyinstaller --name padrick-macos-arm64 $PYINSTALLER_ARGS
+      - run: dist/padrick-macos-arm64 validate examples/sample_padframe.yaml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: padrick-macos-arm64
+          path: dist/padrick-macos-arm64
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-linux, build-macos]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifact/
+          merge-multiple: true
+      - run: pip install click "semver>=2,<3"
+      - run: python3 get_changelog.py CHANGELOG.rst ${{ github.ref_name }} > release_notes.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifact/*
+            CHANGELOG.rst
+          name: ${{ github.ref_name }}
+          body_path: release_notes.txt
+          draft: true
+          fail_on_unmatched_files: true

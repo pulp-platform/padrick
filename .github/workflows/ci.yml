@@ -22,9 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      # the PyScaffold 3.2 build needs legacy tooling and no build isolation
-      - run: pip install "setuptools<81" "pyscaffold>=3.2,<3.3" wheel
-      - run: pip install --no-build-isolation -e . pytest
+      - run: pip install -e . pytest
       - run: pytest tests/characterization
 
   license:
