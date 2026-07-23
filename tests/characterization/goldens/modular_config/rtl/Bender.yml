@@ -1,0 +1,23 @@
+
+package:
+  name: modular_padframe
+  authors:
+    - "Padrick"
+
+dependencies:
+  register_interface:     { git: "https://github.com/pulp-platform/register_interface.git", version: 0.3.1 }
+  common_cells:           { git: "https://github.com/pulp-platform/common_cells.git", version: 1.21.0 }
+
+export_include_dirs:
+- include
+
+sources:
+  - src/pkg_modular_padframe.sv
+  - src/pkg_internal_modular_padframe_domain.sv
+  - src/modular_padframe_domain_config_reg_pkg.sv
+  - src/modular_padframe_domain_config_reg_top.sv
+  - src/modular_padframe_domain_pads.sv
+  - src/modular_padframe_domain_muxer.sv
+  - src/modular_padframe_domain.sv
+  - src/modular_padframe.sv
+
