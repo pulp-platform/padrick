@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
-from pkg_resources import get_distribution, DistributionNotFound
+# Copyright 2021-2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+
+from importlib.metadata import PackageNotFoundError, version
 
 try:
-    # Change here if project is renamed and does not equal the package name
-    dist_name = __name__
-    __version__ = get_distribution(dist_name).version
-except DistributionNotFound:
-    __version__ = 'unknown'
-finally:
-    del get_distribution, DistributionNotFound
+    __version__ = version("padrick")
+except PackageNotFoundError:
+    __version__ = "unknown"

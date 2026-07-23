@@ -1,0 +1,74 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "padrick"
+description = "A padframe controller/multiplexer generator for SoCs"
+readme = { file = "README.org", content-type = "text/plain" }
+license = { text = "Apache-2.0" }
+authors = [{ name = "Manuel Eggimann", email = "manuel.eggimann@gmail.com" }]
+maintainers = [{ name = "Kai Berszin", email = "kberszin@iis.ee.ethz.ch" }]
+requires-python = ">=3.9"
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+dependencies = [
+    "pydantic>=1.8.2,<2",
+    "click>=8.1.4,<9",
+    "ruamel.yaml~=0.17.32",
+    "Mako>=1.2.4,<2",
+    "lark-parser~=0.12",
+    "click_completion~=0.5.2",
+    "click-log~=0.4.0",
+    "click-spinner~=0.1.10",
+    "colorama~=0.4.6",
+    "hjson~=3.1",
+    "natsort~=8.4",
+    "plumbum>=1.8.2,<2",
+]
+
+[project.urls]
+Homepage = "https://github.com/pulp-platform/padrick"
+Documentation = "https://padrick.readthedocs.io/en/latest/"
+
+[project.scripts]
+padrick = "padrick.CLIEntryPoint:cli"
+
+[project.optional-dependencies]
+doc = [
+    "sphinx_rtd_theme",
+    "sphinx-click",
+    "sphinx-pydantic",
+    "sphinx-jsonschema==1.15",
+    "recommonmark",
+]
+testing = ["pytest"]
+binary_build = ["pyinstaller>=6", "semver>=2,<3"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.mako", "*.tpl", "*.css", "*.h", "*.md"]
+topgen = ["templates/*"]
+
+[tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+addopts = "--verbose"
+testpaths = ["tests"]
+norecursedirs = ["dist", "build", ".tox"]
