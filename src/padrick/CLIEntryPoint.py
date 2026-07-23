@@ -25,6 +25,7 @@ from padrick.ConfigParser import parse_config
 from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
+from pydantic import BaseModel
 
 logger = logging.getLogger("padrick")
 click_log.basic_config(logger)
@@ -92,11 +93,13 @@ def config(file):
                         return o.expression
                 elif isinstance(o, Signal):
                     return o.name
+                elif isinstance(o, BaseModel):
+                    return {name: self.sanitize(getattr(o, name)) for name in type(o).model_fields}
                 else:
                     return o
             def encode(self, o):
                 return super().encode(self.sanitize(o))
-        click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
+        click.echo(json.dumps(model, cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
 
@@ -132,8 +135,4 @@ if __name__ == '__main__':
             traceback.print_exc()
             pass
         # time.sleep(5)
-
-    # cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
-    #          '../../examples/sample_padframe.yaml'])
-
     #cli(['config', '../../examples/kraken_padframe.yml'])

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Author: Manuel Eggimann, ETH Zurich
 
+from pydantic_core import core_schema
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 
 
@@ -28,8 +29,8 @@ class TemplatedPortIdentifierType(str):
         return self._port_group.evaluate_template(i)+"."+self._port.evaluate_template(i)
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, v):

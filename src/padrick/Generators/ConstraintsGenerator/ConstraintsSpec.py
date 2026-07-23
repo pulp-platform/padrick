@@ -5,10 +5,10 @@
 
 import logging
 import re
-from typing_extensions import Literal
+from typing_extensions import Annotated, Literal
 
 import click_log
-from pydantic import BaseModel, conint, constr, validator, root_validator
+from pydantic import field_validator, Field, StringConstraints, BaseModel, root_validator
 from typing import List, Union, Optional, Tuple, Mapping
 
 from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
@@ -31,11 +31,12 @@ class ConstraintsGenException(Exception):
 
 class ConstraintsPadMode(BaseModel):
     pad_inst: Union[TemplatedIdentifierType, PadInstance]
-    port_sel: Optional[Union[Literal["res_val"], TemplatedStringType, Tuple[PortGroup, Port]]]
-    pad_cfg: Optional[Mapping[Union[PadSignal, str], Union[Literal["res_val"], constr(regex=r"(0x|0b)?[0-9a-f]+"), int]]]
-    multiple: conint(gt=1) = 1
+    port_sel: Optional[Union[Literal["res_val"], TemplatedStringType, Tuple[PortGroup, Port]]] = None
+    pad_cfg: Optional[Mapping[Union[PadSignal, str], Union[Literal["res_val"], Annotated[str, StringConstraints(pattern=r"(0x|0b)?[0-9a-f]+")], int]]] = None
+    multiple: Annotated[int, Field(gt=1)] = 1
 
-    @validator("pad_cfg")
+    @field_validator("pad_cfg")
+    @classmethod
     def validate_pad_cfg_expression_valid(cls, pad_cfg: Mapping[Union[PadSignal, str], str]):
         for key, value in pad_cfg.items():
             if value != "res_val":
@@ -48,7 +49,7 @@ class ConstraintsPadMode(BaseModel):
     def expand_pad_mode(self) -> List['ConstraintsPadMode']:
         expanded_pad_configs = []
         for i in range(self.multiple):
-            pc: ConstraintsPadMode = self.copy()
+            pc: ConstraintsPadMode = self.model_copy()
             pc.pad_inst = pc.pad_inst.evaluate_template(i) if isinstance(pc.pad_inst, TemplatedIdentifierType) else pc.pad_inst
             pc.multiple = 1
             pc.port_sel = pc.port_sel.evaluate_template(i) if isinstance(pc.port_sel, TemplatedStringType) else pc.port_sel
@@ -99,7 +100,8 @@ class ConstraintsMode(BaseModel):
     pad_domain: str
     pad_mode: List[ConstraintsPadMode]
 
-    @validator("pad_mode")
+    @field_validator("pad_mode")
+    @classmethod
     def expand_multi_pad_modes(cls, pad_configs: List[ConstraintsPadMode]):
         expanded_pad_modes = []
         for pc in pad_configs:
@@ -116,10 +118,11 @@ class ConstraintsMode(BaseModel):
             raise ConstraintsGenException(f"Unknown pad_domain name {self.pad_domain}.")
 
 class ConstraintsSpec(BaseModel):
-    manifest_version: conint(le=MANIFEST_VERSION)
+    manifest_version: Annotated[int, Field(le=MANIFEST_VERSION)]
     modes: List[ConstraintsMode]
 
-    @validator('manifest_version')
+    @field_validator('manifest_version')
+    @classmethod
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
         if version != MANIFEST_VERSION:

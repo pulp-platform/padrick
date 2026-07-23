@@ -4,13 +4,14 @@
 # Author: Manuel Eggimann, ETH Zurich
 import logging
 
-from pydantic import BaseModel, conint, validator
+from pydantic import field_validator, Field, BaseModel
 from pydantic.dataclasses import dataclass
 
 import padrick
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, \
     MANIFEST_VERSION_COMPATIBILITY
+from typing_extensions import Annotated
 
 RTLTemplatePackage = 'padrick.Generators.RTLGenerator.Templates'
 DriverTemplatePackage = 'padrick.Generators.DriverGenerator.Templates'
@@ -20,79 +21,79 @@ ConstraintsTemplatePackage = 'padrick.Generators.ConstraintsGenerator.Templates'
 logger = logging.getLogger("padrick.Configparser")
 
 class RTLTemplates(BaseModel):
-    toplevel_sv_package = PadrickTemplate(
+    toplevel_sv_package: PadrickTemplate = PadrickTemplate(
         name='SV package',
         target_file_name='pkg_{padframe.name}.sv',
         template=(RTLTemplatePackage, 'pkg_padframe.sv.mako')
     )
-    pad_domain_top = PadrickTemplate(
+    pad_domain_top: PadrickTemplate = PadrickTemplate(
         name='Paddomain module {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}.sv',
         template=(RTLTemplatePackage, 'pad_domain.sv.mako')
     )
-    pad_inst_module = PadrickTemplate(
+    pad_inst_module: PadrickTemplate = PadrickTemplate(
         name='Pad instantiation module {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}_pads.sv',
         template=(RTLTemplatePackage, 'pads.sv.mako')
     )
-    internal_pkg = PadrickTemplate(
+    internal_pkg: PadrickTemplate = PadrickTemplate(
         name='Internal package for {pad_domain.name}',
         target_file_name='pkg_internal_{padframe.name}_{pad_domain.name}.sv',
         template=(RTLTemplatePackage, 'pkg_pad_domain_internals.sv.mako')
     )
-    pad_mux_module = PadrickTemplate(
+    pad_mux_module: PadrickTemplate = PadrickTemplate(
         name='Pad Multiplexer for {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}_muxer.sv',
         template=(RTLTemplatePackage, 'pad_multiplexer.sv.mako')
     )
-    regfile_hjson = PadrickTemplate(
+    regfile_hjson: PadrickTemplate = PadrickTemplate(
         name='Register File Specification for {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}_regs.hjson',
         template=(RTLTemplatePackage, 'regfile.hjson.mako')
     )
-    toplevel_module = PadrickTemplate(
+    toplevel_module: PadrickTemplate = PadrickTemplate(
         name='Padframe Top Module',
         target_file_name='{padframe.name}.sv',
         template=(RTLTemplatePackage, 'padframe.sv.mako')
     )
-    assign_header_file = PadrickTemplate(
+    assign_header_file: PadrickTemplate = PadrickTemplate(
         name='Padframe assignment header file',
         target_file_name='assign.svh',
         template=(RTLTemplatePackage, 'assign.svh.mako')
     )
-    bender_project_file = PadrickTemplate(
+    bender_project_file: PadrickTemplate = PadrickTemplate(
         name='Bender.yml Project file',
         target_file_name="Bender.yml",
         template=(RTLTemplatePackage, 'Bender.yml.mako')
     )
-    ipapprox_src_files_yml = PadrickTemplate(
+    ipapprox_src_files_yml: PadrickTemplate = PadrickTemplate(
         name='IPApprox src_files.yml',
         target_file_name="src_files.yml",
         template=(RTLTemplatePackage, 'src_files.yml.mako')
     )
-    ipapprox_ips_list_yml = PadrickTemplate(
+    ipapprox_ips_list_yml: PadrickTemplate = PadrickTemplate(
         name=f'IPApprox ips_list.yml',
         target_file_name="ips_list.yml",
         template=(RTLTemplatePackage, 'ips_list.yml.mako')
     )
-    fusesoc_core_file = PadrickTemplate(
+    fusesoc_core_file: PadrickTemplate = PadrickTemplate(
         name=f'FuseSoC core file',
         target_file_name="{padframe.name}.core",
         template=(RTLTemplatePackage, 'FuseSoC.core.mako')
     )
 
 class DriverTemplates(BaseModel):
-    regfile_hjson = PadrickTemplate(
+    regfile_hjson: PadrickTemplate = PadrickTemplate(
         name='Register File Specification for {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}_regs.hjson',
         template=(RTLTemplatePackage, 'regfile.hjson.mako')
     )
-    driver_header = PadrickTemplate(
+    driver_header: PadrickTemplate = PadrickTemplate(
         name="Driver header file",
         target_file_name="{padframe.name}.h",
         template=(DriverTemplatePackage,'driver.h.mako')
     )
-    driver_source = PadrickTemplate(
+    driver_source: PadrickTemplate = PadrickTemplate(
         name="Driver implementation file",
         target_file_name="{padframe.name}.c",
         template=(DriverTemplatePackage, 'driver.c.mako')
@@ -100,27 +101,28 @@ class DriverTemplates(BaseModel):
 
 
 class ConstraintsTemplates(BaseModel):
-    case_analysis = PadrickTemplate(
+    case_analysis: PadrickTemplate = PadrickTemplate(
         name='Set Case Analysis statements for padmultiplexer',
         target_file_name='{padframe.name}_mode_{constraints_mode.name}.sdc',
         template=(ConstraintsTemplatePackage, 'set_case_analysis.sdc.mako')
     )
 
 class DocTemplates(BaseModel):
-    mux_graph = PadrickTemplate(
+    mux_graph: PadrickTemplate = PadrickTemplate(
         name='A graphviz dot graph to visualize the multiplexing structure',
         target_file_name="{padframe.name}.dot",
         template=(DocTemplatePackage, 'connectivity_matrix.dot.mako')
     )
 
 class GeneratorSettings(BaseModel):
-    manifest_version: conint(le=MANIFEST_VERSION) = MANIFEST_VERSION
-    rtl_templates = RTLTemplates()
-    driver_templates = DriverTemplates()
-    doc_templates = DocTemplates()
-    constraints_templates = ConstraintsTemplates()
+    manifest_version: Annotated[int, Field(le=MANIFEST_VERSION)] = MANIFEST_VERSION
+    rtl_templates: RTLTemplates = RTLTemplates()
+    driver_templates: DriverTemplates = DriverTemplates()
+    doc_templates: DocTemplates = DocTemplates()
+    constraints_templates: ConstraintsTemplates = ConstraintsTemplates()
 
-    @validator('manifest_version')
+    @field_validator('manifest_version')
+    @classmethod
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
         if version != MANIFEST_VERSION:

@@ -6,6 +6,7 @@
 from copy import deepcopy
 from typing import Set, Mapping
 
+from pydantic_core import core_schema
 from lark.exceptions import UnexpectedInput
 from lark.lark import Lark
 from lark.tree import Tree
@@ -211,8 +212,8 @@ class SignalExpressionType(str):
         return signal_collection
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, v):

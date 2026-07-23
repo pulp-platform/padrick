@@ -13,30 +13,27 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIF
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, constr, field_validator
 
 from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals
+from typing_extensions import Annotated
 
 
 class Port(BaseModel):
     name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType]
-    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
+    description: Optional[TemplatedStringType] = None
+    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = None
+    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1)] = \
         {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
-    multiple: conint(ge=1) = 1
-    user_attr: Optional[UserAttrs]
+    multiple: Annotated[int, Field(ge=1)] = 1
+    user_attr: Optional[UserAttrs] = None
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
-    #pydantic model config
-    class Config:
-        extra = Extra.forbid
-        validate_assignment = True
-        underscore_attrs_are_private = True
-
-    @validator('connections')
-    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType], values):
+    @field_validator('connections')
+    @classmethod
+    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType]):
         linked_connections = {}
         for signal, expression in v.items():
             signal_name = signal.name if isinstance(signal, Signal) else signal
@@ -93,12 +90,13 @@ class Port(BaseModel):
             linked_connections[signal] = expression
         return linked_connections
 
-    @validator('mux_groups', each_item=True)
-    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
-        mux_group_str = str(mux_group)
-        if not mux_group_str.islower():
-            raise ValueError("Mux groups must not contain upper-case letters.")
-        return mux_group
+    @field_validator('mux_groups')
+    @classmethod
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_groups):
+        for mux_group in mux_groups:
+            if not str(mux_group).islower():
+                raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_groups
 
 
     @property
@@ -137,7 +135,7 @@ class Port(BaseModel):
     def expand_port(self) -> List['Port']:
         expanded_ports = []
         for i in range(self.multiple):
-            expanded_port: Port = self.copy()
+            expanded_port: Port = self.model_copy()
             expanded_port.name = expanded_port.name.evaluate_template(i)
             expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None
             expanded_port.user_attr = expanded_port.user_attr.expand_user_attrs(i) if expanded_port.user_attr else None

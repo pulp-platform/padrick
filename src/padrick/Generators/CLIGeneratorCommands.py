@@ -97,7 +97,7 @@ def template_customization(output):
                 tf.write(resources.read_text(template.template.package, template.template.resource))
                 template.template = str(template_file_name)
     with (Path(output)/"padrick_generator_settings.yml").open("w") as settings_file:
-        yaml.dump(default_settings.dict(), settings_file)
+        yaml.dump(default_settings.model_dump(), settings_file)
 
 
 

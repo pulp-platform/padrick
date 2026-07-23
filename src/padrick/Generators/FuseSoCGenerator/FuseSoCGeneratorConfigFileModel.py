@@ -9,7 +9,7 @@ from typing import Optional, List, Union
 
 from typing_extensions import Literal, Annotated
 
-from pydantic import BaseModel, Field, Extra
+from pydantic import ConfigDict, BaseModel, Field
 
 from padrick.Generators.GeneratorSettings import GeneratorSettings
 from padrick.Model.Padframe import Padframe
@@ -64,10 +64,10 @@ GenerateStepType = Annotated[Union[
 
 
 class ConfigFileParameters(BaseModel):
-    generator_settings: Optional[Path]
+    generator_settings: Optional[Path] = None
     padframe_manifest: Path
     generate_steps: List[GenerateStepType]
-    padrick_cmd: Optional[str]
+    padrick_cmd: Optional[str] = None
 
 
 class ConfigFileModel(BaseModel):
@@ -78,6 +78,4 @@ class ConfigFileModel(BaseModel):
     gapi: Literal['1.0']
     vlnv: str
     parameters: ConfigFileParameters
-
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")

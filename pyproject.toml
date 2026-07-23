@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
 ]
 dependencies = [
-    "pydantic>=1.8.2,<2",
+    "pydantic>=2.5,<3",
     "click>=8.1.4,<9",
     "ruamel.yaml>=0.18",
     "Mako>=1.2.4,<2",

@@ -4,28 +4,28 @@
 # Author: Manuel Eggimann, ETH Zurich
 from typing import Dict, Union, Optional, Mapping
 
-from pydantic import BaseModel
+from pydantic import RootModel
 
 from padrick.Model.TemplatedString import TemplatedStringType
 
 
-class UserAttrs(BaseModel):
-    __root__: Mapping[TemplatedStringType, Union['UserAttrs', int, bool, TemplatedStringType]]
+class UserAttrs(RootModel):
+    root: Mapping[TemplatedStringType, Union['UserAttrs', int, bool, TemplatedStringType]]
 
     def __iter__(self):
-        return iter(self.__root__)
+        return iter(self.root)
 
     def __getitem__(self, item):
-        return self.__root__[item]
+        return self.root[item]
 
     def items(self):
-        return self.__root__.items()
+        return self.root.items()
 
     def values(self):
-        return self.__root__.values()
+        return self.root.values()
 
     def keys(self):
-        return self.__root__.keys()
+        return self.root.keys()
 
     def expand_user_attrs(self, i: int) -> Dict[str, Union[str, int, bool]]:
         rendered_attrs = {}

@@ -26,7 +26,7 @@ class PadrickTemplate(BaseModel):
     name: str
     target_file_name: str
     template: Union[TemplatePackageResource, Path]
-    skip_generation = False
+    skip_generation: bool = False
 
     def render(self, output_dir: Path, logger: logging.Logger, padframe: Padframe, debug_render=False, **kwargs):
         if self.skip_generation:

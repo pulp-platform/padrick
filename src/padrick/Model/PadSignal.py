@@ -8,10 +8,11 @@ from typing import Optional, Set, Dict, Union
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.SignalExpressionType import SignalExpressionType
 
-from pydantic import BaseModel, constr, conint, validator, PrivateAttr, root_validator, Extra
+from pydantic import model_validator, Field, ConfigDict, BaseModel, constr, validator, PrivateAttr
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.UserAttrs import UserAttrs
+from typing_extensions import Annotated
 
 
 class PadSignalKind(str, Enum):
@@ -30,7 +31,7 @@ class ConnectionType(str, Enum):
 
 class Signal(BaseModel):
     name: TemplatedIdentifierType
-    size: conint(ge=1, le=32) = 1
+    size: Annotated[int, Field(ge=1, le=32)] = 1
     _direction: Optional[SignalDirection] = PrivateAttr(None)
 
     def __init__(self, direction=None, *values, **kwargs):
@@ -50,15 +51,15 @@ class Signal(BaseModel):
         return hash((self.name, self.size, self.direction))
 
 class PadSignal(Signal):
-    description: Optional[str]
+    description: Optional[str] = None
     kind: PadSignalKind
-    conn_type: Optional[ConnectionType]
+    conn_type: Optional[ConnectionType] = None
     and_override_signal: SignalExpressionType = SignalExpressionType("")
     or_override_signal: SignalExpressionType = SignalExpressionType("")
-    default_reset_value: Optional[int]
-    default_static_value: Optional[SignalExpressionType]
+    default_reset_value: Optional[int] = None
+    default_static_value: Optional[SignalExpressionType] = None
     _static_signals: Set[Signal] = PrivateAttr(default=set())
-    user_attr: Optional[UserAttrs]
+    user_attr: Optional[UserAttrs] = None
 
     @property
     def direction(self):
@@ -68,51 +69,48 @@ class PadSignal(Signal):
             return SignalDirection.pads2soc
         else:
             return SignalDirection.bidir
+    model_config = ConfigDict(extra="forbid")
 
-    #pydantic model config
-    class Config:
-        extra = Extra.forbid
-
-    @root_validator(skip_on_failure=True)
-    def must_contain_conn_type_unsless_kind_pad(cls, values):
-        if values['kind'] != PadSignalKind.pad and not values['conn_type']:
+    @model_validator(mode='after')
+    def must_contain_conn_type_unsless_kind_pad(self):
+        if self.kind != PadSignalKind.pad and not self.conn_type:
             raise ValueError("All Padsignals except the ones of kind 'pad' must contain a 'conn_type'")
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def must_not_contain_default_value_if_landing_pad(cls, values):
-        if values['kind'] == PadSignalKind.pad:
-            if values.get('default_reset_value', None):
+    @model_validator(mode='after')
+    def must_not_contain_default_value_if_landing_pad(self):
+        if self.kind == PadSignalKind.pad:
+            if self.default_reset_value:
                 raise ValueError("Padsignals of kind 'pad' must not contain a default reset value.")
-            if values.get('default_static_value', None):
+            if self.default_static_value:
                 raise ValueError("Padsignals of kind 'pad' must not contain a default static value.")
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def validate_output_pad(cls, values):
-        if values['kind'] == PadSignalKind.output:
-            if values.get('default_reset_value', None) != None:
+    @model_validator(mode='after')
+    def validate_output_pad(self):
+        if self.kind == PadSignalKind.output:
+            if self.default_reset_value != None:
                 raise ValueError("Padsignals of kind 'output' must not contain a reset value.")
-            if not values.get('default_static_value'):
-                values['default_static_value'] = SignalExpressionType("")
+            if not self.default_static_value:
+                self.default_static_value = SignalExpressionType("")
             else:
-                if not values['default_static_value'].is_single_signal:
+                if not self.default_static_value.is_single_signal:
                     raise ValueError("Padsignals of kind 'output' must not have complex expression as "
                                      "default_static_value. Only single signal identifiers or the empty expression is allowed.")
-                if not values['and_override_signal'].is_empty:
+                if not self.and_override_signal.is_empty:
                     raise ValueError("Padsignals of kind 'output' must not have override signals.")
-                if not values['or_override_signal'].is_empty:
+                if not self.or_override_signal.is_empty:
                     raise ValueError("Padsignals of kind 'output' must not have override signals.")
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def must_contain_default_values_if_kind_input(cls, values):
-        if values['kind'] == PadSignalKind.input:
-            if values.get('default_reset_value', None) == None:
+    @model_validator(mode='after')
+    def must_contain_default_values_if_kind_input(self):
+        if self.kind == PadSignalKind.input:
+            if self.default_reset_value == None:
                 raise ValueError("Padsignals of kind 'input' must specify a default reset value")
-            if values.get('default_static_value', None) == None:
+            if self.default_static_value == None:
                 raise ValueError("Padsignals of kind 'input' must specify a default static value")
-        return values
+        return self
 
 
     @property

@@ -6,6 +6,7 @@
 from copy import deepcopy
 from functools import lru_cache
 
+from pydantic_core import core_schema
 from lark import Token, Transformer
 from lark.exceptions import UnexpectedInput
 from lark.lark import Lark
@@ -130,8 +131,8 @@ class TemplatedIdentifierType(str):
             return self
 
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
     def validate(cls, v):

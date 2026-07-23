@@ -85,14 +85,14 @@ def parse_config(cls: T, config_file: Path, include_base_dir: Optional[Path] = N
             logger.error(f"Error while parsing config_file:\n{e}")
             return None
         try:
-            model = cls.parse_obj(config_data)
+            model = cls.model_validate(config_data)
             return model
         except ValidationError as e:
             logger.error(f"Encountered {len(e.errors())} validation errors while parsing the configuration file:")
             for error in e.errors():
-                if error['type'] == 'value_error.extra':
+                if error['type'] == 'extra_forbidden':
                     error['msg'] = f'Unknown field {error["loc"][-1]}. Did you mispell the field name?'
-                if error['type'] == 'value_error.missing':
+                if error['type'] == 'missing':
                     error['msg'] = f'Missing field \'{error["loc"][-1]}\''
                 # error_path = get_human_readable_error_path(config_data, error["loc"])
                 (line, column), subtree = get_file_location(config_data, error["loc"])
