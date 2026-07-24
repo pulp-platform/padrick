@@ -186,13 +186,17 @@ module kraken_padframe
      '{ idx: 0, start_addr: 9'd0,  end_addr: 9'd340}
      };
    logic[$clog2(NUM_PAD_DOMAINS+1)-1:0] pad_domain_sel; // +1 since there is an additional error slave
+   // Fusion Compiler (Presto) cannot member-select the parameter-type config_req_i in a
+   // port connection, so hoist the address slice into a procedural signal first.
+   logic [REG_ADDR_WIDTH-1:0] config_req_addr;
+   always_comb config_req_addr = config_req_i.addr[REG_ADDR_WIDTH-1:0];
    addr_decode #(
        .NoIndices(NUM_PAD_DOMAINS+1),
        .NoRules(NUM_PAD_DOMAINS),
        .addr_t(logic[REG_ADDR_WIDTH-1:0]),
        .rule_t(addr_rule_t)
      ) i_addr_decode(
-       .addr_i(config_req_i.addr[REG_ADDR_WIDTH-1:0]),
+       .addr_i(config_req_addr),
        .addr_map_i(ADDR_DEMUX_RULES),
        .dec_valid_o(),
        .dec_error_o(),
@@ -219,8 +223,11 @@ module kraken_padframe
        .out_rsp_i({error_slave_rsp, aon_config_resp})
      );
 
-     assign error_slave_rsp.error = 1'b1;
-     assign error_slave_rsp.rdata = DecodeErrRespData;
-     assign error_slave_rsp.ready = 1'b1;
+     // Procedural for the same Presto reason as config_req_addr above.
+     always_comb begin
+       error_slave_rsp.error = 1'b1;
+       error_slave_rsp.rdata = DecodeErrRespData;
+       error_slave_rsp.ready = 1'b1;
+     end
 
 endmodule
