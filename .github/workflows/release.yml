@@ -31,7 +31,7 @@ jobs:
     container:
       image: quay.io/pypa/manylinux_2_28_${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # setuptools_scm derives the package version from git tags
           fetch-depth: 0
@@ -40,7 +40,7 @@ jobs:
       - run: venv/bin/pip install . pyinstaller
       - run: venv/bin/pyinstaller --name padrick-linux-${{ matrix.arch }} $PYINSTALLER_ARGS
       - run: dist/padrick-linux-${{ matrix.arch }} validate examples/sample_padframe.yaml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: padrick-linux-${{ matrix.arch }}
           path: dist/padrick-linux-${{ matrix.arch }}
@@ -49,16 +49,16 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - run: pip install . pyinstaller
       - run: pyinstaller --name padrick-macos-arm64 $PYINSTALLER_ARGS
       - run: dist/padrick-macos-arm64 validate examples/sample_padframe.yaml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: padrick-macos-arm64
           path: dist/padrick-macos-arm64
@@ -71,14 +71,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v6
         with:
           path: artifact/
           merge-multiple: true
       - run: pip install click "semver>=2,<3"
       - run: python3 get_changelog.py CHANGELOG.rst ${{ github.ref_name }} > release_notes.txt
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             artifact/*
