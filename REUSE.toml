@@ -15,12 +15,3 @@ path = ["src/reggen/**", "src/topgen/**", "vendor/lowrisc_opentitan/**"]
 precedence = "override"
 SPDX-FileCopyrightText = "lowRISC contributors"
 SPDX-License-Identifier = "Apache-2.0"
-
-# Vendored from the pyyaml-include project. NOTE: GPL-licensed — see the
-# license-compatibility discussion before distributing; consider replacing
-# this module with an in-house implementation.
-[[annotations]]
-path = "src/yamlinclude/**"
-precedence = "override"
-SPDX-FileCopyrightText = "the pyyaml-include contributors"
-SPDX-License-Identifier = "GPL-3.0-or-later"

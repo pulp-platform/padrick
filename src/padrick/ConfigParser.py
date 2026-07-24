@@ -10,8 +10,7 @@ import click
 import click_log
 from pydantic import ValidationError, BaseModel
 from ruamel.yaml.comments import CommentedMap
-from yamlinclude import YamlIncludeConstructor
-from yamlinclude.constructor import IgnoreIncludeConstructor
+from padrick.YamlInclude import YamlIncludeConstructor, IgnoreIncludeConstructor
 
 logger = logging.getLogger("padrick.ConfigParser")
 click_log.basic_config(logger)

@@ -112,3 +112,16 @@ def test_generate_rtl_header_option_inserts_header(tmp_path: Path):
     ])
     assert result.returncode == 0, result.stderr
     assert header_text in (out_dir / "Bender.yml").read_text()
+
+
+def test_include_glob_expands_to_list(tmp_path: Path) -> None:
+    """A wildcard !include yields the list of all matched documents."""
+    import ruamel.yaml
+    from padrick.YamlInclude import YamlIncludeConstructor
+
+    (tmp_path / "part_a.yml").write_text("- alpha\n")
+    (tmp_path / "part_b.yml").write_text("- beta\n")
+    yaml = ruamel.yaml.YAML(typ="rt")
+    yaml.register_class(YamlIncludeConstructor(base_dir=str(tmp_path)))
+    data = yaml.load("parts: !include part_*.yml\n")
+    assert list(map(list, data["parts"])) == [["alpha"], ["beta"]]
