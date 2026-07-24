@@ -92,6 +92,8 @@
           resval: 5
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa0."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -166,6 +168,8 @@
           resval: 2
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa1."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -240,6 +244,8 @@
           resval: 4
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa2."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -314,6 +320,8 @@
           resval: 3
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa3."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -388,6 +396,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa4."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -462,6 +472,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa5."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -536,6 +548,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa6."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -610,6 +624,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa7."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -684,6 +700,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa8."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -758,6 +776,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa9."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -832,6 +852,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa10."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -906,6 +928,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa11."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -980,6 +1004,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa12."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1054,6 +1080,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa13."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1128,6 +1156,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa14."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1202,6 +1232,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa15."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1276,6 +1308,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa16."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1350,6 +1384,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa17."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1424,6 +1460,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa18."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1498,6 +1536,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa19."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1572,6 +1612,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa20."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1646,6 +1688,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa21."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1720,6 +1764,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa22."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1794,6 +1840,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa23."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1868,6 +1916,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa24."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -1942,6 +1992,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa25."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2016,6 +2068,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa26."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2090,6 +2144,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa27."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2164,6 +2220,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa28."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2238,6 +2296,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa29."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2312,6 +2372,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa30."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2386,6 +2448,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa31."
                   bits: "2:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2460,6 +2524,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob0."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2531,6 +2597,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob1."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2602,6 +2670,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob2."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2673,6 +2743,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob3."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2744,6 +2816,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob4."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2815,6 +2889,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob5."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2886,6 +2962,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob6."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -2957,6 +3035,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob7."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3028,6 +3108,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob8."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3099,6 +3181,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob9."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3170,6 +3254,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob10."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3241,6 +3327,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob11."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3312,6 +3400,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob12."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3383,6 +3473,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob13."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3454,6 +3546,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob14."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3525,6 +3619,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob15."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3596,6 +3692,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob16."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3667,6 +3765,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob17."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3738,6 +3838,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob18."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3809,6 +3911,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob19."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3880,6 +3984,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob20."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -3951,6 +4057,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob21."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4022,6 +4130,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob22."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4093,6 +4203,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob23."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4164,6 +4276,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob24."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4235,6 +4349,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob25."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4306,6 +4422,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob26."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4377,6 +4495,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob27."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4448,6 +4568,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob28."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4519,6 +4641,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob29."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4590,6 +4714,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob30."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4661,6 +4787,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob31."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4732,6 +4860,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc0."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4802,6 +4932,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc1."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4872,6 +5004,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc2."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -4942,6 +5076,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc3."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5012,6 +5148,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc4."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5082,6 +5220,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc5."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5152,6 +5292,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc6."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5222,6 +5364,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc7."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5292,6 +5436,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc8."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5362,6 +5508,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc9."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5432,6 +5580,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc10."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5502,6 +5652,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc11."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5572,6 +5724,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc12."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5642,6 +5796,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc13."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5712,6 +5868,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc14."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -5782,6 +5940,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc15."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}

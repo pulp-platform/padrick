@@ -13,8 +13,26 @@ and this project adheres to `Semantic Versioning <http://semver.org/spec/v2.0.0.
 Unreleased
 ==========
 
+**Breaking**: the ``MUX_SEL`` register's single field is now explicitly named
+``sel`` (previously anonymous). The register offsets and bit layout are
+unchanged, but the reggen-generated SystemVerilog ``reg2hw`` struct gains a
+``.sel`` level and the C field macros in ``*_regs.h`` are renamed (e.g.
+``..._MUX_SEL_PAD_X_MUX_SEL_MASK`` becomes ``..._MUX_SEL_SEL_MASK``). This
+aligns the reggen and PeakRDL register backends. The next release will be
+0.4.0 accordingly.
+
 Added
 -----
+* Added a ``hardwired`` mode for quasi-static pads (``quasi_static: hardwired``):
+  the pad is directly tied to its single port with no multiplexer and no
+  config/mux_sel registers. ``quasi_static: true`` keeps the previous behavior
+  (now also expressible as ``quasi_static: muxed``).
+* Added an experimental PeakRDL/SystemRDL register backend selectable with
+  ``--register-backend peakrdl`` on ``generate rtl`` and ``generate driver``
+  (requires the ``peakrdl`` extra).
+* Added a ``padrick schema`` command exporting the config file JSON Schema for
+  editor completion/validation, and a ``--format json`` option on ``validate``
+  for machine-readable results.
 * Added experimental feature to mark dynamic pads as quasi_static. If this flag
   is set on a pad_instance, the config file parser will verify that there is
   exactly one and only one port connected to this pad_instance and will

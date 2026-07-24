@@ -133,6 +133,8 @@
           resval: ${reset_value}
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad ${pad.name}."
                   bits: "${max(0,math.ceil(math.log2(len(pad_domain.get_ports_in_mux_groups(pad.mux_groups))+1))-1)}:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}

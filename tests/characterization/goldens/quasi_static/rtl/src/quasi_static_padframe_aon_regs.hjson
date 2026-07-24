@@ -92,6 +92,8 @@
           resval: 1
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_qs."
                   bits: "0:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -162,6 +164,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_io0."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
@@ -233,6 +237,8 @@
           resval: 0
           fields: [
               {
+                  name: sel
+                  desc: "Port selection index for pad pad_io1."
                   bits: "1:0"
                   enum: [
                       { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
