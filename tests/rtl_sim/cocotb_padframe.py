@@ -6,11 +6,17 @@
 """
 cocotb tests for the generated sim_padframe. Expectations are derived from the
 same YAML config (parsed through padrick's own model) and from the generated
-register description (offsets from the reg_pkg, field/enum layout from the
-regfile hjson), so the checks track the config rather than hard-coded magic.
+register description (offsets and field/enum layout), so the checks track the
+config rather than hard-coded magic.
 
-Register-bus note: the generated reg file drives ready = 1'b1 combinationally and
-latches writes on the clock edge, so a single cycle per access is sufficient.
+The same checks run against every (config-bus frontend x register backend) point
+in the matrix: the register-access layer is abstracted behind a bus driver
+selected by PADRICK_SIM_FRONTEND (see bus_drivers.py), and the register-map
+introspection source is selected by PADRICK_SIM_BACKEND. Only the driver and the
+introspection source -- not the checks -- vary across the matrix. The two backends
+describe the same register map at the same offsets:
+  * reggen  (regbus)          -- reg_pkg OFFSET params + regfile hjson.
+  * peakrdl (apb/axilite/obi) -- flattened regblock reg_top decode + the .rdl.
 """
 import os
 import re
@@ -25,24 +31,31 @@ from cocotb.triggers import RisingEdge, Timer
 from padrick.ConfigParser import parse_config
 from padrick.Model.Padframe import Padframe
 
+from bus_drivers import make_driver
+
 GEN_DIR = Path(os.environ["PADRICK_SIM_GEN_DIR"])
 CONFIG = Path(os.environ["PADRICK_SIM_YAML"])
+FRONTEND = os.environ.get("PADRICK_SIM_FRONTEND", "regbus")
+BACKEND = os.environ.get("PADRICK_SIM_BACKEND", "reggen")
+DRIVER = make_driver(FRONTEND)
 
-REG_PKG = GEN_DIR / "src" / "sim_padframe_core_config_reg_pkg.sv"
-REG_HJSON = GEN_DIR / "src" / "sim_padframe_core_regs.hjson"
+SRC = GEN_DIR / "src"
 
 
-# Config / register-map introspection (done once at import time).
-def _reg_offsets():
+# Config / register-map introspection (done once at import time). Each backend
+# emits a different set of artifacts describing the same map at the same offsets.
+def _reggen_offsets():
+    """reg_pkg CONFIG_<REG>_OFFSET localparams -> {reg_name: byte_offset}."""
+    pkg = (SRC / "sim_padframe_core_config_reg_pkg.sv").read_text()
     offsets = {}
-    for m in re.finditer(r"CONFIG_(\w+?)_OFFSET\s*=\s*\d+'h\s*([0-9a-fA-F]+)", REG_PKG.read_text()):
+    for m in re.finditer(r"CONFIG_(\w+?)_OFFSET\s*=\s*\d+'h\s*([0-9a-fA-F]+)", pkg):
         offsets[m.group(1).lower()] = int(m.group(2), 16)
     return offsets
 
 
-def _reg_layout():
-    """Per register: {field_name: (lsb, width)} plus mux-select enum name->value."""
-    doc = hjson.loads(REG_HJSON.read_text())
+def _reggen_layout():
+    """regfile hjson -> {reg: {fields: {name: (lsb, width)}, enum: {name: value}}}."""
+    doc = hjson.loads((SRC / "sim_padframe_core_regs.hjson").read_text())
     layout = {}
     for reg in doc["registers"]:
         if not isinstance(reg, dict) or "name" not in reg:
@@ -63,8 +76,59 @@ def _reg_layout():
     return layout
 
 
-OFFSETS = _reg_offsets()
-LAYOUT = _reg_layout()
+def _peakrdl_offsets():
+    """Flattened regblock reg_top address decode -> {reg_name: byte_offset}. The
+    decode lines (`decoded_reg_strb.<blk>.<REG> = ... cpuif_addr == N'hX`) are the
+    authoritative offset source; the peakrdl reg_pkg has no per-register offsets."""
+    top = (SRC / "sim_padframe_config_reg_top.sv").read_text()
+    offsets = {}
+    for m in re.finditer(r"decoded_reg_strb\.\w+\.(\w+)\s*=[^\n]*?cpuif_addr == \d+'h([0-9a-fA-F]+)", top):
+        offsets[m.group(1).lower()] = int(m.group(2), 16)
+    return offsets
+
+
+def _peakrdl_layout():
+    """SystemRDL source -> {reg: {fields: {name: (lsb, width)}, enum: {name: value}}}.
+    Parsed line-based (the .rdl nests braces inside enum bodies, so a naive regex
+    over the whole file would mis-balance)."""
+    layout = {}
+    fields, enum, in_enum = {}, {}, False
+    for raw in (SRC / "sim_padframe_regs.rdl").read_text().splitlines():
+        s = raw.strip()
+        if s.startswith("reg {"):
+            fields, enum, in_enum = {}, {}, False
+        elif s.startswith("enum "):
+            in_enum = True
+        elif in_enum and s == "};":
+            in_enum = False
+        elif in_enum:
+            m = re.match(r"(\w+)\s*=\s*(\d+)", s)
+            if m:
+                enum[m.group(1)] = int(m.group(2))
+        elif s.startswith("field"):
+            m = re.search(r"\}\s*(\w+)\s*\[(\d+):(\d+)\]", s)
+            if m:
+                hi, lo = int(m.group(2)), int(m.group(3))
+                fields[m.group(1)] = (lo, hi - lo + 1)
+        elif s.startswith("}"):
+            m = re.match(r"\}\s*(\w+)", s)  # reg close: `} REG;` / `} INFO @ 0x0;`
+            if m:
+                layout[m.group(1).lower()] = {"fields": fields, "enum": enum}
+    return layout
+
+
+if BACKEND == "peakrdl":
+    OFFSETS = _peakrdl_offsets()
+    LAYOUT = _peakrdl_layout()
+    # The peakrdl regblock is generated without an address-validity check, so an
+    # access to an unmapped address returns rdata=0 with no error (the reggen
+    # reg_top instead routes unmapped accesses to an error slave). Reflected in
+    # the unmapped-address check below.
+    UNMAPPED_ERRORS = False
+else:
+    OFFSETS = _reggen_offsets()
+    LAYOUT = _reggen_layout()
+    UNMAPPED_ERRORS = True
 
 PADFRAME = parse_config(Padframe, CONFIG)
 PADS = {p.name: p for p in PADFRAME.pad_domains[0].pad_list}
@@ -88,8 +152,9 @@ PORT_WIRING = {
     ("hw", "hw_p"): {"kind": "bidir", "o": "hw_hwo", "oe": "hw_hwoe", "i": "hw_hwi"},
 }
 
-PADS_INPUTS = [
-    "reg_valid", "reg_write", "reg_addr", "reg_wdata", "reg_wstrb",
+# Frontend-agnostic inputs (port-group SoC-side + landing-pad drivers). The
+# config-bus inputs are owned by the selected driver (DRIVER.reset_idle).
+PORT_INPUTS = [
     "periph_pout_o", "periph_bo", "periph_boe", "qs_qso", "qs_qsoe", "hw_hwo", "hw_hwoe",
     "pad_clk_drv", "pad_clk_drv_en", "pad_io0_drv", "pad_io0_drv_en",
     "pad_io1_drv", "pad_io1_drv_en", "pad_io2_drv", "pad_io2_drv_en",
@@ -108,8 +173,9 @@ async def settle(dut):
 
 async def reset(dut):
     await cocotb.start(Clock(dut.clk_i, 10, units="ns").start())
-    for name in PADS_INPUTS:
+    for name in PORT_INPUTS:
         getattr(dut, name).value = 0
+    await DRIVER.reset_idle(dut)
     dut.rst_ni.value = 0
     for _ in range(5):
         await RisingEdge(dut.clk_i)
@@ -119,27 +185,11 @@ async def reset(dut):
 
 
 async def reg_write(dut, offset, data):
-    dut.reg_addr.value = offset
-    dut.reg_wdata.value = data
-    dut.reg_wstrb.value = 0xF
-    dut.reg_write.value = 1
-    dut.reg_valid.value = 1
-    await RisingEdge(dut.clk_i)
-    dut.reg_valid.value = 0
-    dut.reg_write.value = 0
-    await settle(dut)
+    await DRIVER.reg_write(dut, offset, data)
 
 
 async def reg_read(dut, offset):
-    dut.reg_addr.value = offset
-    dut.reg_write.value = 0
-    dut.reg_valid.value = 1
-    await settle(dut)
-    data, err = rd(dut.reg_rdata), rd(dut.reg_error)
-    await RisingEdge(dut.clk_i)
-    dut.reg_valid.value = 0
-    await settle(dut)
-    return data, err
+    return await DRIVER.reg_read(dut, offset)
 
 
 def drive_pad(dut, pad, value):
@@ -244,9 +294,12 @@ async def test_hardwired_pad(dut):
         assert rd(dut.hw_hwi) == v, "hardwired pad did not feed hw.hw_p"
     release_pad(dut, "hw")
 
-    # An unmapped register address (past the last mapped offset) reports an error.
+    # An unmapped register address (past the last mapped offset). The reggen
+    # reg_top routes it to an error slave; the peakrdl regblock is generated
+    # without an address check and returns no error (UNMAPPED_ERRORS).
     _, err = await reg_read(dut, max(OFFSETS.values()) + 4)
-    assert err == 1, "unmapped register address did not raise a bus error"
+    assert err == (1 if UNMAPPED_ERRORS else 0), \
+        f"unmapped register address error {err} != {int(UNMAPPED_ERRORS)}"
 
 
 @cocotb.test()

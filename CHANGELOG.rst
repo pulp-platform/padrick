@@ -33,6 +33,9 @@ Added
   pulling in the ``apb``/``axi``/``obi`` Bender dependency as needed. The reggen backend
   remains available for backwards compatibility but is frozen to ``regbus`` + ``shared``;
   selecting a frontend or the per-domain topology requires the peakrdl backend.
+  Note one behavioral difference: accesses to unmapped register addresses return an
+  error response on the reggen backend (error slave) but read back zero without an
+  error on the peakrdl regblock.
 * Added a padframe-level ``config_port_topology`` field (peakrdl backend): ``shared``
   (default) instantiates a single flattened register block at the padframe top level, so
   the configuration is retained even when individual pad domains are power-cycled;
