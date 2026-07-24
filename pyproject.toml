@@ -45,11 +45,10 @@ padrick = "padrick.CLIEntryPoint:cli"
 
 [project.optional-dependencies]
 doc = [
-    "sphinx_rtd_theme",
+    "sphinx",
+    "sphinx-rtd-theme",
     "sphinx-click",
-    "sphinx-pydantic",
-    "sphinx-jsonschema==1.15",
-    "recommonmark",
+    "autodoc-pydantic",
 ]
 testing = ["pytest"]
 binary_build = ["pyinstaller>=6", "semver>=2,<3"]

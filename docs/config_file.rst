@@ -881,4 +881,4 @@ Config File Schema
 The following table contains an auto-generated schema reference of the
 configuration file format.
 
-.. pydantic:: padrick.Model.Padframe.Padframe
+.. autopydantic_model:: padrick.Model.Padframe.Padframe
