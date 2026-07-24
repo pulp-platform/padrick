@@ -48,3 +48,6 @@ MANIFEST
 
 # Per-project virtualenvs
 .venv*/
+
+# gprof output from profiled system binaries (e.g. graphviz dot)
+gmon.out
