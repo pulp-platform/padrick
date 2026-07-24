@@ -9,6 +9,7 @@ cleanly when verilator (>=5) or bender are unavailable so the default local test
 run stays green without an RTL toolchain installed.
 """
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -22,14 +23,20 @@ REPO_ROOT = THIS_DIR.parent.parent
 HW_DIR = THIS_DIR / "hw"
 CONFIG = THIS_DIR / "sim_padframe.yaml"
 
-PADRICK = Path(sys.executable).parent / "padrick"
+# Committed Bender.lock pinning the resolved dependency revisions. Copied into
+# the generated package before `bender checkout` so CI resolves the same PULP
+# dependency versions every run. Regenerate (when the dependency set changes and
+# checkout fails) by running `bender update` in a padrick-generated RTL dir and
+# copying its Bender.lock back here.
+BENDER_LOCK = THIS_DIR / "Bender.lock"
 
-# Dependency versions pinned so the hand-picked source file set stays stable.
-COMMON_CELLS_VERSION = "1.40.0"
-REGISTER_INTERFACE_VERSION = "0.3.9"
+PADRICK = Path(sys.executable).parent / "padrick"
 
 # SEPP fallback location on ETH machines when verilator is not already on PATH.
 SEPP_VERILATOR = "/usr/sepp/bin/verilator-5.020"
+
+# Extra sources are declared with `module <name>` / `package <name>`.
+_MODULE_DECL_RE = re.compile(r"^\s*(?:module|package)\s+(\w+)", re.MULTILINE)
 
 
 def _verilator_version(binary: str, env: dict) -> Optional[int]:
@@ -78,54 +85,64 @@ def run_padrick(args: List[str]) -> subprocess.CompletedProcess:
     return subprocess.run([str(PADRICK), *args], capture_output=True, text=True)
 
 
-def _resolve_dep_sources(work_dir: Path, gen_dir: Path, bender: str) -> Tuple[List[str], List[str]]:
+def _dedup_modules(sources: List[str]) -> List[str]:
     """
-    Fetch the PULP dependencies with bender and return the minimal set of
-    (source_files, include_dirs) the generated padframe actually needs. We hand
-    pick the files (addr_decode/lzc/reg_demux/prim_subreg) rather than compiling
-    the whole transitive tree (axi, apb, tech_cells) which is unnecessary and
-    trips a MODDUP clash on mem_to_banks between axi and common_cells.
+    Drop any file that redefines a module/package already declared by an earlier
+    file in the (dependency-ordered) list. Bender's transitive closure pulls in
+    dependencies whose file sets overlap on module names -- e.g. axi's
+    axi_to_mem.sv redefines common_cells' mem_to_banks -- which Verilator rejects
+    as MODDUP. Filtering by declared name keeps this working as the dependency
+    set grows (new conditional apb/axi frontends) without hand-picking files.
     """
-    (work_dir / "Bender.yml").write_text(
-        "package:\n"
-        "  name: sim_padframe_deps\n"
-        "dependencies:\n"
-        f'  common_cells: {{ git: "https://github.com/pulp-platform/common_cells.git", version: {COMMON_CELLS_VERSION} }}\n'
-        f'  register_interface: {{ git: "https://github.com/pulp-platform/register_interface.git", version: {REGISTER_INTERFACE_VERSION} }}\n'
-    )
-    subprocess.run([bender, "update"], cwd=work_dir, check=True, capture_output=True, text=True)
+    seen: set = set()
+    kept: List[str] = []
+    for src in sources:
+        try:
+            names = set(_MODULE_DECL_RE.findall(Path(src).read_text(errors="ignore")))
+        except OSError:
+            kept.append(src)
+            continue
+        if names & seen:
+            continue
+        seen |= names
+        kept.append(src)
+    return kept
 
-    checkouts = work_dir / ".bender" / "git" / "checkouts"
-    cc = next(d for d in checkouts.iterdir() if d.is_dir() and d.name.startswith("common_cells-"))
-    ri = next(d for d in checkouts.iterdir() if d.is_dir() and d.name.startswith("register_interface-"))
 
-    dep_sources = [
-        cc / "src" / "cf_math_pkg.sv",
-        cc / "src" / "lzc.sv",
-        cc / "src" / "addr_decode_dync.sv",
-        cc / "src" / "addr_decode.sv",
-        ri / "vendor" / "lowrisc_opentitan" / "src" / "prim_subreg_arb.sv",
-        ri / "vendor" / "lowrisc_opentitan" / "src" / "prim_subreg_ext.sv",
-        ri / "vendor" / "lowrisc_opentitan" / "src" / "prim_subreg.sv",
-        ri / "src" / "reg_demux.sv",
-    ]
-    includes = [cc / "include", ri / "include"]
+def _resolve_dep_sources(gen_dir: Path, bender: str) -> Tuple[List[str], List[str], List[str]]:
+    """
+    Resolve the PULP dependencies from padrick's own generated Bender.yml and
+    return (source_files, include_dirs, defines) for the whole package plus the
+    testbench. The committed Bender.lock is copied in first so `bender checkout`
+    pins the same dependency revisions on every run.
+    """
+    shutil.copyfile(BENDER_LOCK, gen_dir / "Bender.lock")
+    subprocess.run([bender, "checkout"], cwd=gen_dir, check=True, capture_output=True, text=True)
 
-    gen_order = [
-        "pkg_sim_padframe.sv",
-        "pkg_internal_sim_padframe_core.sv",
-        "sim_padframe_core_config_reg_pkg.sv",
-        "sim_padframe_core_config_reg_top.sv",
-        "sim_padframe_core_pads.sv",
-        "sim_padframe_core_muxer.sv",
-        "sim_padframe_core.sv",
-        "sim_padframe.sv",
-    ]
-    gen_sources = [gen_dir / "src" / f for f in gen_order]
-    tb_sources = [HW_DIR / "behav_pads.sv", HW_DIR / "sim_padframe_tb_top.sv"]
+    script = subprocess.run(
+        [bender, "script", "verilator"], cwd=gen_dir, check=True, capture_output=True, text=True
+    ).stdout
 
-    sources = [str(p) for p in (dep_sources + gen_sources + tb_sources)]
-    return sources, [str(p) for p in includes]
+    includes: List[str] = []
+    defines: List[str] = []
+    sources: List[str] = []
+    for line in script.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("+incdir+"):
+            inc = line[len("+incdir+"):]
+            if inc not in includes:
+                includes.append(inc)
+        elif line.startswith("+define+"):
+            if line not in defines:
+                defines.append(line)
+        elif not line.startswith("+"):
+            sources.append(line)
+
+    sources = _dedup_modules(sources)
+    sources += [str(HW_DIR / "behav_pads.sv"), str(HW_DIR / "sim_padframe_tb_top.sv")]
+    return sources, includes, defines
 
 
 @pytest.fixture(scope="session")
@@ -148,7 +165,7 @@ def rtl_build(tmp_path_factory):
     result = run_padrick(["generate", "rtl", "--no-version-string", "-o", str(gen_dir), str(CONFIG)])
     assert result.returncode == 0, f"padrick generate rtl failed:\n{result.stderr}"
 
-    sources, includes = _resolve_dep_sources(work, gen_dir, bender)
+    sources, includes, defines = _resolve_dep_sources(gen_dir, bender)
 
     from cocotb.runner import get_runner
 
@@ -158,7 +175,7 @@ def rtl_build(tmp_path_factory):
         includes=includes,
         hdl_toplevel="sim_padframe_tb_top",
         build_dir=str(work / "sim_build"),
-        build_args=["-Wno-fatal", "-Wno-WIDTHTRUNC", "-Wno-WIDTHEXPAND"],
+        build_args=["-Wno-fatal", "-Wno-WIDTHTRUNC", "-Wno-WIDTHEXPAND"] + defines,
         always=True,
     )
     return {"runner": runner, "gen_dir": gen_dir, "work": work, "config": CONFIG}
