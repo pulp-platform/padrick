@@ -14,7 +14,7 @@ env:
     --onefile
     --collect-data padrick --collect-data reggen --collect-data topgen
     --collect-submodules reggen --collect-submodules topgen
-    standalone_build/entry.py
+    src/padrick/__main__.py
 
 jobs:
   build-linux:
