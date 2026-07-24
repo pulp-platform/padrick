@@ -25,24 +25,32 @@ Added
 -----
 * Added a selectable config-bus frontend via the padframe-level ``config_interface``
   field: ``regbus`` (default, the PULP register_interface), ``apb`` (APB4), ``axilite``
-  (AXI4-Lite) and ``obi`` (OBI). Non-regbus frontends instantiate a protocol converter
-  (``apb_to_reg_v2``, ``axi_lite_to_reg`` or ``periph_to_reg``) in front of the unchanged
-  internal register_interface fabric, and pull in the ``apb``/``axi``/``obi`` Bender
-  dependency as needed. The ``apb``, ``axilite`` and ``obi`` frontends expose their protocol
-  as ``parameter type`` request/response struct ports (the OBI frontend uses the official
-  pulp-platform ``obi`` structs). Currently supported only with the reggen register backend.
-* Added a padframe-level ``config_port_topology`` field: ``shared`` (default) keeps the
-  single toplevel config port with an internal address demux (the always-on interconnect
-  can defeat pad-domain power gating), while ``per_domain`` exposes one config port per pad
-  domain with no shared interconnect and per-domain C driver base-address tokens
-  (``<PADFRAME>_<DOMAIN>_BASE_ADDRESS``). Recommended for power-gated multi-domain designs.
+  (AXI4-Lite) and ``obi`` (OBI). The non-regbus frontends are implemented on the PeakRDL
+  register backend (``--register-backend peakrdl``): the padframe instantiates a
+  PeakRDL-regblock with the frontend's native cpuif (apb4 / axi4-lite / obi) instead of
+  the reggen address demux, exposing the protocol as ``parameter type`` request/response
+  struct ports (the OBI frontend uses the official pulp-platform ``obi`` structs) and
+  pulling in the ``apb``/``axi``/``obi`` Bender dependency as needed. The reggen backend
+  remains available for backwards compatibility but is frozen to ``regbus`` + ``shared``;
+  selecting a frontend or the per-domain topology requires the peakrdl backend.
+* Added a padframe-level ``config_port_topology`` field (peakrdl backend): ``shared``
+  (default) instantiates a single flattened register block at the padframe top level, so
+  the configuration is retained even when individual pad domains are power-cycled;
+  ``per_domain`` instantiates one register block inside each pad domain module with its own
+  cpuif port and no shared interconnect. Recommended for power-gated multi-domain designs.
 * Added a ``hardwired`` mode for quasi-static pads (``quasi_static: hardwired``):
   the pad is directly tied to its single port with no multiplexer and no
   config/mux_sel registers. ``quasi_static: true`` keeps the previous behavior
   (now also expressible as ``quasi_static: muxed``).
-* Added an experimental PeakRDL/SystemRDL register backend selectable with
-  ``--register-backend peakrdl`` on ``generate rtl`` and ``generate driver``
-  (requires the ``peakrdl`` extra).
+* Integrated the PeakRDL/SystemRDL register backend into the generated padframe
+  (``--register-backend peakrdl`` on ``generate rtl`` and ``generate driver``, requires the
+  ``peakrdl`` extra). The register accesses in the pad multiplexer now route through a
+  register block hardware interface (hwif) instead of the reggen ``reg2hw`` struct; reggen
+  output is byte-for-byte unchanged. The flattened shared layout places each pad domain at
+  the same offset the reggen address demux assigns. The ``generate driver`` peakrdl path
+  emits PeakRDL-cheader register headers whose macro names differ from the reggen
+  ``*_regs.h`` naming; the driver ``.c``/``.h`` accessor macros are not yet parameterized
+  for that dialect, so the peakrdl driver headers are informational for now.
 * Added a ``padrick schema`` command exporting the config file JSON Schema for
   editor completion/validation, and a ``--format json`` option on ``validate``
   for machine-readable results.
@@ -60,11 +68,22 @@ Added
 Changed
 -------
 * Add documentation for ``generate constraints`` command.
+* The reggen register backend is now frozen to its historical scope (``regbus``
+  config_interface + ``shared`` topology). Selecting a config frontend or the
+  ``per_domain`` topology with the reggen backend is rejected with a clear message
+  pointing at ``--register-backend peakrdl``; the peakrdl backend in turn rejects the
+  ``regbus`` frontend (it has no regbus cpuif by design).
 
 Fixed
 -----
 * Fix a bug in the generated SDC case analysis constraints. The bit assignments
   where in reversed order.
+* The generated padframe top module now elaborates in Synopsys Fusion Compiler
+  (Presto). Member selects of a ``parameter type``-typed config signal in a port
+  connection or continuous assign (which Presto rejects with VER-264 because the
+  default ``req_t = logic`` has no members) are hoisted into procedural
+  ``always_comb`` blocks. This changes only the generated padframe ``<name>.sv``
+  top file; the rest of the generated output is unchanged.
 
 v0.3.6 - 2022-12-14
 ===================

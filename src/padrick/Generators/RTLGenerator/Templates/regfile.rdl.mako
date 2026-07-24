@@ -5,10 +5,16 @@
 ##
 ## SystemRDL description of the padframe configuration register file. This is the
 ## PeakRDL-backend equivalent of regfile.hjson.mako (lowRISC reggen backend).
+##
+## Two layouts are emitted depending on the config port topology:
+##   * per_domain: one standalone `addrmap <padframe>_<domain>_config` per pad domain,
+##     each compiled into its own regblock instantiated inside the domain module.
+##   * shared (flatten): one `regfile <padframe>_<domain>_config` per domain plus a top
+##     `addrmap <padframe>_config` that instantiates them at the reggen-compatible offsets,
+##     compiled into a single flattened regblock living at the padframe top level.
 <%
   import math
   import string
-  from padrick.Model.PadSignal import SignalDirection
   from natsort import natsorted
 
   def sort_by_name(seq):
@@ -21,19 +27,11 @@
     collapsed = " ".join(str(text).split())
     return collapsed.replace("\\", "\\\\").replace('"', '\\"')
 
-  addrmap_name = f"{padframe.name}_{pad_domain.name}_config"
+  # `flatten` is either None (per_domain: render the single `pad_domain`) or a list of
+  # (pad_domain, offset) tuples to place in a shared top addrmap.
+  flatten = context.get('flatten', None)
 %>\
-% for line in header_text.splitlines():
-// ${line}
-% endfor
-//
-// SystemRDL configuration register file for pad domain '${pad_domain.name}' of padframe '${padframe.name}'.
-// Consumed by the PeakRDL register backend (systemrdl-compiler + peakrdl-regblock / peakrdl-cheader).
-// Layout mirrors the lowRISC-reggen hjson backend: an INFO register, one or more
-// per-pad *_CFG registers holding the SoC->pad signal defaults, and a *_MUX_SEL register
-// selecting which port (or the config register itself) drives each dynamically muxable pad.
-addrmap ${addrmap_name} {
-    name = "${addrmap_name}";
+<%def name="emit_regs(pad_domain, info_offset)">\
     // 32-bit registers; software read/write and hardware read-only unless overridden per field.
     default regwidth = 32;
     default sw = rw;
@@ -45,7 +43,7 @@ addrmap ${addrmap_name} {
         desc = "Read-only IP Information register";
         field { sw = r; hw = r; } HW_VERSION[15:0] = ${hw_version};
         field { sw = r; hw = r; } PADCOUNT[31:16] = ${len([pad for pad in pad_domain.pad_list if not pad.is_static and not pad.is_hardwired])};
-    } INFO @ ${start_address_offset};
+    } INFO @ ${info_offset};
 
 % for pad in pad_domain.pad_list:
 ## Hardwired quasi-static pads are directly connected to their port and thus have
@@ -116,4 +114,32 @@ addrmap ${addrmap_name} {
     } ${pad.name.upper()}_MUX_SEL;
 % endif
 % endfor
+</%def>\
+% for line in header_text.splitlines():
+// ${line}
+% endfor
+//
+// SystemRDL configuration register file for padframe '${padframe.name}'.
+// Consumed by the PeakRDL register backend (systemrdl-compiler + peakrdl-regblock / peakrdl-cheader).
+// Layout mirrors the lowRISC-reggen hjson backend: an INFO register, one or more
+// per-pad *_CFG registers holding the SoC->pad signal defaults, and a *_MUX_SEL register
+// selecting which port (or the config register itself) drives each dynamically muxable pad.
+% if flatten is None:
+addrmap ${padframe.name}_${pad_domain.name}_config {
+    name = "${padframe.name}_${pad_domain.name}_config";
+${emit_regs(pad_domain, start_address_offset)}\
 };
+% else:
+% for domain, offset in flatten:
+regfile ${padframe.name}_${domain.name}_config {
+    name = "${padframe.name}_${domain.name}_config";
+${emit_regs(domain, '0x0')}\
+};
+% endfor
+addrmap ${padframe.name}_config {
+    name = "${padframe.name}_config";
+% for domain, offset in flatten:
+    ${padframe.name}_${domain.name}_config ${domain.name} @ ${hex(offset)};
+% endfor
+};
+% endif

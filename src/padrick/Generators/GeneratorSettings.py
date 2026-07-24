@@ -56,6 +56,11 @@ class RTLTemplates(BaseModel):
         target_file_name='{padframe.name}_{pad_domain.name}_regs.rdl',
         template=(RTLTemplatePackage, 'regfile.rdl.mako')
     )
+    regfile_rdl_flat: PadrickTemplate = PadrickTemplate(
+        name='Flattened SystemRDL Register File Specification',
+        target_file_name='{padframe.name}_regs.rdl',
+        template=(RTLTemplatePackage, 'regfile.rdl.mako')
+    )
     toplevel_module: PadrickTemplate = PadrickTemplate(
         name='Padframe Top Module',
         target_file_name='{padframe.name}.sv',
