@@ -19,11 +19,12 @@ jobs:
         with:
           # setuptools_scm derives the package version from git tags
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e . pytest
-      - run: pytest tests/characterization
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run pytest tests/characterization
 
   license:
     runs-on: ubuntu-latest
