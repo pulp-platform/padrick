@@ -8,7 +8,7 @@ Table-driven error-path tests: pin the human-readable messages produced by
 padrick's pydantic validators when parsing invalid padframe configs.
 
 `padrick validate` reports parse failures on its output but always exits 0
-(known behavior), so these tests assert on output content, not exit code.
+These tests assert on output content; exit codes are covered elsewhere.
 """
 import copy
 import io
@@ -104,6 +104,7 @@ def test_base_config_is_valid(tmp_path: Path) -> None:
 def _mut_future_manifest(c): c["manifest_version"] = 99
 def _mut_old_manifest(c): c["manifest_version"] = 1
 def _mut_unknown_field(c): _pad_signal(c, "pad")["bogus_field"] = 1
+def _mut_unknown_toplevel_field(c): c["bogus_field"] = 1
 def _mut_missing_required_field(c): del c["name"]
 def _mut_missing_conn_type(c): del _pad_signal(c, "chip2pad")["conn_type"]
 def _mut_reset_on_pad(c): _pad_signal(c, "pad")["default_reset_value"] = 1
@@ -188,6 +189,9 @@ CASES = [
     pytest.param(_mut_unknown_field,
                  "Unknown field bogus_field. Did you mispell the field name?",
                  id="unknown_field"),
+    pytest.param(_mut_unknown_toplevel_field,
+                 "Unknown field bogus_field. Did you mispell the field name?",
+                 id="unknown_toplevel_field"),
     pytest.param(_mut_missing_required_field,
                  "Missing field 'name'",
                  id="missing_required_field"),

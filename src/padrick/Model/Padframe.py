@@ -3,21 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # Author: Manuel Eggimann, ETH Zurich
 
-import json
 import logging
-from itertools import count
-
-from mako.template import Template
 
 import padrick
 from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, \
     OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, MANIFEST_VERSION_COMPATIBILITY
 from padrick.Model.PadDomain import PadDomain
-from pydantic import field_validator, Field, StringConstraints, ConfigDict, BaseModel, conint
-from typing import List, Optional, Dict, Union
+from pydantic import field_validator, Field, StringConstraints, ConfigDict, BaseModel
+from typing import List, Optional
 
-from padrick.Model.PadSignal import PadSignal, Signal
-from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.UserAttrs import UserAttrs
 from typing_extensions import Annotated
 
@@ -38,12 +32,7 @@ class Padframe(BaseModel):
     description: Optional[str] = None
     pad_domains: Annotated[List[PadDomain], Field(min_length=1)]
     user_attr: Optional[UserAttrs] = None
-    model_config = ConfigDict(title="Padframe Config", json_encoders={
-        Template: lambda v: v.source,
-        SignalExpressionType: lambda v: v.expression,
-        PadSignal: lambda v: v.name,
-        Signal: lambda  v: v.name
-    })
+    model_config = ConfigDict(title="Padframe Config", extra="forbid")
 
 
     @field_validator('manifest_version')
