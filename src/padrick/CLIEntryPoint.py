@@ -33,7 +33,7 @@ configure_logging()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
-@click.version_option()
+@click.version_option(package_name="padrick")
 def cli():
     """
     Generate padframes for SoC
