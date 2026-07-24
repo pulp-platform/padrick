@@ -51,6 +51,11 @@ class RTLTemplates(BaseModel):
         target_file_name='{padframe.name}_{pad_domain.name}_regs.hjson',
         template=(RTLTemplatePackage, 'regfile.hjson.mako')
     )
+    regfile_rdl: PadrickTemplate = PadrickTemplate(
+        name='SystemRDL Register File Specification for {pad_domain.name}',
+        target_file_name='{padframe.name}_{pad_domain.name}_regs.rdl',
+        template=(RTLTemplatePackage, 'regfile.rdl.mako')
+    )
     toplevel_module: PadrickTemplate = PadrickTemplate(
         name='Padframe Top Module',
         target_file_name='{padframe.name}.sv',
@@ -87,6 +92,11 @@ class DriverTemplates(BaseModel):
         name='Register File Specification for {pad_domain.name}',
         target_file_name='{padframe.name}_{pad_domain.name}_regs.hjson',
         template=(RTLTemplatePackage, 'regfile.hjson.mako')
+    )
+    regfile_rdl: PadrickTemplate = PadrickTemplate(
+        name='SystemRDL Register File Specification for {pad_domain.name}',
+        target_file_name='{padframe.name}_{pad_domain.name}_regs.rdl',
+        template=(RTLTemplatePackage, 'regfile.rdl.mako')
     )
     driver_header: PadrickTemplate = PadrickTemplate(
         name="Driver header file",

@@ -107,9 +107,10 @@ def template_customization(output):
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. "
                                                                                              "Useful for copyright and author information.")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
+@click.option('--register-backend', type=click.Choice(['reggen', 'peakrdl']), default='reggen', show_default=True, help="Register-file generator backend. 'reggen' uses the vendored lowRISC reggen; 'peakrdl' uses SystemRDL/PeakRDL-regblock (requires the 'peakrdl' extra).")
 @verbosity_option
 @pass_generator_settings
-def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string):
+def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string, register_backend):
     """
     Generate SystemVerilog implementation from the padframe configuration.
     """
@@ -134,7 +135,7 @@ def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, he
 
     header_text = "\n\n".join(header_sections)
     try:
-        generate_rtl(generator_settings.rtl_templates, padframe, Path(output), header_text)
+        generate_rtl(generator_settings.rtl_templates, padframe, Path(output), header_text, register_backend=register_backend)
     except (RTLGenException, TemplateRenderException) as e:
         raise ClickException("RTL Generation failed") from e
     except Exception as e:
@@ -148,9 +149,10 @@ def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, he
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. "
                                                                                              "Useful for copyright and author information.")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
+@click.option('--register-backend', type=click.Choice(['reggen', 'peakrdl']), default='reggen', show_default=True, help="Register-file generator backend. 'reggen' uses the vendored lowRISC reggen; 'peakrdl' uses SystemRDL/PeakRDL-cheader (requires the 'peakrdl' extra).")
 @verbosity_option
 @pass_generator_settings
-def driver(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string):
+def driver(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string, register_backend):
     """
     Generate C driver to interact with the padframe.
     """
@@ -172,7 +174,7 @@ def driver(generator_settings: GeneratorSettings, config_file: str, output: str,
 
     header_text = "\n\n".join(header_sections)
     try:
-        generate_driver(generator_settings.driver_templates, padframe, Path(output), header_text)
+        generate_driver(generator_settings.driver_templates, padframe, Path(output), header_text, register_backend=register_backend)
     except (RTLGenException, TemplateRenderException) as e:
         raise ClickException("C Driver Generation failed") from e
     except Exception as e:

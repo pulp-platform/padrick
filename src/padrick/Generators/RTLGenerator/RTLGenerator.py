@@ -27,7 +27,8 @@ template_package = 'padrick.Generators.RTLGenerator.Templates'
 class RTLGenException(Exception):
     pass
 
-def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_text: str, vlnv=None, **extra_template_kwargs):
+def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_text: str, vlnv=None,
+                 register_backend: str = "reggen", **extra_template_kwargs):
     os.makedirs(dir/"src", exist_ok=True)
     os.makedirs(dir/"include"/padframe.name, exist_ok=True)
     templates.toplevel_sv_package.render(dir/"src", logger=logger, padframe=padframe, header_text=header_text)
@@ -41,24 +42,30 @@ def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_
         templates.pad_inst_module.render(dir /"src", logger=logger, padframe=padframe, pad_domain=pad_domain, header_text=header_text, **extra_template_kwargs)
         templates.internal_pkg.render(dir /"src", logger=logger, padframe=padframe, pad_domain=pad_domain, header_text=header_text, **extra_template_kwargs)
         templates.pad_mux_module.render(dir /"src", logger=logger, padframe=padframe, pad_domain=pad_domain, header_text=header_text, **extra_template_kwargs)
-        templates.regfile_hjson.render(dir /"src", logger=logger, padframe=padframe, pad_domain=pad_domain,
-                                       start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text, hw_version=Constants.HARDWARE_VERSION, **extra_template_kwargs)
+
+        if register_backend == "peakrdl":
+            next_pad_domain_reg_offset = _generate_regblock_peakrdl(
+                templates, padframe, pad_domain, dir, header_text,
+                next_pad_domain_reg_offset, address_ranges, **extra_template_kwargs)
+        else:
+            templates.regfile_hjson.render(dir /"src", logger=logger, padframe=padframe, pad_domain=pad_domain,
+                                           start_address_offset=hex(next_pad_domain_reg_offset), header_text=header_text, hw_version=Constants.HARDWARE_VERSION, **extra_template_kwargs)
 
 
-        # Generate Register file using lowRisc reg_tool
-        logger.debug("Invoking reggen to generate register file from Register file description")
-        hjson_reg_file = dir/"src"/f"{padframe.name}_{pad_domain.name}_regs.hjson"
-        try:
-            obj = IpBlock.from_path(str(hjson_reg_file), [])
-        except ValueError as e:
-            logger.error(f"Fatal error while parsing auto generated register file for pad_domain {pad_domain.name}.")
-            raise RTLGenException(f"Error parsing regfile.") from e
-        address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj.reg_blocks[None].offset)
-        next_pad_domain_reg_offset = obj.reg_blocks[None].offset
-        return_code = reggen_gen_rtl.gen_rtl(obj, (dir/"src").as_posix())
-        if return_code != 0 and not (return_code is None):
-            logger.error(f"Regtool template rendering of register file for pad domain {pad_domain.name} failed")
-            raise RTLGenException("Reggen Rendering failed")
+            # Generate Register file using lowRisc reg_tool
+            logger.debug("Invoking reggen to generate register file from Register file description")
+            hjson_reg_file = dir/"src"/f"{padframe.name}_{pad_domain.name}_regs.hjson"
+            try:
+                obj = IpBlock.from_path(str(hjson_reg_file), [])
+            except ValueError as e:
+                logger.error(f"Fatal error while parsing auto generated register file for pad_domain {pad_domain.name}.")
+                raise RTLGenException(f"Error parsing regfile.") from e
+            address_ranges[pad_domain.name] = (next_pad_domain_reg_offset, obj.reg_blocks[None].offset)
+            next_pad_domain_reg_offset = obj.reg_blocks[None].offset
+            return_code = reggen_gen_rtl.gen_rtl(obj, (dir/"src").as_posix())
+            if return_code != 0 and not (return_code is None):
+                logger.error(f"Regtool template rendering of register file for pad domain {pad_domain.name} failed")
+                raise RTLGenException("Reggen Rendering failed")
 
     templates.toplevel_module.render(dir / "src", logger=logger, padframe=padframe, address_ranges=address_ranges,
                                      address_space_size=next_pad_domain_reg_offset, header_text=header_text, **extra_template_kwargs)
@@ -70,6 +77,26 @@ def generate_rtl(templates: RTLTemplates, padframe: Padframe, dir: Path, header_
         templates.fusesoc_core_file.render(dir, logger=logger, padframe=padframe, header_text=header_text, templates=templates, vlnv=vlnv,  **extra_template_kwargs)
     templates.ipapprox_src_files_yml.render(dir, logger=logger, padframe=padframe, header_text=header_text, templates=templates, **extra_template_kwargs)
     templates.ipapprox_ips_list_yml.render(dir, logger=logger, padframe=padframe, header_text=header_text, **extra_template_kwargs)
+
+
+def _generate_regblock_peakrdl(templates, padframe, pad_domain, dir, header_text,
+                               next_offset, address_ranges, **extra_template_kwargs):
+    """Render the .rdl description and generate the PeakRDL-regblock SV. Returns the new offset."""
+    from padrick.Generators.PeakRDLBackend import generate_regblock, PeakRDLBackendException
+    templates.regfile_rdl.render(dir / "src", logger=logger, padframe=padframe, pad_domain=pad_domain,
+                                 start_address_offset=hex(next_offset), header_text=header_text,
+                                 hw_version=Constants.HARDWARE_VERSION, **extra_template_kwargs)
+    rdl_file = dir / "src" / f"{padframe.name}_{pad_domain.name}_regs.rdl"
+    module_name = f"{padframe.name}_{pad_domain.name}_config_reg_top"
+    package_name = f"{padframe.name}_{pad_domain.name}_config_reg_pkg"
+    logger.debug("Invoking PeakRDL-regblock to generate the register file from the SystemRDL description")
+    try:
+        size = generate_regblock(rdl_file, dir / "src", module_name, package_name)
+    except PeakRDLBackendException as e:
+        logger.error(f"PeakRDL register block generation failed for pad domain {pad_domain.name}.")
+        raise RTLGenException("PeakRDL Rendering failed") from e
+    address_ranges[pad_domain.name] = (next_offset, next_offset + size)
+    return next_offset + size
 
 
 

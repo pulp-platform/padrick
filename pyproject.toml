@@ -54,6 +54,7 @@ doc = [
 ]
 testing = ["pytest"]
 binary_build = ["pyinstaller>=6", "semver>=2,<3"]
+peakrdl = ["systemrdl-compiler", "peakrdl-regblock", "peakrdl-cheader"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
