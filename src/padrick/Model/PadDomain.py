@@ -38,9 +38,12 @@ class PadDomain(BaseModel):
     user_attr: Optional[Dict[str, Union[str, int, bool]]] = None
 
 
-    def __init__(self, *args, **kwargs):
-        PARSE_CONTEXT.set_context(self)
-        super().__init__(*args, **kwargs)
+    @model_validator(mode='before')
+    @classmethod
+    def _reset_parse_context(cls, values):
+        # A custom __init__ would make pydantic validate the model twice.
+        PARSE_CONTEXT.set_context(None)
+        return values
 
     @field_validator('port_groups')
     @classmethod
