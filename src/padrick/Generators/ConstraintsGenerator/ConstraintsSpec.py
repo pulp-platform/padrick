@@ -7,7 +7,6 @@ import logging
 import re
 from typing_extensions import Annotated, Literal
 
-import click_log
 from pydantic import field_validator, Field, StringConstraints, BaseModel, root_validator
 from typing import List, Union, Optional, Tuple, Mapping
 
@@ -21,9 +20,10 @@ from padrick.Model.PortGroup import PortGroup
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.TemplatedString import TemplatedStringType
+from padrick.Logging import configure_logging
 
 logger = logging.getLogger("padrick.ConstraintsGenerator")
-click_log.basic_config(logger)
+configure_logging()
 
 class ConstraintsGenException(Exception):
     pass

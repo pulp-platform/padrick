@@ -7,13 +7,13 @@ import logging
 from typing import List, Union, Tuple, Mapping, Type, TypeVar, Optional
 
 import click
-import click_log
 from pydantic import ValidationError, BaseModel
 from ruamel.yaml.comments import CommentedMap
 from padrick.YamlInclude import YamlIncludeConstructor, IgnoreIncludeConstructor
+from padrick.Logging import configure_logging
 
 logger = logging.getLogger("padrick.ConfigParser")
-click_log.basic_config(logger)
+configure_logging()
 from ruamel.yaml import YAMLError
 import ruamel.yaml
 

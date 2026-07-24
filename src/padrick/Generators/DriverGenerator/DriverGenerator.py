@@ -10,19 +10,19 @@ import shutil
 from pathlib import Path
 from typing import Tuple, Mapping
 
-import click_log
 import hjson
 
 from padrick.Generators.GeneratorSettings import DriverTemplates
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Model import Constants
 from padrick.Model.Padframe import Padframe
+from padrick.Logging import configure_logging
 from reggen import gen_cheader as reggen_gen_header
 from reggen import validate as reggen_validate
 from reggen.ip_block import IpBlock
 
 logger = logging.getLogger("padrick.DriverGenerator")
-click_log.basic_config(logger)
+configure_logging()
 
 rtl_template_package = 'padrick.Generators.RTLGenerator.Templates'
 template_package = 'padrick.Generators.DriverGenerator.Templates'

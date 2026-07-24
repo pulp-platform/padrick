@@ -9,18 +9,18 @@ import os
 from pathlib import Path
 from typing import Tuple, Mapping
 
-import click_log
 import hjson
 from padrick.Generators.PadrickTemplate import PadrickTemplate
 from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Model import Constants
 from padrick.Model.Padframe import Padframe
+from padrick.Logging import configure_logging
 from reggen import gen_rtl as reggen_gen_rtl
 from reggen import validate as reggen_validate
 from reggen.ip_block import IpBlock
 
 logger = logging.getLogger("padrick.RTLGenerator")
-click_log.basic_config(logger)
+configure_logging()
 
 template_package = 'padrick.Generators.RTLGenerator.Templates'
 

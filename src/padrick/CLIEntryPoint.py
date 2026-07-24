@@ -4,6 +4,7 @@
 # Author: Manuel Eggimann, ETH Zurich
 
 import logging
+import os
 import sys
 import time
 import traceback
@@ -13,9 +14,6 @@ from mako.template import Template
 
 import padrick.Generators.CLIGeneratorCommands
 import click
-import click_completion
-import click_spinner
-import click_log
 import json
 
 from padrick.Generators.FuseSoCGenerator.FuseSoCGenerator import generate_core
@@ -23,15 +21,15 @@ from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
+from padrick.Logging import configure_logging, verbosity_option
 from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from pydantic import BaseModel
 
 logger = logging.getLogger("padrick")
-click_log.basic_config(logger)
+configure_logging()
 
-click_completion.init()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
@@ -41,40 +39,55 @@ def cli():
     Generate padframes for SoC
     """
 
-@cli.command()
-@click.option('--append/--overwrite', help="Append the completion code to the file", default=None)
-@click.option('-i', '--case-insensitive/--no-case-insensitive', help="Case insensitive completion")
-@click.argument('shell', required=False, type=click_completion.DocumentedChoice(click_completion.core.shells))
-@click.argument('path', required=False)
-def install_completions(append, case_insensitive, shell, path):
-    """Install the command line tool's bash completion for your shell
+_COMPLETION_SNIPPETS = {
+    'bash': 'eval "$(_PADRICK_COMPLETE=bash_source padrick)"',
+    'zsh': 'eval "$(_PADRICK_COMPLETE=zsh_source padrick)"',
+    'fish': '_PADRICK_COMPLETE=fish_source padrick | source',
+}
 
-    If you don't provide any additional arguments this command tries to detect your current shell in use and appends the relevant settings to your .bashrc, .zshrc etc."""
-    extra_env = {'_CLICK_COMPLETION_COMMAND_CASE_INSENSITIVE_COMPLETE': 'ON'} if case_insensitive else {}
-    shell, path = click_completion.core.install(shell=shell, path=path, append=append, extra_env=extra_env)
-    click.echo('%s completion installed in %s' % (shell, path))
+_COMPLETION_RC_FILES = {
+    'bash': '~/.bashrc',
+    'zsh': '~/.zshrc',
+    'fish': '~/.config/fish/completions/padrick.fish',
+}
+
+
+@cli.command()
+@click.argument('shell', required=False, type=click.Choice(sorted(_COMPLETION_SNIPPETS)))
+def install_completions(shell):
+    """Print the shell completion snippet for your shell (bash, zsh or fish).
+
+    If you don't provide a SHELL argument the current shell is detected from the $SHELL
+    environment variable. Add the printed snippet to your shell's startup file to enable
+    tab-completion for padrick."""
+    if not shell:
+        shell = Path(os.environ.get('SHELL', '')).name
+    if shell not in _COMPLETION_SNIPPETS:
+        raise click.UsageError(
+            f"Could not determine a supported shell (got '{shell or 'unknown'}'). "
+            f"Pass one of {', '.join(sorted(_COMPLETION_SNIPPETS))} explicitly.")
+    click.echo(f"# Add the following line to {_COMPLETION_RC_FILES[shell]} to enable padrick {shell} completion:")
+    click.echo(_COMPLETION_SNIPPETS[shell])
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 def validate(file):
     """ Parse and validate the given config file
     """
-    with click_spinner.spinner():
-        model = parse_config(Padframe, Path(file))
-        if model != None:
-            click.echo(f"Successfully parsed configuration file.")
-        else:
-            click.echo(f"Error while parsing configuration file {file}")
-            sys.exit(1)
+    model = parse_config(Padframe, Path(file))
+    if model != None:
+        click.echo(f"Successfully parsed configuration file.")
+    else:
+        click.echo(f"Error while parsing configuration file {file}")
+        sys.exit(1)
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 def config(file):
     """ Print the parsed padframe configuration file """
-    with click_spinner.spinner():
-        model = parse_config(Padframe, Path(file))
+    model = parse_config(Padframe, Path(file))
     if model != None:
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):

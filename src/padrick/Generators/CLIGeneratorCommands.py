@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Tuple
 
 import click
-import click_log
 from ruamel.yaml import YAMLError, YAML
 from mako import exceptions
 from mako.template import Template
@@ -31,11 +30,11 @@ from padrick.Generators.DriverGenerator.DriverGenerator import generate_driver
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl, RTLGenException
 from padrick.Generators.PadrickTemplate import TemplateRenderException, PadrickTemplate
 from click import UsageError, ClickException
-import click_spinner
+from padrick.Logging import configure_logging, verbosity_option
 import os
 
 logger = logging.getLogger("padrick")
-click_log.basic_config(logger)
+configure_logging()
 
 pass_generator_settings = click.make_pass_decorator(GeneratorSettings, ensure=True)
 
@@ -108,15 +107,14 @@ def template_customization(output):
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. "
                                                                                              "Useful for copyright and author information.")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 @pass_generator_settings
 def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string):
     """
     Generate SystemVerilog implementation from the padframe configuration.
     """
     logger.info("Parsing configuration file...")
-    with click_spinner.spinner():
-        padframe = parse_config(Padframe, Path(config_file))
+    padframe = parse_config(Padframe, Path(config_file))
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
 
@@ -135,15 +133,14 @@ def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, he
 
 
     header_text = "\n\n".join(header_sections)
-    with click_spinner.spinner():
-        try:
-            generate_rtl(generator_settings.rtl_templates, padframe, Path(output), header_text)
-        except (RTLGenException, TemplateRenderException) as e:
-            raise ClickException("RTL Generation failed") from e
-        except Exception as e:
-            logger.error("Padrick crashed while generating RTL :-(")
-            raise e
-        logger.info(f"Successfully generated RTL files in {output}")
+    try:
+        generate_rtl(generator_settings.rtl_templates, padframe, Path(output), header_text)
+    except (RTLGenException, TemplateRenderException) as e:
+        raise ClickException("RTL Generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating RTL :-(")
+        raise e
+    logger.info(f"Successfully generated RTL files in {output}")
 
 @generate.command()
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
@@ -151,15 +148,14 @@ def rtl(generator_settings: GeneratorSettings, config_file: str, output: str, he
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. "
                                                                                              "Useful for copyright and author information.")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 @pass_generator_settings
 def driver(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string):
     """
     Generate C driver to interact with the padframe.
     """
     logger.info("Parsing configuration file...")
-    with click_spinner.spinner():
-        padframe = parse_config(Padframe, Path(config_file))
+    padframe = parse_config(Padframe, Path(config_file))
     logger.info("Parsing successful. Generating C-Driver...")
     if not Path(output).exists():
         logger.debug("Output directory does not exist. Creating new one.")
@@ -175,15 +171,14 @@ def driver(generator_settings: GeneratorSettings, config_file: str, output: str,
         header_sections.append(Path(header).read_text())
 
     header_text = "\n\n".join(header_sections)
-    with click_spinner.spinner():
-        try:
-            generate_driver(generator_settings.driver_templates, padframe, Path(output), header_text)
-        except (RTLGenException, TemplateRenderException) as e:
-            raise ClickException("C Driver Generation failed") from e
-        except Exception as e:
-            logger.error("Padrick crashed while generating the C Driver :-(")
-            raise e
-        logger.info(f"Successfully generated C driver files in {output}")
+    try:
+        generate_driver(generator_settings.driver_templates, padframe, Path(output), header_text)
+    except (RTLGenException, TemplateRenderException) as e:
+        raise ClickException("C Driver Generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating the C Driver :-(")
+        raise e
+    logger.info(f"Successfully generated C driver files in {output}")
 
 @generate.command()
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
@@ -192,7 +187,7 @@ def driver(generator_settings: GeneratorSettings, config_file: str, output: str,
 @click.option('--header', type=click.Path(dir_okay=False, file_okay=True, exists=True), help="A text file who's content (extended with appropriate comment characters) is inserted as the header in each auto-generated file. "
                                                                                              "Useful for copyright and author information.")
 @click.option('--version-string/--no-version-string', default=True, show_default=True, help="Append current version of padrick to the header of each generated file.")
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 @pass_generator_settings
 def constraints(generator_settings: GeneratorSettings, config_file: str, constraints_spec_file: str, output: str, version_string: bool, header: str):
     """
@@ -215,9 +210,8 @@ def constraints(generator_settings: GeneratorSettings, config_file: str, constra
 
     header_text = "\n\n".join(header_sections)
     logger.info("Parsing configuration files...")
-    with click_spinner.spinner():
-        constraints_specs: ConstraintsSpec = parse_config(ConstraintsSpec, Path(constraints_spec_file))
-        padframe = parse_config(Padframe, Path(config_file))
+    constraints_specs: ConstraintsSpec = parse_config(ConstraintsSpec, Path(constraints_spec_file))
+    padframe = parse_config(Padframe, Path(config_file))
     if not padframe or not constraints_specs:
         raise click.UsageError("Failed to parse configuration file.")
 
@@ -231,29 +225,27 @@ def constraints(generator_settings: GeneratorSettings, config_file: str, constra
     if not Path(output).exists():
         logger.debug("Output directory does not exist. Creating new one.")
         os.makedirs(output, exist_ok=True)
-    with click_spinner.spinner():
-        try:
-            generate_constraints(generator_settings.constraints_templates, padframe, constraints_specs, Path(output), header_text=header_text)
-        except (ConstraintsGenException, TemplateRenderException) as e:
-            raise ClickException("Constraints generation failed") from e
-        except Exception as e:
-            logger.error("Padrick crashed while generating the constraints :-(")
-            raise e
-        logger.info(f"Successfully generated constraints.")
+    try:
+        generate_constraints(generator_settings.constraints_templates, padframe, constraints_specs, Path(output), header_text=header_text)
+    except (ConstraintsGenException, TemplateRenderException) as e:
+        raise ClickException("Constraints generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating the constraints :-(")
+        raise e
+    logger.info(f"Successfully generated constraints.")
 
 
 @generate.command()
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
 @click.option('-o', '--output', type=click.Path(dir_okay=True, file_okay=False), default=".", help="Directory where to save the padlist CSV")
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 @pass_generator_settings
 def padlist(generator_settings: GeneratorSettings, config_file: str, output: str):
     """
     Generate a CSV file that lists all pads in your configuration.
     """
     logger.info("Parsing configuration file...")
-    with click_spinner.spinner():
-        padframe = parse_config(Padframe, Path(config_file))
+    padframe = parse_config(Padframe, Path(config_file))
     logger.info("Parsing successful. Generating pad list...")
     if not Path(output).exists():
         logger.debug("Output directory does not exist. Creating new one.")
@@ -261,15 +253,14 @@ def padlist(generator_settings: GeneratorSettings, config_file: str, output: str
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
 
-    with click_spinner.spinner():
-        try:
-            generate_padlist(padframe, Path(output))
-        except (DocGenException, TemplateRenderException) as e:
-            raise ClickException("Padlist Generation failed") from e
-        except Exception as e:
-            logger.error("Padrick crashed while generating the padlist :-(")
-            raise e
-        logger.info(f"Successfully generated the padlist CSV file in {output}")
+    try:
+        generate_padlist(padframe, Path(output))
+    except (DocGenException, TemplateRenderException) as e:
+        raise ClickException("Padlist Generation failed") from e
+    except Exception as e:
+        logger.error("Padrick crashed while generating the padlist :-(")
+        raise e
+    logger.info(f"Successfully generated the padlist CSV file in {output}")
 
 @generate.command()
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
@@ -279,7 +270,7 @@ def padlist(generator_settings: GeneratorSettings, config_file: str, output: str
 @click.option('--horizontal_separation', 'rank_sep', type=int, default=5, show_default=True, help="The horizontal separation between the ports and the pads (graphviz rank_sep value).")
 @click.option('--pads', "pad_filters", multiple=True, type=str, help="The pad instances to add in the illustration. Supports wildcards.")
 @click.option('--port_groups', "port_group_filters", multiple=True, type=str, help="The Port groups to add in the illustration. Supports wildcards.")
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 @pass_generator_settings
 def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: str, header, version_string, pad_filters, port_group_filters, **kwargs):
     """
@@ -298,8 +289,7 @@ def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: s
     header_text = "\n\n".join(header_sections)
 
     logger.info("Parsing configuration file...")
-    with click_spinner.spinner():
-        padframe = parse_config(Padframe, Path(config_file))
+    padframe = parse_config(Padframe, Path(config_file))
     logger.info("Parsing successful. Generating pad list...")
     if not Path(output).exists():
         logger.debug("Output directory does not exist. Creating new one.")
@@ -318,7 +308,7 @@ def mux_graph(generator_settings: GeneratorSettings, config_file: str, output: s
 @click.argument('config_file', type=click.Path(file_okay=True, dir_okay=False, exists=True, readable=True))
 @click.argument('template', type=click.File(mode='r'))
 @click.argument('output', type=click.File(mode='w'))
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 def custom(config_file:str, template, output):
     """
     Render a user-specified custom Mako Template TEMPLATE file using the parsed CONFIG_FILE pad configuration data.
@@ -328,8 +318,7 @@ def custom(config_file:str, template, output):
     a file or the special argument '-' to read from/write to stdin/stdout.
     """
     logger.info("Parsing configuration file...")
-    with click_spinner.spinner():
-        padframe = parse_config(Padframe, Path(config_file))
+    padframe = parse_config(Padframe, Path(config_file))
     if not padframe:
         raise UsageError("Failed to parse the configuration file")
     logger.info("Parsing successful.")

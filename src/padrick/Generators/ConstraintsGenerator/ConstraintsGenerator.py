@@ -6,14 +6,14 @@
 import logging
 import os
 from pathlib import Path
-import click_log
 
 from padrick.Generators.ConstraintsGenerator.ConstraintsSpec import ConstraintsSpec, ConstraintsMode
 from padrick.Generators.GeneratorSettings import ConstraintsTemplates
 from padrick.Model.Padframe import Padframe
+from padrick.Logging import configure_logging
 
 logger = logging.getLogger("padrick.ConstraintsGenerator")
-click_log.basic_config(logger)
+configure_logging()
 
 template_package = 'padrick.Generators.RTLGenerator.Templates'
 

@@ -7,7 +7,6 @@ import itertools
 import logging
 from typing import List, Optional, Set, Mapping, Iterable, Dict, Union
 
-import click_log
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.PadSignal import Signal, SignalDirection
@@ -22,8 +21,10 @@ from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.Utilities import sort_signals, sort_ports, sort_pads
 from typing_extensions import Annotated
 
+from padrick.Logging import configure_logging
+
 logger = logging.getLogger("padrick.Configparser")
-click_log.basic_config(logger)
+configure_logging()
 
 class PadDomain(BaseModel):
     """

@@ -6,7 +6,6 @@
 import logging
 from pathlib import Path
 
-import click_spinner
 from click import UsageError
 from mako import exceptions
 from mako.template import Template
@@ -28,22 +27,21 @@ def generate_core(config_file_path: Path):
 
 
     logger.info("Parsing FuseSoC Config File...")
-    with click_spinner.spinner():
-        # Parse the config file twice, first only partially to figure out the root file path, then a second time with
-        # support include files, relative to the calling core file.
-        config = parse_config(ConfigFileModel, config_file_path)
-        root =  config.files_root
-        if not config:
-            raise UsageError("Failed to parse the configuration file")
-        padframe_config = parse_config(Padframe, root/config.parameters.padframe_manifest, include_base_dir=config.files_root)
-        if not padframe_config:
-            raise UsageError("Failed to parse the padframe configuration file.")
-        if config.parameters.generator_settings:
-            generator_settings = parse_config(GeneratorSettings, root/config.parameters.generator_settings, include_base_dir=config.files_root)
-            if not generator_settings:
-                raise UsageError("Failed to parse generator settings file.")
-        else:
-            generator_settings = GeneratorSettings()
+    # Parse the config file twice, first only partially to figure out the root file path, then a second time with
+    # support include files, relative to the calling core file.
+    config = parse_config(ConfigFileModel, config_file_path)
+    root =  config.files_root
+    if not config:
+        raise UsageError("Failed to parse the configuration file")
+    padframe_config = parse_config(Padframe, root/config.parameters.padframe_manifest, include_base_dir=config.files_root)
+    if not padframe_config:
+        raise UsageError("Failed to parse the padframe configuration file.")
+    if config.parameters.generator_settings:
+        generator_settings = parse_config(GeneratorSettings, root/config.parameters.generator_settings, include_base_dir=config.files_root)
+        if not generator_settings:
+            raise UsageError("Failed to parse generator settings file.")
+    else:
+        generator_settings = GeneratorSettings()
 
 
     logger.info("Parsing successful. Proceeding with generate steps...")
