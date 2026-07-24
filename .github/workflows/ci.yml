@@ -24,7 +24,23 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - run: uv sync --locked
-      - run: uv run pytest tests/characterization
+      - name: Run tests with coverage
+        run: |
+          uv run pytest tests/characterization --cov=padrick --cov-report=term --cov-report=xml \
+            | tee /tmp/pytest-coverage.txt
+      - name: Upload coverage.xml
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml-py${{ matrix.python-version }}
+          path: coverage.xml
+      - name: Add coverage to step summary
+        if: always()
+        run: |
+          echo '### Coverage (Python ${{ matrix.python-version }})' >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/pytest-coverage.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
 
   license:
     runs-on: ubuntu-latest
