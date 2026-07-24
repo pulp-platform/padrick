@@ -23,6 +23,19 @@ aligns the reggen and PeakRDL register backends. The next release will be
 
 Added
 -----
+* Added a selectable config-bus frontend via the padframe-level ``config_interface``
+  field: ``regbus`` (default, the PULP register_interface), ``apb`` (APB4), ``axilite``
+  (AXI4-Lite) and ``obi`` (OBI). Non-regbus frontends instantiate a protocol converter
+  (``apb_to_reg_v2``, ``axi_lite_to_reg`` or ``periph_to_reg``) in front of the unchanged
+  internal register_interface fabric, and pull in the ``apb``/``axi``/``obi`` Bender
+  dependency as needed. The ``apb``, ``axilite`` and ``obi`` frontends expose their protocol
+  as ``parameter type`` request/response struct ports (the OBI frontend uses the official
+  pulp-platform ``obi`` structs). Currently supported only with the reggen register backend.
+* Added a padframe-level ``config_port_topology`` field: ``shared`` (default) keeps the
+  single toplevel config port with an internal address demux (the always-on interconnect
+  can defeat pad-domain power gating), while ``per_domain`` exposes one config port per pad
+  domain with no shared interconnect and per-domain C driver base-address tokens
+  (``<PADFRAME>_<DOMAIN>_BASE_ADDRESS``). Recommended for power-gated multi-domain designs.
 * Added a ``hardwired`` mode for quasi-static pads (``quasi_static: hardwired``):
   the pad is directly tied to its single port with no multiplexer and no
   config/mux_sel registers. ``quasi_static: true`` keeps the previous behavior

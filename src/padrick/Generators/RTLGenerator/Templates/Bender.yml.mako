@@ -11,9 +11,21 @@ package:
   authors:
     - "Padrick"
 
+<% config_interface = padframe.config_interface.value %>\
 dependencies:
+% if config_interface == "regbus":
   register_interface:     { git: "https://github.com/pulp-platform/register_interface.git", version: 0.3.1 }
+% else:
+  register_interface:     { git: "https://github.com/pulp-platform/register_interface.git", version: 0.4.7 }
+% endif
   common_cells:           { git: "https://github.com/pulp-platform/common_cells.git", version: 1.21.0 }
+% if config_interface == "apb":
+  apb:                    { git: "https://github.com/pulp-platform/apb.git", version: 0.2.4 }
+% elif config_interface == "axilite":
+  axi:                    { git: "https://github.com/pulp-platform/axi.git", version: 0.39.10 }
+% elif config_interface == "obi":
+  obi:                    { git: "https://github.com/pulp-platform/obi.git", version: 0.1.7 }
+% endif
 
 export_include_dirs:
 - include

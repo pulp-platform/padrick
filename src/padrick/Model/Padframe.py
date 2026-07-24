@@ -4,18 +4,33 @@
 # Author: Manuel Eggimann, ETH Zurich
 
 import logging
+from enum import Enum
 
 import padrick
 from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, \
     OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, MANIFEST_VERSION_COMPATIBILITY
 from padrick.Model.PadDomain import PadDomain
+from padrick.Model.UserAttrs import UserAttrs
 from pydantic import field_validator, Field, StringConstraints, ConfigDict, BaseModel
 from typing import List, Optional
-
-from padrick.Model.UserAttrs import UserAttrs
 from typing_extensions import Annotated
 
 logger = logging.getLogger("padrick.Configparser")
+
+
+class ConfigInterface(str, Enum):
+    """Config-bus protocol exposed at the padframe toplevel. A protocol converter in front of the
+    unchanged internal register_interface fabric adapts the selected frontend."""
+    regbus = "regbus"
+    apb = "apb"
+    axilite = "axilite"
+    obi = "obi"
+
+
+class ConfigPortTopology(str, Enum):
+    """Whether the padframe exposes a single shared config port or one config port per pad domain."""
+    shared = "shared"
+    per_domain = "per_domain"
 
 class Padframe(BaseModel):
     """
@@ -36,6 +51,15 @@ class Padframe(BaseModel):
     pad_domains: Annotated[List[PadDomain], Field(min_length=1, description="List of pad domains that make "
         "up this padframe. Pad domains do not interact with each other and are generated as separate RTL "
         "modules, which simplifies power intent for power-gated IO.")]
+    config_interface: ConfigInterface = Field(default=ConfigInterface.regbus, description="Config-bus "
+        "protocol exposed at the padframe toplevel. 'regbus' (the default) is the PULP register_interface. "
+        "'apb', 'axilite' and 'obi' instantiate a protocol converter in front of the internal "
+        "register_interface fabric. Non-regbus frontends currently require the reggen register backend.")
+    config_port_topology: ConfigPortTopology = Field(default=ConfigPortTopology.shared, description="How the "
+        "config bus is exposed. 'shared' (the default) keeps a single toplevel config port with an internal "
+        "address demux to the pad domains; this interconnect is always on and can defeat power gating of "
+        "individual pad domains. 'per_domain' exposes one config port per pad domain with no shared "
+        "interconnect and is recommended for power-gated multi-domain designs.")
     user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
         "are also exposed during template rendering; handy for parametrizing the config with YAML anchors.")
     model_config = ConfigDict(title="Padframe Config", extra="forbid")

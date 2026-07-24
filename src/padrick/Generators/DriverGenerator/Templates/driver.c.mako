@@ -6,10 +6,16 @@
 <%
   import math
   from natsort import natsorted
+  topology = padframe.config_port_topology.value
+
+  def base_addr_token(pad_domain):
+      if topology == "shared":
+          return f"{padframe.name.upper()}_BASE_ADDRESS"
+      return f"{padframe.name.upper()}_{pad_domain.name.upper()}_BASE_ADDRESS"
 %>
 #include "${padframe.name}.h"
 % for pad_domain in padframe.pad_domains:
-#define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${padframe.name.upper()}_BASE_ADDRESS
+#define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${base_addr_token(pad_domain)}
 #include "${padframe.name}_${pad_domain.name}_regs.h"
 #include "bitfield.h"
 % endfor
@@ -36,7 +42,7 @@
   field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_{ps.name.upper()}"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_type} value) {
-  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t address = ${base_addr_token(pad_domain)} + ${address};
   uint32_t reg = REG_READ32(address);
 %if ps.size > 1:
   reg = bitfield_field32_write(reg, ${field_name}_FIELD, value);
@@ -47,7 +53,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_
 }
 
 ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get() {
-  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t address = ${base_addr_token(pad_domain)} + ${address};
   uint32_t reg = REG_READ32(address);
   %if ps.size > 1:
   return bitfield_field32_read(reg, ${field_name}_FIELD);
@@ -61,7 +67,7 @@ ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get
   address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_REG_OFFSET"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
-  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  const uint32_t address = ${base_addr_token(pad_domain)} + ${address};
 ##  const uint32_t sel_size = ${sel_size};
 ##  uint32_t field_mask = (1<<sel_size)-1;
 ##  REG_WRITE32(address, mux_sel & field_mask);
@@ -69,7 +75,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${
 }
 
 ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get() {
-  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  const uint32_t address = ${base_addr_token(pad_domain)} + ${address};
 ##  const uint32_t sel_size = ${sel_size};
 
 ##  uint32_t field_mask = (1<<sel_size)-1;

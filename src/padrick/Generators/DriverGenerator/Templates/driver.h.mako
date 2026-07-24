@@ -6,14 +6,23 @@
 <%
   import math
   from natsort import natsorted
+  topology = padframe.config_port_topology.value
 %>
 #ifndef ${padframe.name.upper()}_H
 #define ${padframe.name.upper()}_H
 #include <stdint.h>
 
+% if topology == "shared":
 #ifndef ${padframe.name.upper()}_BASE_ADDRESS
 #error "${padframe.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of your padframe before you include this header file."
 #endif
+% else:
+% for pad_domain in padframe.pad_domains:
+#ifndef ${padframe.name.upper()}_${pad_domain.name.upper()}_BASE_ADDRESS
+#error "${padframe.name.upper()}_${pad_domain.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of the ${pad_domain.name} pad domain before you include this header file."
+#endif
+% endfor
+% endif
 
 
 % for pad_domain in padframe.pad_domains:
