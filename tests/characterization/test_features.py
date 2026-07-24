@@ -159,3 +159,37 @@ def test_committed_schema_is_current() -> None:
     assert result.stdout.strip() == committed.strip(), (
         "padrick_schema.json is stale; regenerate with: padrick schema -o padrick_schema.json"
     )
+
+
+def test_padless_sense_pad_type(tmp_path: Path) -> None:
+    """A pad type with signals but no kind-pad signal wires them without a landing pad."""
+    config = tmp_path / "sense.yml"
+    config.write_text(
+        "manifest_version: 5\n"
+        "name: sense_probe\n"
+        "pad_domains:\n"
+        "  - name: aon\n"
+        "    pad_types:\n"
+        "      - name: PVSENSE\n"
+        "        template: |\n"
+        "          PVSENSE ${instance_name} ( .SNS( ${conn[\"sense\"]} ) );\n"
+        "        pad_signals:\n"
+        "          - {name: sense, kind: output, conn_type: static}\n"
+        "      - name: bidir\n"
+        "        template: |\n"
+        "          behav_pad ${instance_name} (.PAD(${conn[\"pad\"]}), .O(${conn[\"pad2chip\"]}));\n"
+        "        pad_signals:\n"
+        "          - {name: pad, kind: pad}\n"
+        "          - {name: pad2chip, kind: output, conn_type: static}\n"
+        "    pad_list:\n"
+        "      - {name: pad_vsense, pad_type: PVSENSE, is_static: true,\n"
+        "         connections: {sense: vdd_sense}}\n"
+        "      - {name: pad_io, pad_type: bidir, is_static: true,\n"
+        "         connections: {pad2chip: io_in}}\n"
+    )
+    result = run_padrick(["generate", "rtl", "--no-version-string", "-o", str(tmp_path / "out"), str(config)])
+    assert result.returncode == 0, result.stderr
+    pads = (tmp_path / "out" / "src" / "sense_probe_aon_pads.sv").read_text()
+    assert "static_connection_signals_pad2soc.vdd_sense" in pads
+    top = (tmp_path / "out" / "src" / "sense_probe.sv").read_text()
+    assert "pad_aon_pad_vsense" not in top

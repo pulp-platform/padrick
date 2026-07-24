@@ -409,7 +409,7 @@
         },
         "pad_signals": {
           "default": [],
-          "description": "List of all pad signals used to control this pad type, including the chip-to-pad and pad-to-chip signals, the bonding-pad signal and any configuration signals. Must contain at least one signal of kind 'pad'.",
+          "description": "List of all pad signals used to control this pad type, including the chip-to-pad and pad-to-chip signals, the bonding-pad signal and any configuration signals. A signal of kind 'pad' produces a toplevel landing-pad port; pad types without one are legal: an empty list declares a physical-only cell (supply, corner, tie) whose template is emitted verbatim, and padless cells with signals (e.g. supply-sense outputs) connect those signals without exposing a pad.",
           "items": {
             "$ref": "#/$defs/PadSignal"
           },
