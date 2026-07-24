@@ -29,7 +29,7 @@ def generate_padmux_illustration(templates: DocTemplates, padframe: Padframe, di
     logger.info("Rendering PDF using graphviz...")
     try:
         dot_cmd = local.get("dot")
-        (dot_cmd["-Tpdf", str(dir/templates.mux_graph.target_file_name.format(padframe=padframe))] > f"{padframe.name}_muxing.pdf") ()
+        (dot_cmd["-Tpdf", str(dir/templates.mux_graph.target_file_name.format(padframe=padframe))] > str(dir/f"{padframe.name}_muxing.pdf")) ()
     except CommandNotFound:
         logger.error("Could not find graphviz dot command in your path. Is it installed?")
 def generate_padlist(padframe: Padframe, dir: Path):
