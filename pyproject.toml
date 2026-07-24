@@ -69,3 +69,6 @@ topgen = ["templates/*"]
 addopts = "--verbose"
 testpaths = ["tests"]
 norecursedirs = ["dist", "build", ".tox"]
+
+[dependency-groups]
+dev = ["pytest"]
