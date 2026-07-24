@@ -140,6 +140,5 @@ def test_manifest_v1_config_is_rejected():
     An unsupported manifest_version 1 config fails to parse.
     """
     result = run_padrick(["validate", "tests/rtl_tests/testpadframe.yaml"])
-    # validate reports the error on stdout but never sets a nonzero exit code
-    assert result.returncode == 0
+    assert result.returncode != 0
     assert "Error" in result.stdout + result.stderr

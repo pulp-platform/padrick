@@ -4,6 +4,7 @@
 # Author: Manuel Eggimann, ETH Zurich
 
 import logging
+import sys
 import time
 import traceback
 from pathlib import Path
@@ -65,6 +66,7 @@ def validate(file):
             click.echo(f"Successfully parsed configuration file.")
         else:
             click.echo(f"Error while parsing configuration file {file}")
+            sys.exit(1)
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
@@ -102,6 +104,7 @@ def config(file):
         click.echo(json.dumps(model, cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
+        sys.exit(1)
 
 @cli.command()
 @click.argument('config_file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))

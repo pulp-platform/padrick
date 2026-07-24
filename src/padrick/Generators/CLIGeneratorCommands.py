@@ -340,3 +340,4 @@ def custom(config_file:str, template, output):
     except Exception as e:
         logger.error(f"Error while rendering custom template for padframe {padframe.name}:\
                             n{exceptions.text_error_template().render()}")
+        raise ClickException("Rendering of the custom template failed") from e
