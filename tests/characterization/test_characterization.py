@@ -36,13 +36,15 @@ CONFIGS = {
     "modular_config": "examples/modular_config/modular_config_top.yml",
 }
 
-GENERATORS = ["rtl", "driver"]
+GENERATORS = ["rtl", "driver", "padlist"]
 
 UPDATE_GOLDENS = os.environ.get("UPDATE_GOLDENS") == "1"
 
 
 def relative_files(root: Path) -> List[Path]:
-    return sorted(p.relative_to(root) for p in root.rglob("*") if p.is_file())
+    # PDFs (mux-graph via graphviz) are environment-dependent and not compared
+    return sorted(p.relative_to(root) for p in root.rglob("*")
+                  if p.is_file() and p.suffix != ".pdf")
 
 
 def assert_trees_equal(golden: Path, generated: Path) -> None:
@@ -84,9 +86,10 @@ def test_config_command_succeeds(config: str):
 @pytest.mark.parametrize("generator", GENERATORS)
 @pytest.mark.parametrize("config", CONFIGS.values(), ids=CONFIGS.keys())
 def test_generate_matches_golden(config: str, generator: str, tmp_path: Path):
-    result = run_padrick(
-        ["generate", generator, "--no-version-string", "-o", str(tmp_path), config]
-    )
+    args = ["generate", generator, "-o", str(tmp_path), config]
+    if generator != "padlist":
+        args.insert(2, "--no-version-string")
+    result = run_padrick(args)
     assert result.returncode == 0, result.stderr
 
     config_id = next(k for k, v in CONFIGS.items() if v == config)
@@ -103,6 +106,34 @@ def test_generate_matches_golden(config: str, generator: str, tmp_path: Path):
         "Run UPDATE_GOLDENS=1 pytest tests/characterization to create them."
     )
     assert_trees_equal(golden, tmp_path)
+
+
+def check_golden(generated: Path, golden: Path):
+    if UPDATE_GOLDENS:
+        if golden.exists():
+            shutil.rmtree(golden)
+        shutil.copytree(generated, golden)
+        pytest.skip(f"goldens updated in {golden}")
+    assert golden.exists(), f"No goldens in {golden}; run with UPDATE_GOLDENS=1."
+    assert_trees_equal(golden, generated)
+
+
+def test_generate_constraints_matches_golden(tmp_path: Path):
+    result = run_padrick(
+        ["generate", "constraints", "--no-version-string", "-o", str(tmp_path),
+         "examples/sample_padframe.yaml", "examples/constraints_spec.yml"]
+    )
+    assert result.returncode == 0, result.stderr
+    check_golden(tmp_path, GOLDEN_DIR / "sample_padframe" / "constraints")
+
+
+def test_generate_mux_graph_matches_golden(tmp_path: Path):
+    result = run_padrick(
+        ["generate", "mux-graph", "--no-version-string", "-o", str(tmp_path),
+         "examples/sample_padframe.yaml"]
+    )
+    assert result.returncode == 0, result.stderr
+    check_golden(tmp_path, GOLDEN_DIR / "sample_padframe" / "mux-graph")
 
 
 def test_generate_is_deterministic(tmp_path: Path):

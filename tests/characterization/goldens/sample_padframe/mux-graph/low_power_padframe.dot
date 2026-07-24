@@ -1,0 +1,421 @@
+
+
+
+
+graph g {
+	node[shape=box]
+	ranksep=5
+	nodesep=0.25
+	rankdir="LR"
+
+	label = "low_power_padframe"
+
+	subgraph cluster_PadDomain_always_on_pads{
+		label = "always_on_pads"
+
+        subgraph cluster_PadDomain_always_on_pads_Ports {
+            label = "Port Groups"
+            margin=20
+            subgraph cluster_PadDomain_always_on_pads_PortGroup_spi{
+                margin=10
+                label = "spi"
+                "PadDomain_always_on_pads_port_spi.mosi" [label = "mosi"]
+                "PadDomain_always_on_pads_port_spi.miso" [label = "miso"]
+                "PadDomain_always_on_pads_port_spi.sck" [label = "sck"]
+                "PadDomain_always_on_pads_port_spi.csn" [label = "csn"]
+            }
+            subgraph cluster_PadDomain_always_on_pads_PortGroup_i2c{
+                margin=10
+                label = "i2c"
+                "PadDomain_always_on_pads_port_i2c.sda" [label = "sda"]
+                "PadDomain_always_on_pads_port_i2c.scl" [label = "scl"]
+            }
+            subgraph cluster_PadDomain_always_on_pads_PortGroup_gpio_a{
+                margin=10
+                label = "gpio_a"
+                "PadDomain_always_on_pads_port_gpio_a.GPIO00" [label = "GPIO00"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO01" [label = "GPIO01"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO02" [label = "GPIO02"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO03" [label = "GPIO03"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO04" [label = "GPIO04"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO05" [label = "GPIO05"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO06" [label = "GPIO06"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO07" [label = "GPIO07"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO08" [label = "GPIO08"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO09" [label = "GPIO09"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO10" [label = "GPIO10"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO11" [label = "GPIO11"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO12" [label = "GPIO12"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO13" [label = "GPIO13"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO14" [label = "GPIO14"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO15" [label = "GPIO15"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO16" [label = "GPIO16"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO17" [label = "GPIO17"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO18" [label = "GPIO18"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO19" [label = "GPIO19"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO20" [label = "GPIO20"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO21" [label = "GPIO21"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO22" [label = "GPIO22"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO23" [label = "GPIO23"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO24" [label = "GPIO24"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO25" [label = "GPIO25"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO26" [label = "GPIO26"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO27" [label = "GPIO27"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO28" [label = "GPIO28"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO29" [label = "GPIO29"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO30" [label = "GPIO30"]
+                "PadDomain_always_on_pads_port_gpio_a.GPIO31" [label = "GPIO31"]
+            }
+            subgraph cluster_PadDomain_always_on_pads_PortGroup_gpio_c{
+                margin=10
+                label = "gpio_c"
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC00" [label = "GPIOC00"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC01" [label = "GPIOC01"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC02" [label = "GPIOC02"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC03" [label = "GPIOC03"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC04" [label = "GPIOC04"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC05" [label = "GPIOC05"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC06" [label = "GPIOC06"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC07" [label = "GPIOC07"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC08" [label = "GPIOC08"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC09" [label = "GPIOC09"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC10" [label = "GPIOC10"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC11" [label = "GPIOC11"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC12" [label = "GPIOC12"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC13" [label = "GPIOC13"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC14" [label = "GPIOC14"]
+                "PadDomain_always_on_pads_port_gpio_c.GPIOC15" [label = "GPIOC15"]
+            }
+        }
+
+        subgraph cluster_PadDomain_always_on_pads_Pads {
+            label = "IO-Pads"
+             "PadDomain_always_on_pads_pad_pad_gpioa0" [label = pad_gpioa0]
+             "PadDomain_always_on_pads_pad_pad_gpioa1" [label = pad_gpioa1]
+             "PadDomain_always_on_pads_pad_pad_gpioa2" [label = pad_gpioa2]
+             "PadDomain_always_on_pads_pad_pad_gpioa3" [label = pad_gpioa3]
+             "PadDomain_always_on_pads_pad_pad_gpioa4" [label = pad_gpioa4]
+             "PadDomain_always_on_pads_pad_pad_gpioa5" [label = pad_gpioa5]
+             "PadDomain_always_on_pads_pad_pad_gpioa6" [label = pad_gpioa6]
+             "PadDomain_always_on_pads_pad_pad_gpioa7" [label = pad_gpioa7]
+             "PadDomain_always_on_pads_pad_pad_gpioa8" [label = pad_gpioa8]
+             "PadDomain_always_on_pads_pad_pad_gpioa9" [label = pad_gpioa9]
+             "PadDomain_always_on_pads_pad_pad_gpioa10" [label = pad_gpioa10]
+             "PadDomain_always_on_pads_pad_pad_gpioa11" [label = pad_gpioa11]
+             "PadDomain_always_on_pads_pad_pad_gpioa12" [label = pad_gpioa12]
+             "PadDomain_always_on_pads_pad_pad_gpioa13" [label = pad_gpioa13]
+             "PadDomain_always_on_pads_pad_pad_gpioa14" [label = pad_gpioa14]
+             "PadDomain_always_on_pads_pad_pad_gpioa15" [label = pad_gpioa15]
+             "PadDomain_always_on_pads_pad_pad_gpioa16" [label = pad_gpioa16]
+             "PadDomain_always_on_pads_pad_pad_gpioa17" [label = pad_gpioa17]
+             "PadDomain_always_on_pads_pad_pad_gpioa18" [label = pad_gpioa18]
+             "PadDomain_always_on_pads_pad_pad_gpioa19" [label = pad_gpioa19]
+             "PadDomain_always_on_pads_pad_pad_gpioa20" [label = pad_gpioa20]
+             "PadDomain_always_on_pads_pad_pad_gpioa21" [label = pad_gpioa21]
+             "PadDomain_always_on_pads_pad_pad_gpioa22" [label = pad_gpioa22]
+             "PadDomain_always_on_pads_pad_pad_gpioa23" [label = pad_gpioa23]
+             "PadDomain_always_on_pads_pad_pad_gpioa24" [label = pad_gpioa24]
+             "PadDomain_always_on_pads_pad_pad_gpioa25" [label = pad_gpioa25]
+             "PadDomain_always_on_pads_pad_pad_gpioa26" [label = pad_gpioa26]
+             "PadDomain_always_on_pads_pad_pad_gpioa27" [label = pad_gpioa27]
+             "PadDomain_always_on_pads_pad_pad_gpioa28" [label = pad_gpioa28]
+             "PadDomain_always_on_pads_pad_pad_gpioa29" [label = pad_gpioa29]
+             "PadDomain_always_on_pads_pad_pad_gpioa30" [label = pad_gpioa30]
+             "PadDomain_always_on_pads_pad_pad_gpioa31" [label = pad_gpioa31]
+             "PadDomain_always_on_pads_pad_pad_gpiob0" [label = pad_gpiob0]
+             "PadDomain_always_on_pads_pad_pad_gpiob1" [label = pad_gpiob1]
+             "PadDomain_always_on_pads_pad_pad_gpiob2" [label = pad_gpiob2]
+             "PadDomain_always_on_pads_pad_pad_gpiob3" [label = pad_gpiob3]
+             "PadDomain_always_on_pads_pad_pad_gpiob4" [label = pad_gpiob4]
+             "PadDomain_always_on_pads_pad_pad_gpiob5" [label = pad_gpiob5]
+             "PadDomain_always_on_pads_pad_pad_gpiob6" [label = pad_gpiob6]
+             "PadDomain_always_on_pads_pad_pad_gpiob7" [label = pad_gpiob7]
+             "PadDomain_always_on_pads_pad_pad_gpiob8" [label = pad_gpiob8]
+             "PadDomain_always_on_pads_pad_pad_gpiob9" [label = pad_gpiob9]
+             "PadDomain_always_on_pads_pad_pad_gpiob10" [label = pad_gpiob10]
+             "PadDomain_always_on_pads_pad_pad_gpiob11" [label = pad_gpiob11]
+             "PadDomain_always_on_pads_pad_pad_gpiob12" [label = pad_gpiob12]
+             "PadDomain_always_on_pads_pad_pad_gpiob13" [label = pad_gpiob13]
+             "PadDomain_always_on_pads_pad_pad_gpiob14" [label = pad_gpiob14]
+             "PadDomain_always_on_pads_pad_pad_gpiob15" [label = pad_gpiob15]
+             "PadDomain_always_on_pads_pad_pad_gpiob16" [label = pad_gpiob16]
+             "PadDomain_always_on_pads_pad_pad_gpiob17" [label = pad_gpiob17]
+             "PadDomain_always_on_pads_pad_pad_gpiob18" [label = pad_gpiob18]
+             "PadDomain_always_on_pads_pad_pad_gpiob19" [label = pad_gpiob19]
+             "PadDomain_always_on_pads_pad_pad_gpiob20" [label = pad_gpiob20]
+             "PadDomain_always_on_pads_pad_pad_gpiob21" [label = pad_gpiob21]
+             "PadDomain_always_on_pads_pad_pad_gpiob22" [label = pad_gpiob22]
+             "PadDomain_always_on_pads_pad_pad_gpiob23" [label = pad_gpiob23]
+             "PadDomain_always_on_pads_pad_pad_gpiob24" [label = pad_gpiob24]
+             "PadDomain_always_on_pads_pad_pad_gpiob25" [label = pad_gpiob25]
+             "PadDomain_always_on_pads_pad_pad_gpiob26" [label = pad_gpiob26]
+             "PadDomain_always_on_pads_pad_pad_gpiob27" [label = pad_gpiob27]
+             "PadDomain_always_on_pads_pad_pad_gpiob28" [label = pad_gpiob28]
+             "PadDomain_always_on_pads_pad_pad_gpiob29" [label = pad_gpiob29]
+             "PadDomain_always_on_pads_pad_pad_gpiob30" [label = pad_gpiob30]
+             "PadDomain_always_on_pads_pad_pad_gpiob31" [label = pad_gpiob31]
+             "PadDomain_always_on_pads_pad_pad_gpioc0" [label = pad_gpioc0]
+             "PadDomain_always_on_pads_pad_pad_gpioc1" [label = pad_gpioc1]
+             "PadDomain_always_on_pads_pad_pad_gpioc2" [label = pad_gpioc2]
+             "PadDomain_always_on_pads_pad_pad_gpioc3" [label = pad_gpioc3]
+             "PadDomain_always_on_pads_pad_pad_gpioc4" [label = pad_gpioc4]
+             "PadDomain_always_on_pads_pad_pad_gpioc5" [label = pad_gpioc5]
+             "PadDomain_always_on_pads_pad_pad_gpioc6" [label = pad_gpioc6]
+             "PadDomain_always_on_pads_pad_pad_gpioc7" [label = pad_gpioc7]
+             "PadDomain_always_on_pads_pad_pad_gpioc8" [label = pad_gpioc8]
+             "PadDomain_always_on_pads_pad_pad_gpioc9" [label = pad_gpioc9]
+             "PadDomain_always_on_pads_pad_pad_gpioc10" [label = pad_gpioc10]
+             "PadDomain_always_on_pads_pad_pad_gpioc11" [label = pad_gpioc11]
+             "PadDomain_always_on_pads_pad_pad_gpioc12" [label = pad_gpioc12]
+             "PadDomain_always_on_pads_pad_pad_gpioc13" [label = pad_gpioc13]
+             "PadDomain_always_on_pads_pad_pad_gpioc14" [label = pad_gpioc14]
+             "PadDomain_always_on_pads_pad_pad_gpioc15" [label = pad_gpioc15]
+        }
+	    # Dynamic Connections
+         "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa0"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa1"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa2" [color = green]
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa3"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa4"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa5"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa6"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa7"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa8"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa9"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa10"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa11"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa12"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa13"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa14"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa15"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa16"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa17"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa18"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa19"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa20"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa21"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa22"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa23"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa24"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa25"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa26"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa27"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa28"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa29"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa30"
+        "PadDomain_always_on_pads_port_spi.mosi" -- "PadDomain_always_on_pads_pad_pad_gpioa31"
+         "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa0"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa1"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa2"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa3" [color = green]
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa4"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa5"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa6"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa7"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa8"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa9"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa10"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa11"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa12"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa13"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa14"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa15"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa16"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa17"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa18"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa19"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa20"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa21"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa22"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa23"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa24"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa25"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa26"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa27"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa28"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa29"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa30"
+        "PadDomain_always_on_pads_port_spi.miso" -- "PadDomain_always_on_pads_pad_pad_gpioa31"
+         "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa0" [color = green]
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa1"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa2"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa3"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa4"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa5"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa6"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa7"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa8"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa9"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa10"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa11"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa12"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa13"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa14"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa15"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa16"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa17"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa18"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa19"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa20"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa21"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa22"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa23"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa24"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa25"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa26"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa27"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa28"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa29"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa30"
+        "PadDomain_always_on_pads_port_spi.sck" -- "PadDomain_always_on_pads_pad_pad_gpioa31"
+         "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa0"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa1" [color = green]
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa2"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa3"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa4"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa5"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa6"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa7"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa8"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa9"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa10"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa11"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa12"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa13"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa14"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa15"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa16"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa17"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa18"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa19"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa20"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa21"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa22"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa23"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa24"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa25"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa26"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa27"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa28"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa29"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa30"
+        "PadDomain_always_on_pads_port_spi.csn" -- "PadDomain_always_on_pads_pad_pad_gpioa31"
+         "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob0"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob1"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob2"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob3"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob4"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob5"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob6"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob7"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob8"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob9"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob10"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob11"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob12"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob13"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob14"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob15"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob16"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob17"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob18"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob19"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob20"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob21"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob22"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob23"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob24"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob25"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob26"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob27"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob28"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob29"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob30"
+        "PadDomain_always_on_pads_port_i2c.sda" -- "PadDomain_always_on_pads_pad_pad_gpiob31"
+         "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob0"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob1"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob2"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob3"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob4"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob5"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob6"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob7"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob8"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob9"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob10"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob11"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob12"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob13"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob14"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob15"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob16"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob17"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob18"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob19"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob20"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob21"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob22"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob23"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob24"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob25"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob26"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob27"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob28"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob29"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob30"
+        "PadDomain_always_on_pads_port_i2c.scl" -- "PadDomain_always_on_pads_pad_pad_gpiob31"
+         "PadDomain_always_on_pads_port_gpio_a.GPIO00" -- "PadDomain_always_on_pads_pad_pad_gpioa0"
+         "PadDomain_always_on_pads_port_gpio_a.GPIO01" -- "PadDomain_always_on_pads_pad_pad_gpioa1"
+         "PadDomain_always_on_pads_port_gpio_a.GPIO02" -- "PadDomain_always_on_pads_pad_pad_gpioa2"
+         "PadDomain_always_on_pads_port_gpio_a.GPIO03" -- "PadDomain_always_on_pads_pad_pad_gpioa3"
+         "PadDomain_always_on_pads_port_gpio_a.GPIO04" -- "PadDomain_always_on_pads_pad_pad_gpioa4" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO05" -- "PadDomain_always_on_pads_pad_pad_gpioa5" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO06" -- "PadDomain_always_on_pads_pad_pad_gpioa6" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO07" -- "PadDomain_always_on_pads_pad_pad_gpioa7" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO08" -- "PadDomain_always_on_pads_pad_pad_gpioa8" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO09" -- "PadDomain_always_on_pads_pad_pad_gpioa9" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO10" -- "PadDomain_always_on_pads_pad_pad_gpioa10" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO11" -- "PadDomain_always_on_pads_pad_pad_gpioa11" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO12" -- "PadDomain_always_on_pads_pad_pad_gpioa12" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO13" -- "PadDomain_always_on_pads_pad_pad_gpioa13" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO14" -- "PadDomain_always_on_pads_pad_pad_gpioa14" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO15" -- "PadDomain_always_on_pads_pad_pad_gpioa15" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO16" -- "PadDomain_always_on_pads_pad_pad_gpioa16" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO17" -- "PadDomain_always_on_pads_pad_pad_gpioa17" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO18" -- "PadDomain_always_on_pads_pad_pad_gpioa18" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO19" -- "PadDomain_always_on_pads_pad_pad_gpioa19" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO20" -- "PadDomain_always_on_pads_pad_pad_gpioa20" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO21" -- "PadDomain_always_on_pads_pad_pad_gpioa21" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO22" -- "PadDomain_always_on_pads_pad_pad_gpioa22" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO23" -- "PadDomain_always_on_pads_pad_pad_gpioa23" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO24" -- "PadDomain_always_on_pads_pad_pad_gpioa24" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO25" -- "PadDomain_always_on_pads_pad_pad_gpioa25" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO26" -- "PadDomain_always_on_pads_pad_pad_gpioa26" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO27" -- "PadDomain_always_on_pads_pad_pad_gpioa27" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO28" -- "PadDomain_always_on_pads_pad_pad_gpioa28" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO29" -- "PadDomain_always_on_pads_pad_pad_gpioa29" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO30" -- "PadDomain_always_on_pads_pad_pad_gpioa30" [color = green]
+         "PadDomain_always_on_pads_port_gpio_a.GPIO31" -- "PadDomain_always_on_pads_pad_pad_gpioa31" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC00" -- "PadDomain_always_on_pads_pad_pad_gpioc0" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC01" -- "PadDomain_always_on_pads_pad_pad_gpioc1" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC02" -- "PadDomain_always_on_pads_pad_pad_gpioc2" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC03" -- "PadDomain_always_on_pads_pad_pad_gpioc3" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC04" -- "PadDomain_always_on_pads_pad_pad_gpioc4" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC05" -- "PadDomain_always_on_pads_pad_pad_gpioc5" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC06" -- "PadDomain_always_on_pads_pad_pad_gpioc6" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC07" -- "PadDomain_always_on_pads_pad_pad_gpioc7" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC08" -- "PadDomain_always_on_pads_pad_pad_gpioc8" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC09" -- "PadDomain_always_on_pads_pad_pad_gpioc9" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC10" -- "PadDomain_always_on_pads_pad_pad_gpioc10" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC11" -- "PadDomain_always_on_pads_pad_pad_gpioc11" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC12" -- "PadDomain_always_on_pads_pad_pad_gpioc12" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC13" -- "PadDomain_always_on_pads_pad_pad_gpioc13" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC14" -- "PadDomain_always_on_pads_pad_pad_gpioc14" [color = green]
+         "PadDomain_always_on_pads_port_gpio_c.GPIOC15" -- "PadDomain_always_on_pads_pad_pad_gpioc15" [color = green]
+	}
+
+	# Legend
+	a [label="Port xy"]
+	b [label="Pad xy"]
+	a -- b [label="default port (after reset)", color=green]
+}
