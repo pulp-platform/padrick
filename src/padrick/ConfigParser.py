@@ -1,31 +1,20 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 from pathlib import Path
 import logging
+import sys
 from typing import List, Union, Tuple, Mapping, Type, TypeVar, Optional
 
 import click
-import click_log
 from pydantic import ValidationError, BaseModel
 from ruamel.yaml.comments import CommentedMap
-from yamlinclude import YamlIncludeConstructor
-from yamlinclude.constructor import IgnoreIncludeConstructor
+from padrick.YamlInclude import YamlIncludeConstructor, IgnoreIncludeConstructor
+from padrick.Logging import configure_logging
 
 logger = logging.getLogger("padrick.ConfigParser")
-click_log.basic_config(logger)
+configure_logging()
 from ruamel.yaml import YAMLError
 import ruamel.yaml
 
@@ -33,6 +22,8 @@ import ruamel.yaml
 
 
 def get_error_context(config_file: Path, line, column, context_before=4, context_after=4):
+    if sys.stderr.isatty():
+        return _rich_error_context(config_file, line, column, context_before, context_after)
     lines_to_return = []
     with config_file.open() as file:
         for line_idx, l in enumerate(file.readlines()):
@@ -42,6 +33,20 @@ def get_error_context(config_file: Path, line, column, context_before=4, context
             elif line_idx + 1 >= line - context_before and line_idx + 1 <= line + context_after:
                 lines_to_return.append(l)
     return "".join(lines_to_return)
+
+
+def _rich_error_context(config_file: Path, line, column, context_before, context_after):
+    """Render the offending YAML excerpt with syntax highlighting for terminals."""
+    import io
+    from rich.console import Console
+    from rich.syntax import Syntax
+    first = max(1, line - context_before)
+    with config_file.open() as file:
+        excerpt = "".join(file.readlines()[first - 1:line + context_after])
+    console = Console(file=io.StringIO(), force_terminal=True, width=120)
+    console.print(Syntax(excerpt, "yaml", line_numbers=True, start_line=first,
+                         highlight_lines={line}))
+    return console.file.getvalue()
 
 
 def get_human_readable_error_path(config_data: dict, error_location: List[Union[str, int]]):
@@ -78,11 +83,15 @@ def get_file_location(config_data: CommentedMap, error_location: List[Union[str,
 
 T = TypeVar('T', bound=BaseModel)
 
-def parse_config(cls: T, config_file: Path, include_base_dir: Optional[Path] = None, ignore_includes = False) -> Union[T, None]:
+def parse_config(cls: T, config_file: Path, include_base_dir: Optional[Path] = None, ignore_includes = False,
+                 errors_out: Optional[List[dict]] = None) -> Union[T, None]:
+    """
+    Parse and validate a config file; on failure, log errors and optionally
+    collect machine-readable error dicts into errors_out.
+    """
     with config_file.open() as file:
         try:
             yaml = ruamel.yaml.YAML(typ='rt')
-            # enable support for !include directives (see pyyaml-include package)
             if not include_base_dir:
                 include_base_dir = config_file.parent
             if not ignore_includes:
@@ -91,24 +100,27 @@ def parse_config(cls: T, config_file: Path, include_base_dir: Optional[Path] = N
                 include_constructor = IgnoreIncludeConstructor
             yaml.register_class(include_constructor)
             config_data = yaml.load(file)
-            #config_data = ruamel.yaml.load(file, Loader=ruamel.yaml.RoundTripLoader)
         except YAMLError as e:
             logger.error(f"Error while parsing config_file:\n{e}")
+            if errors_out is not None:
+                errors_out.append({"type": "yaml_error", "msg": str(e), "loc": [], "line": None, "column": None})
             return None
         try:
-            model = cls.parse_obj(config_data)
+            model = cls.model_validate(config_data)
             return model
         except ValidationError as e:
             logger.error(f"Encountered {len(e.errors())} validation errors while parsing the configuration file:")
             for error in e.errors():
-                if error['type'] == 'value_error.extra':
+                if error['type'] == 'extra_forbidden':
                     error['msg'] = f'Unknown field {error["loc"][-1]}. Did you mispell the field name?'
-                if error['type'] == 'value_error.missing':
+                if error['type'] == 'missing':
                     error['msg'] = f'Missing field \'{error["loc"][-1]}\''
-                # error_path = get_human_readable_error_path(config_data, error["loc"])
                 (line, column), subtree = get_file_location(config_data, error["loc"])
                 error_context = get_error_context(config_file, line, column, context_after=10)
                 logger.error(f"Line {line}, Column {column}:")
                 logger.error(f"...\n{error_context}\n...")
                 logger.error(f"Error: {error['msg']}")
+                if errors_out is not None:
+                    errors_out.append({"type": error['type'], "msg": error['msg'],
+                                       "loc": list(error['loc']), "line": line, "column": column})
             return None

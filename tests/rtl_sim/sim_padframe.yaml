@@ -1,0 +1,135 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+
+# Small padframe used by the tests/rtl_sim Verilator + cocotb suite. It is kept
+# intentionally tiny so it verilates quickly while still exercising every pad
+# flavour: dynamic muxed pads with a shared mux_group and default_port, a muxed
+# quasi-static pad, a hardwired quasi-static pad and a static pad. The pad type
+# renders a trivial behavioural tristate pad (see behav_pads.sv).
+name: sim_padframe
+manifest_version: 5
+pad_domains:
+  - name: core
+    pad_types:
+      - name: bidir_pad
+        description: Trivial behavioural bidirectional pad
+        template: |
+          behav_tristate_pad ${instance_name} (
+            .pad(${conn["pad"]}),
+            .oe(${conn["output_en"]}),
+            .ie(${conn["rx_en"]}),
+            .i(${conn["chip2pad"]}),
+            .o(${conn["pad2chip"]})
+          );
+        pad_signals:
+          - name: output_en
+            description: "Output driver enable"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: rx_en
+            description: "Input buffer enable"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: chip2pad
+            description: "Chip to pad (TX) data"
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pad2chip
+            description: "Pad to chip (RX) data"
+            size: 1
+            kind: output
+            conn_type: dynamic
+            default_static_value: ~
+          - name: pad
+            size: 1
+            kind: pad
+
+    pad_list:
+      - name: pad_clk
+        description: "Static reference clock input pad"
+        pad_type: bidir_pad
+        is_static: true
+        connections:
+          pad2chip: refclk
+          chip2pad: 1'b0
+          output_en: 1'b0
+          rx_en: 1'b1
+
+      - name: pad_io{i}
+        description: "Dynamic muxable pads sharing the 'all' mux group"
+        multiple: 3
+        pad_type: bidir_pad
+        mux_groups: [all]
+        default_port:
+          pad_io0: periph.p_out
+          pad_io1: periph.p_in
+          pad_io2: periph.p_bidir
+
+      - name: pad_qs
+        description: "Muxed quasi-static pad (1 bit mux_sel: register vs port)"
+        pad_type: bidir_pad
+        mux_groups: [self]
+        quasi_static: muxed
+
+      - name: pad_hw
+        description: "Hardwired quasi-static pad (no config registers)"
+        pad_type: bidir_pad
+        mux_groups: [self]
+        quasi_static: hardwired
+
+    port_groups:
+      - name: periph
+        output_defaults: "'0"
+        ports:
+          - name: p_out
+            description: "Constant output port"
+            connections:
+              chip2pad: pout_o
+              output_en: 1'b1
+              rx_en: 1'b0
+          - name: p_in
+            description: "Constant input port"
+            connections:
+              pin_i: pad2chip
+              output_en: 1'b0
+              rx_en: 1'b1
+          - name: p_bidir
+            description: "Bidirectional port"
+            connections:
+              chip2pad: bo
+              output_en: boe
+              rx_en: ~boe
+              bi: pad2chip
+      - name: qs
+        output_defaults: "'0"
+        ports:
+          - name: qs_p
+            description: "Port hardwired-by-default to the quasi-static pad"
+            mux_groups: [pad_qs]
+            connections:
+              chip2pad: qso
+              output_en: qsoe
+              rx_en: ~qsoe
+              qsi: pad2chip
+      - name: hw
+        output_defaults: "'0"
+        ports:
+          - name: hw_p
+            description: "Port hardwired to the hardwired pad"
+            mux_groups: [pad_hw]
+            connections:
+              chip2pad: hwo
+              output_en: hwoe
+              rx_en: ~hwoe
+              hwi: pad2chip

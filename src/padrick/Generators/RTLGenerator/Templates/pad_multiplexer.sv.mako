@@ -1,18 +1,32 @@
-## Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-##
-## Copyright (C) 2021-2022 ETH Zürich
-## 
-## Licensed under the Apache License, Version 2.0 (the "License");
-## you may not use this file except in compliance with the License.
-## You may obtain a copy of the License at
-##
-##     http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing, software
-## distributed under the License is distributed on an "AS IS" BASIS,
-## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-## See the License for the specific language governing permissions and
-## limitations under the License.
+## Copyright 2021-2022 ETH Zurich.
+## Licensed under the Apache License, Version 2.0, see LICENSE for details.
+## SPDX-License-Identifier: Apache-2.0
+## Author: Manuel Eggimann, ETH Zurich
+## Author: Kai Berszin, ETH Zurich
+<%!
+## Register-access dialect: reggen exposes a reg2hw struct (`.q`), peakrdl a regblock
+## hardware interface (hwif, `.value`). Every register read in this module routes through
+## these two helpers so the muxing logic itself stays backend-agnostic.
+def _cfg_field(backend, handle, pad, signal):
+    if backend == "peakrdl":
+        return f"{handle}.{pad.name.upper()}_CFG.{signal.name}.value"
+    return f"s_reg2hw.{pad.name}_cfg.{signal.name}.q"
+
+def _mux_sel(backend, handle, pad):
+    if backend == "peakrdl":
+        return f"{handle}.{pad.name.upper()}_MUX_SEL.sel.value"
+    return f"s_reg2hw.{pad.name}_mux_sel.q"
+%>\
+<%
+  backend = register_backend
+  if backend == "peakrdl":
+      topology = padframe.config_port_topology.value
+      reg_pkg = f"{padframe.name}_config_reg_pkg" if topology == "shared" else f"{padframe.name}_{pad_domain.name}_config_reg_pkg"
+  else:
+      reg_pkg = f"{padframe.name}_{pad_domain.name}_config_reg_pkg"
+  hwif_type = f"{padframe.name}_{pad_domain.name}_config__out_t"
+  hwif_handle = "hwif_i"
+%>\
 
 % for line in header_text.splitlines():
 // ${line}
@@ -20,11 +34,15 @@
 module ${padframe.name}_${pad_domain.name}_muxer
   import pkg_internal_${padframe.name}_${pad_domain.name}::*;
   import pkg_${padframe.name}::*;
-  import ${padframe.name}_${pad_domain.name}_config_reg_pkg::*;
+  import ${reg_pkg}::*;
+% if backend == "reggen":
 #(
   parameter type              req_t  = logic, // reg_interface request type
   parameter type             resp_t  = logic // reg_interface response type
 ) (
+% else:
+(
+% endif
   input logic clk_i,
   input logic rst_ni,
 % if any([port_group.port_signals_soc2pads for port_group in pad_domain.port_groups]):
@@ -39,12 +57,23 @@ module ${padframe.name}_${pad_domain.name}_muxer
 % if any([pad.dynamic_pad_signals_soc2pad for pad in pad_domain.pad_list]):
   input pads_to_mux_t pads_to_mux_i,
 % endif
+% if backend == "reggen":
   // Configuration interface using register_interface protocol
   input req_t config_req_i,
   output resp_t config_rsp_o
+% else:
+  // Configuration interface: register block hardware interface (PeakRDL hwif)
+  input ${hwif_type} hwif_i
+% endif
 );
+% if backend == "reggen":
    // Connections between register file and pads
-% if pad_domain.dynamic_pad_signals_soc2pad:
+<%
+## Hardwired quasi-static pads have neither config nor mux_sel registers so they do not
+## contribute to the reg2hw struct of the register file.
+has_reg2hw = any([pad.dynamic_pad_signals_soc2pad and not pad.is_hardwired for pad in pad_domain.pad_list])
+%>\
+% if has_reg2hw:
      ${padframe.name}_${pad_domain.name}_config_reg2hw_t s_reg2hw;
 % endif
 
@@ -55,13 +84,14 @@ module ${padframe.name}_${pad_domain.name}_muxer
     ) i_regfile (
     .clk_i,
     .rst_ni,
-% if pad_domain.dynamic_pad_signals_soc2pad:
+% if has_reg2hw:
     .reg2hw(s_reg2hw),
 % endif
     .reg_req_i(config_req_i),
     .reg_rsp_o(config_rsp_o),
     .devmode_i(1'b1)
   );
+% endif
 
 <%
 all_ports = [port for port_group in pad_domain.port_groups for port in port_group.ports]
@@ -70,6 +100,15 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
 signal_name_remap = {}
 for port_group in pad_domain.port_groups:
     signal_name_remap[port_group.name] = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
+
+def hardwired_tieoff(pad, pad_signal):
+    # Tie unmapped pad signals of a hardwired pad to the same value the config
+    # register of a muxed pad would assume out of reset (connections override or
+    # the pad signal's default_reset_value).
+    resval = pad.connections.get(pad_signal, pad_signal.default_reset_value) if pad.connections else pad_signal.default_reset_value
+    if isinstance(resval, int):
+        return f"{pad_signal.size}'d{resval}"
+    return str(resval)
 %>
    // SoC -> Pad Multiplex Logic
 % for pad in pad_domain.pad_list:
@@ -77,13 +116,26 @@ for port_group in pad_domain.port_groups:
    import math
    sel_bitwidth = round(math.log2(len(all_ports)+1))
 %>\
-% if pad.dynamic_pad_signals_soc2pad:
+% if pad.dynamic_pad_signals_soc2pad and pad.is_hardwired:
+<%
+   hw_port_group, hw_port = pad.default_port
+%>\
+   // Pad ${pad.name} (hardwired to port ${hw_port_group.name}.${hw_port.name})
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
+% if pad_signal in hw_port.connections and not hw_port.connections[pad_signal].is_empty:
+   assign mux_to_pads_o.${pad.name}.${pad_signal.name} = ${hw_port.connections[pad_signal].get_mapped_expr(signal_name_remap[hw_port_group.name])};
+% else:
+   assign mux_to_pads_o.${pad.name}.${pad_signal.name} = ${hardwired_tieoff(pad, pad_signal)};
+% endif
+% endfor
+
+% elif pad.dynamic_pad_signals_soc2pad:
    // Pad ${pad.name}
    always_comb begin
-     unique case (s_reg2hw.${pad.name}_mux_sel.q)
+     unique case (${_mux_sel(backend, hwif_handle, pad)})
        PAD_MUX_GROUP_${pad.mux_group_name}_SEL_DEFAULT: begin
 % for pad_signal in pad.dynamic_pad_signals_soc2pad:
-         mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+         mux_to_pads_o.${pad.name}.${pad_signal.name} = ${_cfg_field(backend, hwif_handle, pad, pad_signal)};
 % endfor
        end
 % for port_group in pad_domain.port_groups:
@@ -93,7 +145,7 @@ for port_group in pad_domain.port_groups:
 % if pad_signal in port.connections and not port.connections[pad_signal].is_empty:
           mux_to_pads_o.${pad.name}.${pad_signal.name} = ${port.connections[pad_signal].get_mapped_expr(signal_name_remap[port_group.name])};
 % else:
-          mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+          mux_to_pads_o.${pad.name}.${pad_signal.name} = ${_cfg_field(backend, hwif_handle, pad, pad_signal)};
 % endif
 % endfor
        end
@@ -101,7 +153,7 @@ for port_group in pad_domain.port_groups:
 % endfor
        default: begin
 % for pad_signal in pad.dynamic_pad_signals_soc2pad:
-         mux_to_pads_o.${pad.name}.${pad_signal.name} = s_reg2hw.${pad.name}_cfg.${pad_signal.name}.q;
+         mux_to_pads_o.${pad.name}.${pad_signal.name} = ${_cfg_field(backend, hwif_handle, pad, pad_signal)};
 % endfor
        end
      endcase
@@ -119,6 +171,23 @@ for port_group in pad_domain.port_groups:
 <%
 dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
 %>
+% if dynamic_pads and dynamic_pads[0].is_hardwired:
+<%
+## Quasi-static validation guarantees a hardwired pad is the only pad connectable
+## to its port, so the whole arbitration logic collapses to a direct connection.
+hw_pad = dynamic_pads[0]
+hw_pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{hw_pad.name}.{pad_signal.name}" for pad_signal in hw_pad.dynamic_pad_signals_pad2soc}
+%>\
+% for port_signal in port.port_signals_pad2chip:
+  // Port Signal ${port_signal.name} (hardwired to pad ${hw_pad.name})
+% if port_signal in port.connections:
+  assign port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(hw_pad_signal_remapping)};
+% else:
+  assign port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
+% endif
+
+% endfor
+% else:
 % for port_signal in port.port_signals_pad2chip:
   // Port Signal ${port_signal.name}
   logic [${len(dynamic_pads)-1}:0] port_mux_sel_${port_group.name}_${port_signal.name}_req;
@@ -126,7 +195,7 @@ dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
   logic port_mux_sel_${port_group.name}_${port_signal.name}_no_connection;
 
 % for pad in dynamic_pads:
-   assign port_mux_sel_${port_group.name}_${port_signal.name}_req[PORT_MUX_GROUP_${port.mux_group_name}_SEL_${pad.name.upper()}] = s_reg2hw.${pad.name}_mux_sel.q == PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
+   assign port_mux_sel_${port_group.name}_${port_signal.name}_req[PORT_MUX_GROUP_${port.mux_group_name}_SEL_${pad.name.upper()}] = ${_mux_sel(backend, hwif_handle, pad)} == PAD_MUX_GROUP_${pad.mux_group_name}_SEL_${port_group.name.upper()}_${port.name.upper()} ? 1'b1 : 1'b0;
 % endfor
 
    lzc #(
@@ -163,6 +232,7 @@ dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
    end
 
 % endfor
+% endif
 % endfor
 % endif
 % endfor

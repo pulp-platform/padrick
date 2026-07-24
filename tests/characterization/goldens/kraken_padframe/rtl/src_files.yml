@@ -1,0 +1,13 @@
+
+kraken_padframe:
+  files:
+    - src/pkg_kraken_padframe.sv
+    - src/pkg_internal_kraken_padframe_aon.sv
+    - src/kraken_padframe_aon_config_reg_pkg.sv
+    - src/kraken_padframe_aon_config_reg_top.sv
+    - src/kraken_padframe_aon_pads.sv
+    - src/kraken_padframe_aon_muxer.sv
+    - src/kraken_padframe_aon.sv
+    - src/kraken_padframe.sv
+  vlog_opts:
+    - -L axi_lib

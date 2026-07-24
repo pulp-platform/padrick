@@ -1,20 +1,11 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
 import logging
+import os
+import sys
 import time
 import traceback
 from pathlib import Path
@@ -22,10 +13,7 @@ from pathlib import Path
 from mako.template import Template
 
 import padrick.Generators.CLIGeneratorCommands
-import click
-import click_completion
-import click_spinner
-import click_log
+import rich_click as click
 import json
 
 from padrick.Generators.FuseSoCGenerator.FuseSoCGenerator import generate_core
@@ -33,56 +21,100 @@ from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
+from padrick.Logging import configure_logging, reserve_stdout_for_data, verbosity_option
 from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
+from pydantic import BaseModel
 
 logger = logging.getLogger("padrick")
-click_log.basic_config(logger)
+configure_logging()
 
-click_completion.init()
 _CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group(context_settings=_CONTEXT_SETTINGS)
-@click.version_option()
+@click.version_option(package_name="padrick")
 def cli():
     """
     Generate padframes for SoC
     """
 
-@cli.command()
-@click.option('--append/--overwrite', help="Append the completion code to the file", default=None)
-@click.option('-i', '--case-insensitive/--no-case-insensitive', help="Case insensitive completion")
-@click.argument('shell', required=False, type=click_completion.DocumentedChoice(click_completion.core.shells))
-@click.argument('path', required=False)
-def install_completions(append, case_insensitive, shell, path):
-    """Install the command line tool's bash completion for your shell
+_COMPLETION_SNIPPETS = {
+    'bash': 'eval "$(_PADRICK_COMPLETE=bash_source padrick)"',
+    'zsh': 'eval "$(_PADRICK_COMPLETE=zsh_source padrick)"',
+    'fish': '_PADRICK_COMPLETE=fish_source padrick | source',
+}
 
-    If you don't provide any additional arguments this command tries to detect your current shell in use and appends the relevant settings to your .bashrc, .zshrc etc."""
-    extra_env = {'_CLICK_COMPLETION_COMMAND_CASE_INSENSITIVE_COMPLETE': 'ON'} if case_insensitive else {}
-    shell, path = click_completion.core.install(shell=shell, path=path, append=append, extra_env=extra_env)
-    click.echo('%s completion installed in %s' % (shell, path))
+_COMPLETION_RC_FILES = {
+    'bash': '~/.bashrc',
+    'zsh': '~/.zshrc',
+    'fish': '~/.config/fish/completions/padrick.fish',
+}
+
+
+@cli.command()
+@click.argument('shell', required=False, type=click.Choice(sorted(_COMPLETION_SNIPPETS)))
+def install_completions(shell):
+    """Print the shell completion snippet for your shell (bash, zsh or fish).
+
+    If you don't provide a SHELL argument the current shell is detected from the $SHELL
+    environment variable. Add the printed snippet to your shell's startup file to enable
+    tab-completion for padrick."""
+    if not shell:
+        shell = Path(os.environ.get('SHELL', '')).name
+    if shell not in _COMPLETION_SNIPPETS:
+        raise click.UsageError(
+            f"Could not determine a supported shell (got '{shell or 'unknown'}'). "
+            f"Pass one of {', '.join(sorted(_COMPLETION_SNIPPETS))} explicitly.")
+    click.echo(f"# Add the following line to {_COMPLETION_RC_FILES[shell]} to enable padrick {shell} completion:")
+    click.echo(_COMPLETION_SNIPPETS[shell])
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
-@click_log.simple_verbosity_option(logger)
-def validate(file):
+@click.option('--format', 'output_format', type=click.Choice(['text', 'json']), default='text',
+              show_default=True, help="Output format; json prints a machine-readable result to stdout.")
+@verbosity_option
+def validate(file, output_format):
     """ Parse and validate the given config file
     """
-    with click_spinner.spinner():
-        model = parse_config(Padframe, Path(file))
-        if model != None:
-            click.echo(f"Successfully parsed configuration file.")
-        else:
-            click.echo(f"Error while parsing configuration file {file}")
+    if output_format == 'json':
+        reserve_stdout_for_data()
+    errors = []
+    model = parse_config(Padframe, Path(file), errors_out=errors)
+    if output_format == 'json':
+        click.echo(json.dumps({"valid": model is not None, "errors": errors}, indent=2))
+        if model is None:
+            sys.exit(1)
+    elif model != None:
+        click.echo(f"Successfully parsed configuration file.")
+    else:
+        click.echo(f"Error while parsing configuration file {file}")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option('-o', '--output', type=click.Path(dir_okay=False, writable=True),
+              help="Write the schema to this file instead of stdout.")
+def schema(output):
+    """Print the JSON Schema of the padframe configuration file format.
+
+    Reference it from a config file via a yaml-language-server directive to get
+    completion and validation while editing:
+
+    # yaml-language-server: $schema=padrick_schema.json"""
+    text = json.dumps(Padframe.model_json_schema(), indent=2)
+    if output:
+        Path(output).write_text(text + "\n")
+        click.echo(f"Schema written to {output}")
+    else:
+        click.echo(text)
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
-@click_log.simple_verbosity_option(logger)
+@verbosity_option
 def config(file):
     """ Print the parsed padframe configuration file """
-    with click_spinner.spinner():
-        model = parse_config(Padframe, Path(file))
+    model = parse_config(Padframe, Path(file))
     if model != None:
         class ModelEncoder(json.JSONEncoder):
             def default(self, o):
@@ -103,13 +135,16 @@ def config(file):
                         return o.expression
                 elif isinstance(o, Signal):
                     return o.name
+                elif isinstance(o, BaseModel):
+                    return {name: self.sanitize(getattr(o, name)) for name in type(o).model_fields}
                 else:
                     return o
             def encode(self, o):
                 return super().encode(self.sanitize(o))
-        click.echo(json.dumps(model.dict(), cls=ModelEncoder, indent=4))
+        click.echo(json.dumps(model, cls=ModelEncoder, indent=4))
     else:
         click.echo(f"Error while parsing configuration file {file}")
+        sys.exit(1)
 
 @cli.command()
 @click.argument('config_file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
@@ -143,8 +178,4 @@ if __name__ == '__main__':
             traceback.print_exc()
             pass
         # time.sleep(5)
-
-    # cli(['generate', 'driver',  '-v' 'INFO', '-o', '/home/meggiman/garbage/test_padrick/driver',
-    #          '../../examples/sample_padframe.yaml'])
-
     #cli(['config', '../../examples/kraken_padframe.yml'])

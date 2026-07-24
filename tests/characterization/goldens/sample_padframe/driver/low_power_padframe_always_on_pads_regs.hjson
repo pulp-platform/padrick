@@ -1,0 +1,5955 @@
+
+
+{
+    name: "low_power_padframe_always_on_pads_config"
+    clock_primary: "clk_i"
+    reset_primary: "rst_ni"
+    bus_interfaces: [
+        { protocol: "reg_iface", direction: "device"}
+    ]
+    regwidth: 32,
+    registers: [
+        {skipto: "0x0"},
+        {
+            name: INFO
+            desc: "Read-only IP Information register"
+            swaccess: "ro"
+            hwaccess: "hro"
+            fields: [
+              {
+                bits: "15:0"
+                name: HW_VERSION
+                desc: "Hardware version ID."
+                resval: 2
+              },
+              {
+                  bits:"31:16"
+                  name: PADCOUNT
+                  desc: "The number of muxable pads in this IP."
+                  resval: "80"
+              }
+            ]
+        }
+
+      {
+          name: PAD_GPIOA0_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA0_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa0. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 5
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa0."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio00", desc: "Connect port GPIO00 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA1_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA1_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa1. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 2
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa1."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio01", desc: "Connect port GPIO01 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA2_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA2_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa2. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 4
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa2."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio02", desc: "Connect port GPIO02 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA3_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA3_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa3. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 3
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa3."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio03", desc: "Connect port GPIO03 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA4_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA4_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa4. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa4."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio04", desc: "Connect port GPIO04 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA5_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA5_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa5. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa5."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio05", desc: "Connect port GPIO05 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA6_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA6_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa6. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa6."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio06", desc: "Connect port GPIO06 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA7_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA7_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa7. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa7."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio07", desc: "Connect port GPIO07 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA8_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA8_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa8. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa8."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio08", desc: "Connect port GPIO08 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA9_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA9_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa9. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa9."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio09", desc: "Connect port GPIO09 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA10_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA10_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa10. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa10."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio10", desc: "Connect port GPIO10 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA11_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA11_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa11. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa11."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio11", desc: "Connect port GPIO11 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA12_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA12_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa12. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa12."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio12", desc: "Connect port GPIO12 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA13_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA13_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa13. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa13."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio13", desc: "Connect port GPIO13 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA14_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA14_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa14. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa14."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio14", desc: "Connect port GPIO14 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA15_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA15_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa15. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa15."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio15", desc: "Connect port GPIO15 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA16_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA16_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa16. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa16."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio16", desc: "Connect port GPIO16 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA17_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA17_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa17. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa17."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio17", desc: "Connect port GPIO17 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA18_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA18_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa18. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa18."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio18", desc: "Connect port GPIO18 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA19_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA19_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa19. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa19."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio19", desc: "Connect port GPIO19 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA20_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA20_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa20. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa20."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio20", desc: "Connect port GPIO20 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA21_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA21_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa21. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa21."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio21", desc: "Connect port GPIO21 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA22_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA22_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa22. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa22."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio22", desc: "Connect port GPIO22 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA23_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA23_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa23. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa23."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio23", desc: "Connect port GPIO23 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA24_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA24_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa24. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa24."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio24", desc: "Connect port GPIO24 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA25_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA25_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa25. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa25."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio25", desc: "Connect port GPIO25 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA26_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA26_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa26. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa26."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio26", desc: "Connect port GPIO26 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA27_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA27_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa27. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa27."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio27", desc: "Connect port GPIO27 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA28_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA28_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa28. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa28."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio28", desc: "Connect port GPIO28 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA29_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA29_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa29. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa29."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio29", desc: "Connect port GPIO29 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA30_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA30_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa30. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa30."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio30", desc: "Connect port GPIO30 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOA31_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOA31_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioa31. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioa31."
+                  bits: "2:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_a_gpio31", desc: "Connect port GPIO31 from port group gpio_a to this pad." }
+                      { value: "2", name: "port_spi_csn", desc: "Connect port csn from port group spi to this pad." }
+                      { value: "3", name: "port_spi_miso", desc: "Connect port miso from port group spi to this pad." }
+                      { value: "4", name: "port_spi_mosi", desc: "Connect port mosi from port group spi to this pad." }
+                      { value: "5", name: "port_spi_sck", desc: "Connect port sck from port group spi to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB0_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB0_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob0. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob0."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB1_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB1_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob1. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob1."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB2_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB2_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob2. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob2."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB3_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB3_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob3. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob3."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB4_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB4_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob4. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob4."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB5_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB5_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob5. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob5."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB6_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB6_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob6. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob6."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB7_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB7_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob7. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob7."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB8_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB8_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob8. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob8."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB9_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB9_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob9. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob9."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB10_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB10_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob10. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob10."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB11_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB11_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob11. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob11."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB12_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB12_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob12. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob12."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB13_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB13_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob13. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob13."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB14_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB14_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob14. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob14."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB15_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB15_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob15. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob15."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB16_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB16_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob16. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob16."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB17_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB17_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob17. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob17."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB18_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB18_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob18. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob18."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB19_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB19_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob19. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob19."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB20_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB20_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob20. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob20."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB21_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB21_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob21. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob21."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB22_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB22_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob22. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob22."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB23_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB23_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob23. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob23."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB24_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB24_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob24. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob24."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB25_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB25_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob25. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob25."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB26_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB26_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob26. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob26."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB27_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB27_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob27. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob27."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB28_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB28_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob28. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob28."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB29_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB29_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob29. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob29."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB30_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB30_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob30. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob30."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOB31_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOB31_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpiob31. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpiob31."
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_i2c_scl", desc: "Connect port scl from port group i2c to this pad." }
+                      { value: "2", name: "port_i2c_sda", desc: "Connect port sda from port group i2c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC0_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC0_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc0. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc0."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc00", desc: "Connect port GPIOC00 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC1_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC1_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc1. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc1."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc01", desc: "Connect port GPIOC01 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC2_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC2_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc2. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc2."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc02", desc: "Connect port GPIOC02 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC3_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC3_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc3. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc3."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc03", desc: "Connect port GPIOC03 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC4_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC4_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc4. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc4."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc04", desc: "Connect port GPIOC04 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC5_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC5_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc5. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc5."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc05", desc: "Connect port GPIOC05 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC6_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC6_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc6. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc6."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc06", desc: "Connect port GPIOC06 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC7_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC7_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc7. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc7."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc07", desc: "Connect port GPIOC07 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC8_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC8_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc8. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc8."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc08", desc: "Connect port GPIOC08 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC9_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC9_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc9. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc9."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc09", desc: "Connect port GPIOC09 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC10_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC10_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc10. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc10."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc10", desc: "Connect port GPIOC10 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC11_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC11_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc11. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc11."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc11", desc: "Connect port GPIOC11 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC12_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC12_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc12. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc12."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc12", desc: "Connect port GPIOC12 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC13_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC13_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc13. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc13."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc13", desc: "Connect port GPIOC13 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC14_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC14_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc14. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc14."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc14", desc: "Connect port GPIOC14 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_GPIOC15_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     The signal that connects to the pads TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+            {
+                bits: "1"
+                name: output_en
+                desc: '''
+                     Enables the output driver of the pad
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2"
+                name: pull_up_en
+                desc: '''
+                     Enable the pads weak pull-up resistor
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "3"
+                name: rx_en
+                desc: '''
+                     Input buffer enable
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_GPIOC15_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_gpioc15. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_gpioc15."
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_c_gpioc15", desc: "Connect port GPIOC15 from port group gpio_c to this pad." }
+                  ]
+              }
+          ]
+      }
+
+    ]
+}

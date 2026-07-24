@@ -1,26 +1,21 @@
-## Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-##
-## Copyright (C) 2021-2022 ETH Zürich
-## 
-## Licensed under the Apache License, Version 2.0 (the "License");
-## you may not use this file except in compliance with the License.
-## You may obtain a copy of the License at
-##
-##     http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing, software
-## distributed under the License is distributed on an "AS IS" BASIS,
-## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-## See the License for the specific language governing permissions and
-## limitations under the License.
+## Copyright 2021-2022 ETH Zurich.
+## Licensed under the Apache License, Version 2.0, see LICENSE for details.
+## SPDX-License-Identifier: Apache-2.0
+## Author: Manuel Eggimann, ETH Zurich
 
 <%
   import math
   from natsort import natsorted
+  topology = padframe.config_port_topology.value
+
+  def base_addr_token(pad_domain):
+      if topology == "shared":
+          return f"{padframe.name.upper()}_BASE_ADDRESS"
+      return f"{padframe.name.upper()}_{pad_domain.name.upper()}_BASE_ADDRESS"
 %>
 #include "${padframe.name}.h"
 % for pad_domain in padframe.pad_domains:
-#define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${padframe.name.upper()}_BASE_ADDRESS
+#define  ${padframe.name.upper()}_${pad_domain.name.upper()}_CONFIG0_BASE_ADDR ${base_addr_token(pad_domain)}
 #include "${padframe.name}_${pad_domain.name}_regs.h"
 #include "bitfield.h"
 % endfor
@@ -30,6 +25,8 @@
 
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
+## Hardwired quasi-static pads have no config/mux_sel registers and thus no accessors.
+% if not pad.is_hardwired:
 % for ps in pad.dynamic_pad_signals_soc2pad:
 <%
   # Determine appropriate type for field value
@@ -45,7 +42,7 @@
   field_name = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_CFG_{ps.name.upper()}"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_type} value) {
-  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t address = ${base_addr_token(pad_domain)} + ${address};
   uint32_t reg = REG_READ32(address);
 %if ps.size > 1:
   reg = bitfield_field32_write(reg, ${field_name}_FIELD, value);
@@ -56,7 +53,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_set(${field_
 }
 
 ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get() {
-  uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  uint32_t address = ${base_addr_token(pad_domain)} + ${address};
   uint32_t reg = REG_READ32(address);
   %if ps.size > 1:
   return bitfield_field32_read(reg, ${field_name}_FIELD);
@@ -70,7 +67,7 @@ ${field_type} ${padframe.name}_${pad_domain.name}_${pad.name}_cfg_${ps.name}_get
   address = f"{padframe.name.upper()}_{pad_domain.name.upper()}_CONFIG_{pad.name.upper()}_MUX_SEL_REG_OFFSET"
 %>
 void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t mux_sel) {
-  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  const uint32_t address = ${base_addr_token(pad_domain)} + ${address};
 ##  const uint32_t sel_size = ${sel_size};
 ##  uint32_t field_mask = (1<<sel_size)-1;
 ##  REG_WRITE32(address, mux_sel & field_mask);
@@ -78,13 +75,14 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${
 }
 
 ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get() {
-  const uint32_t address = ${padframe.name.upper()}_BASE_ADDRESS + ${address};
+  const uint32_t address = ${base_addr_token(pad_domain)} + ${address};
 ##  const uint32_t sel_size = ${sel_size};
 
 ##  uint32_t field_mask = (1<<sel_size)-1;
 ##  return REG_READ32(address) & field_mask;
   return REG_READ32(address) & ${(1<<sel_size)-1};
 }
+% endif
 % endif
 % endfor
 % endfor

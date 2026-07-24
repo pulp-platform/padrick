@@ -1,37 +1,36 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
-import json
 import logging
-from itertools import count
-
-from mako.template import Template
+from enum import Enum
 
 import padrick
 from padrick.Model.Constants import MANIFEST_VERSION, SYSTEM_VERILOG_IDENTIFIER, \
     OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE, MANIFEST_VERSION_COMPATIBILITY
 from padrick.Model.PadDomain import PadDomain
-from pydantic import BaseModel, constr, conint, conlist, validator
-from typing import List, Optional, Dict, Union
-
-from padrick.Model.PadSignal import PadSignal, Signal
-from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.UserAttrs import UserAttrs
+from pydantic import field_validator, Field, StringConstraints, ConfigDict, BaseModel
+from typing import List, Optional
+from typing_extensions import Annotated
 
 logger = logging.getLogger("padrick.Configparser")
+
+
+class ConfigInterface(str, Enum):
+    """Config-bus protocol exposed at the padframe toplevel. A protocol converter in front of the
+    unchanged internal register_interface fabric adapts the selected frontend."""
+    regbus = "regbus"
+    apb = "apb"
+    axilite = "axilite"
+    obi = "obi"
+
+
+class ConfigPortTopology(str, Enum):
+    """Whether the padframe exposes a single shared config port or one config port per pad domain."""
+    shared = "shared"
+    per_domain = "per_domain"
 
 class Padframe(BaseModel):
     """
@@ -43,25 +42,31 @@ class Padframe(BaseModel):
         description (str): An optional short description of the padframes.
         pad_domains (List[PadDomain): A list of PadDomains within this padframe.
     """
-    manifest_version: int
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
-    pad_domains: conlist(PadDomain, min_items=1)
-    user_attr: Optional[UserAttrs]
+    manifest_version: int = Field(description="Configuration file syntax version. Must match the manifest "
+        "version supported by the padrick version you are using.")
+    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER), Field(description="Name of "
+        "the generated padframe module. Used as the prefix for all auto-generated modules to avoid naming "
+        "collisions when several padframes are generated.")]
+    description: Optional[str] = Field(default=None, description="Optional short description of the padframe.")
+    pad_domains: Annotated[List[PadDomain], Field(min_length=1, description="List of pad domains that make "
+        "up this padframe. Pad domains do not interact with each other and are generated as separate RTL "
+        "modules, which simplifies power intent for power-gated IO.")]
+    config_interface: ConfigInterface = Field(default=ConfigInterface.regbus, description="Config-bus "
+        "protocol exposed at the padframe toplevel. 'regbus' (the default) is the PULP register_interface. "
+        "'apb', 'axilite' and 'obi' instantiate a protocol converter in front of the internal "
+        "register_interface fabric. Non-regbus frontends currently require the reggen register backend.")
+    config_port_topology: ConfigPortTopology = Field(default=ConfigPortTopology.shared, description="How the "
+        "config bus is exposed. 'shared' (the default) keeps a single toplevel config port with an internal "
+        "address demux to the pad domains; this interconnect is always on and can defeat power gating of "
+        "individual pad domains. 'per_domain' exposes one config port per pad domain with no shared "
+        "interconnect and is recommended for power-gated multi-domain designs.")
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering; handy for parametrizing the config with YAML anchors.")
+    model_config = ConfigDict(title="Padframe Config", extra="forbid")
 
-    #Pydantic Model Config
-    class Config:
-        title =  "Padframe Config"
-        json_encoders = {
-            Template: lambda v: v.source,
-            SignalExpressionType: lambda v: v.expression,
-            PadSignal: lambda v: v.name,
-            Signal: lambda  v: v.name
-        }
-        underscore_attrs_are_private = True
 
-
-    @validator('manifest_version')
+    @field_validator('manifest_version')
+    @classmethod
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
         if version != MANIFEST_VERSION:

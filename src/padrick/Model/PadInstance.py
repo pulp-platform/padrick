@@ -1,21 +1,10 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 import logging
 from typing import Optional, Mapping, List, Union, Set, Tuple, Dict
-from typing_extensions import Literal
+from typing_extensions import Annotated, Literal
 
 from natsort import natsorted
 
@@ -26,7 +15,7 @@ from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Si
 from padrick.Model.PadType import PadType
 from padrick.Model.PortGroup import PortGroup
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, root_validator, Extra, conint, Field, conset
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, ValidationInfo, field_validator, model_validator
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.TemplatedPortIdentifier import TemplatedPortIdentifierType
@@ -37,25 +26,44 @@ from padrick.Model.Utilities import sort_signals, cached_property
 logger = logging.getLogger("padrick.Configparser")
 
 class PadInstance(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType]
-    multiple: conint(ge=1) = 1
-    pad_type: Union[constr(regex=SYSTEM_VERILOG_IDENTIFIER), PadType]
-    is_static: bool = False
-    mux_groups: conset(TemplatedIdentifierType, min_items=1) = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
-    connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]]
-    default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]]
-    user_attr: Optional[UserAttrs]
+    name: TemplatedIdentifierType = Field(description="Instance name of the pad. May contain {i} index "
+        "templates which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the pad's function. May contain {i} index templates when multiple > 1.")
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this pad to generate. When "
+        "greater than 1, {i} templates in name, description, mux_groups and connections are replaced with "
+        "the instance index starting from 0.")] = 1
+    pad_type: Union[Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)], PadType] = Field(
+        description="Name of the pad type (declared in pad_types) that this instance uses.")
+    is_static: bool = Field(default=False, description="If true, forces every pad signal of this instance to "
+        "conn_type 'static' so the pad is controlled solely by its connections and cannot be muxed to ports. "
+        "Mutually exclusive with quasi_static.")
+    quasi_static: Union[bool, Literal["muxed", "hardwired"]] = Field(default=False, description="If set, treat "
+        "this otherwise-dynamic pad as fixed to a single port: padrick enforces that exactly one port is "
+        "muxable to it and sets that port as the default_port. 'muxed' (equivalent to true) keeps the 1-bit "
+        "mux and its config registers so software can still fall back to register-controlled GPIO mode. "
+        "'hardwired' removes the mux and the pad's config/mux_sel registers entirely: port-mapped pad signals "
+        "are directly connected to the port and all other pad signals are tied to their reset values. "
+        "Experimental; mutually exclusive with is_static.")
+    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1, description="Set of mux-group "
+        "labels controlling connectivity. A port can be routed to this pad if their mux-group sets intersect. "
+        "Defaults to 'all' and 'self'; 'self' expands to the pad instance name (with index).")] = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
+    connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]] = Field(default=None,
+        description="Mapping of pad signal name to expression that overrides static signal connections or "
+        "sets the reset value of the config register for dynamic signals. Signals of kind 'pad' must not "
+        "appear here; only kind 'output' signals may be left unconnected (~).")
+    default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]] = Field(default=None,
+        description="Port to connect to this pad by default after reset, given as "
+        "'<port_group>.<port>'. For multi-pads you can instead provide an ordered mapping from expanded pad "
+        "name (or '*' wildcard) to port specifier; later entries override earlier ones.")
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     _method_cache: Mapping = {}
-
-    #pydantic model config
-    class Config:
-        extra = Extra.forbid
-        validate_assignment = True
-        underscore_attrs_are_private = True
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
 
-    @validator('pad_type')
+    @field_validator('pad_type')
+    @classmethod
     def lookup_pad_type(cls, v: Union[PadType, str]) -> PadType:
         if isinstance(v, PadType):
             return v
@@ -65,26 +73,39 @@ class PadInstance(BaseModel):
         else:
             return pad_type
 
-    @validator('mux_groups', each_item=True)
-    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
-        mux_group_str = str(mux_group)
-        if not mux_group_str.islower():
-            raise ValueError("Mux groups must not contain upper-case letters.")
-        return mux_group
+    @field_validator('quasi_static')
+    @classmethod
+    def normalize_quasi_static(cls, v: Union[bool, str]) -> Union[bool, str]:
+        """Normalize the legacy boolean 'true' to the equivalent 'muxed' mode."""
+        return "muxed" if v is True else v
 
-    @validator('connections')
-    def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], values):
+    @property
+    def is_hardwired(self) -> bool:
+        """True if this quasi-static pad is hardwired to its port without a mux."""
+        return self.quasi_static == "hardwired"
+
+    @field_validator('mux_groups')
+    @classmethod
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_groups):
+        for mux_group in mux_groups:
+            if not str(mux_group).islower():
+                raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_groups
+
+    @field_validator('connections')
+    @classmethod
+    def link_and_validate_connections(cls, v: Mapping[str, SignalExpressionType], info: ValidationInfo):
         linked_connections = {}
         if v:
             for pad_signal, expression in v.items():
                 # Create a copy of the pad signal instance so we can override its connection_type according to the
                 # is_static override value
-                if 'pad_type' not in values:
+                if 'pad_type' not in info.data:
                     raise ValueError("Missing pad_type for pad_instance")
                 if not isinstance(pad_signal, PadSignal):
-                    pad_signal = values['pad_type'].get_pad_signal(pad_signal).copy() #This will raise a ValueError if
+                    pad_signal = info.data['pad_type'].get_pad_signal(pad_signal).model_copy() #This will raise a ValueError if
                                                                                        # the # pad signal does not exist
-                if values['is_static']: pad_signal.conn_type = ConnectionType.static
+                if info.data['is_static']: pad_signal.conn_type = ConnectionType.static
 
                 # Only for output pad_signals it is allowed to have an empty expression (-> leave unconnected) as the
                 # expression
@@ -112,15 +133,19 @@ class PadInstance(BaseModel):
                 linked_connections[pad_signal] = expression
         return linked_connections
 
-    @root_validator(skip_on_failure=True)
-    def no_connections_for_pad_signal_of_kind_pad(cls, values):
-        if values.get('connections'):
-            for pad_signal in values['connections'].keys():
+    @model_validator(mode='after')
+    def no_connections_for_pad_signal_of_kind_pad(self):
+        if self.connections:
+            for pad_signal in self.connections.keys():
                 if pad_signal.kind == PadSignalKind.pad:
                     raise ValueError("Padsignals of kind pad cannot be referenced in the connections list.")
-        return values
+        return self
 
-
+    @model_validator(mode='after')
+    def quasi_static_flag_and_is_static_mutually_exclusive(self):
+        if self.quasi_static and self.is_static:
+            raise ValueError("The quasi_static flag the is_static flag are mutually exclusive.")
+        return self
     @property
     def static_connection_signals(self) -> List[Signal]:
         """
@@ -168,8 +193,9 @@ class PadInstance(BaseModel):
         if self.is_static:
             return []
         else:
-            return sort_signals([pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
-                                 and pad_signal.conn_type == ConnectionType.dynamic])
+            dynamic_pad_signals = [pad_signal for pad_signal in self.pad_type.pad_signals if pad_signal.kind != PadSignalKind.pad \
+                                 and pad_signal.conn_type == ConnectionType.dynamic]
+            return sort_signals(dynamic_pad_signals)
 
     @cached_property
     def dynamic_pad_signals_soc2pad(self) -> List[PadSignal]:
@@ -215,7 +241,7 @@ class PadInstance(BaseModel):
         # most likely is a user typo. We want to warn the user about this.
         matched_default_port_mappings = set()
         for i in range(self.multiple):
-            expanded_pad = self.copy()
+            expanded_pad = self.model_copy()
             expanded_pad._method_cache = {}
             expanded_pad.name = expanded_pad.name.evaluate_template(i)
             expanded_pad.description = expanded_pad.description.evaluate_template(i) if expanded_pad.description else None

@@ -1,18 +1,7 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
 from functools import reduce
 from typing import Optional, Mapping, Union, Set, List, Dict
@@ -24,30 +13,40 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER, LOWERCASE_IDENTIF
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, ConnectionType, PadSignalKind, Signal, SignalDirection
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, validator, Extra, PrivateAttr, conint, conset
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, constr, field_validator
 
 from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals
+from typing_extensions import Annotated
 
 
 class Port(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType]
-    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]]
-    mux_groups: conset(TemplatedIdentifierType, min_items=1) = \
+    """A port is the set of peripheral signals that get connected to a single pad when the port is muxed
+    onto it. It maps peripheral signals to the pad signals of the target pad."""
+    name: TemplatedIdentifierType = Field(description="Name of the port. May contain {i} index templates "
+        "which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the port. May contain {i} index templates when multiple > 1.")
+    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = Field(default=None,
+        description="Mapping that wires this port's peripheral signals to the target pad's dynamic pad "
+        "signals when the port is connected. Keys are pad signal names, values are expressions over "
+        "(implicitly declared) peripheral signals or literals. Peripheral signals are shared across ports "
+        "of the same port group.")
+    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1, description="Set of mux-group "
+        "labels controlling which pads this port can be routed to. A pad is connectable if their mux-group "
+        "sets intersect. Overridden by the port group's mux_groups if that is set.")] = \
         {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
-    multiple: conint(ge=1) = 1
-    user_attr: Optional[UserAttrs]
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this port to generate. When "
+        "greater than 1, {i} templates in name, description, mux_groups and connections are replaced with "
+        "the port index starting from 0.")] = 1
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
-    #pydantic model config
-    class Config:
-        extra = Extra.forbid
-        validate_assignment = True
-        underscore_attrs_are_private = True
-
-    @validator('connections')
-    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType], values):
+    @field_validator('connections')
+    @classmethod
+    def link_and_validate_connections(cls, v: Mapping[Union[Signal, str], SignalExpressionType]):
         linked_connections = {}
         for signal, expression in v.items():
             signal_name = signal.name if isinstance(signal, Signal) else signal
@@ -104,12 +103,13 @@ class Port(BaseModel):
             linked_connections[signal] = expression
         return linked_connections
 
-    @validator('mux_groups', each_item=True)
-    def mux_groups_must_not_contain_uppercase_letters(cls, mux_group: TemplatedIdentifierType):
-        mux_group_str = str(mux_group)
-        if not mux_group_str.islower():
-            raise ValueError("Mux groups must not contain upper-case letters.")
-        return mux_group
+    @field_validator('mux_groups')
+    @classmethod
+    def mux_groups_must_not_contain_uppercase_letters(cls, mux_groups):
+        for mux_group in mux_groups:
+            if not str(mux_group).islower():
+                raise ValueError("Mux groups must not contain upper-case letters.")
+        return mux_groups
 
 
     @property
@@ -148,7 +148,7 @@ class Port(BaseModel):
     def expand_port(self) -> List['Port']:
         expanded_ports = []
         for i in range(self.multiple):
-            expanded_port: Port = self.copy()
+            expanded_port: Port = self.model_copy()
             expanded_port.name = expanded_port.name.evaluate_template(i)
             expanded_port.description = expanded_port.description.evaluate_template(i) if expanded_port.description else None
             expanded_port.user_attr = expanded_port.user_attr.expand_user_attrs(i) if expanded_port.user_attr else None

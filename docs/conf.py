@@ -42,17 +42,7 @@ except FileNotFoundError:
     pass
 
 try:
-    import sphinx
-    from pkg_resources import parse_version
-
-    cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
-    cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
-
-    args = cmd_line.split(" ")
-    if parse_version(sphinx.__version__) >= parse_version('1.7'):
-        args = args[1:]
-
-    apidoc.main(args)
+    apidoc.main(["-f", "-o", output_dir, module_dir])
 except Exception as e:
     print("Running `sphinx-apidoc` failed!\n{}".format(e))
 
@@ -66,15 +56,14 @@ except Exception as e:
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
               'sphinx.ext.autosummary', 'sphinx.ext.viewcode', 'sphinx.ext.coverage',
               'sphinx.ext.doctest', 'sphinx.ext.ifconfig', 'sphinx.ext.mathjax',
-              'sphinx.ext.napoleon', 'sphinx_rtd_theme', 'sphinx_click', 'sphinx-pydantic',
-              'recommonmark']
+              'sphinx.ext.napoleon', 'sphinx_rtd_theme', 'sphinx_click',
+              'sphinxcontrib.autodoc_pydantic']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = {'.rst': 'restructuredtext',
-                 '.md': 'markdown'}
+source_suffix = {'.rst': 'restructuredtext'}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'

@@ -1,0 +1,2123 @@
+
+
+{
+    name: "modular_padframe_domain_config"
+    clock_primary: "clk_i"
+    reset_primary: "rst_ni"
+    bus_interfaces: [
+        { protocol: "reg_iface", direction: "device"}
+    ]
+    regwidth: 32,
+    registers: [
+        {skipto: "0x0"},
+        {
+            name: INFO
+            desc: "Read-only IP Information register"
+            swaccess: "ro"
+            hwaccess: "hro"
+            fields: [
+              {
+                bits: "15:0"
+                name: HW_VERSION
+                desc: "Hardware version ID."
+                resval: 2
+              },
+              {
+                  bits:"31:16"
+                  name: PADCOUNT
+                  desc: "The number of muxable pads in this IP."
+                  resval: "32"
+              }
+            ]
+        }
+
+
+
+
+
+
+
+
+
+      {
+          name: PAD_IO00_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO00_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io00. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io00."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio00", desc: "Connect port gpio00 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO01_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO01_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io01. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io01."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio01", desc: "Connect port gpio01 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO02_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO02_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io02. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io02."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio02", desc: "Connect port gpio02 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO03_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO03_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io03. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io03."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio03", desc: "Connect port gpio03 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO04_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO04_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io04. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io04."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio04", desc: "Connect port gpio04 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO05_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO05_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io05. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io05."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio05", desc: "Connect port gpio05 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO06_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO06_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io06. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io06."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio06", desc: "Connect port gpio06 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO07_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO07_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io07. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io07."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio07", desc: "Connect port gpio07 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO08_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO08_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io08. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io08."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio08", desc: "Connect port gpio08 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO09_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO09_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io09. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io09."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio09", desc: "Connect port gpio09 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO10_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO10_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io10. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io10."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio10", desc: "Connect port gpio10 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO11_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO11_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io11. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io11."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio11", desc: "Connect port gpio11 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO12_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO12_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io12. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io12."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio12", desc: "Connect port gpio12 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO13_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO13_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io13. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io13."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio13", desc: "Connect port gpio13 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO14_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO14_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io14. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io14."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio14", desc: "Connect port gpio14 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO15_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO15_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io15. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io15."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio15", desc: "Connect port gpio15 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO16_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO16_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io16. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io16."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio16", desc: "Connect port gpio16 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO17_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO17_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io17. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io17."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio17", desc: "Connect port gpio17 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO18_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO18_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io18. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io18."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio18", desc: "Connect port gpio18 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO19_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO19_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io19. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io19."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio19", desc: "Connect port gpio19 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO20_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO20_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io20. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io20."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio20", desc: "Connect port gpio20 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO21_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO21_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io21. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io21."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio21", desc: "Connect port gpio21 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO22_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO22_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io22. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io22."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio22", desc: "Connect port gpio22 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO23_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO23_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io23. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io23."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio23", desc: "Connect port gpio23 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO24_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO24_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io24. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io24."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio24", desc: "Connect port gpio24 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO25_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO25_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io25. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io25."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio25", desc: "Connect port gpio25 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO26_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO26_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io26. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io26."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio26", desc: "Connect port gpio26 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO27_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO27_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io27. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io27."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio27", desc: "Connect port gpio27 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO28_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO28_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io28. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io28."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio28", desc: "Connect port gpio28 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO29_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO29_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io29. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io29."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio29", desc: "Connect port gpio29 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO30_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO30_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io30. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io30."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio30", desc: "Connect port gpio30 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO31_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     Connects to pad's TX driver
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "1"
+                name: tx_en
+                desc: '''
+                     TX driver enable, active low
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO31_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io31. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  name: sel
+                  desc: "Port selection index for pad pad_io31."
+                  bits: "3:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_gpio31", desc: "Connect port gpio31 from port group gpio to this pad." }
+                      { value: "2", name: "port_i2c0_scl", desc: "Connect port scl from port group i2c0 to this pad." }
+                      { value: "3", name: "port_i2c0_sda", desc: "Connect port sda from port group i2c0 to this pad." }
+                      { value: "4", name: "port_qspim0_csn0", desc: "Connect port csn0 from port group qspim0 to this pad." }
+                      { value: "5", name: "port_qspim0_csn1", desc: "Connect port csn1 from port group qspim0 to this pad." }
+                      { value: "6", name: "port_qspim0_csn2", desc: "Connect port csn2 from port group qspim0 to this pad." }
+                      { value: "7", name: "port_qspim0_csn3", desc: "Connect port csn3 from port group qspim0 to this pad." }
+                      { value: "8", name: "port_qspim0_sck", desc: "Connect port sck from port group qspim0 to this pad." }
+                      { value: "9", name: "port_qspim0_sdio0", desc: "Connect port sdio0 from port group qspim0 to this pad." }
+                      { value: "10", name: "port_qspim0_sdio1", desc: "Connect port sdio1 from port group qspim0 to this pad." }
+                      { value: "11", name: "port_qspim0_sdio2", desc: "Connect port sdio2 from port group qspim0 to this pad." }
+                      { value: "12", name: "port_qspim0_sdio3", desc: "Connect port sdio3 from port group qspim0 to this pad." }
+                      { value: "13", name: "port_uart0_rx", desc: "Connect port rx from port group uart0 to this pad." }
+                      { value: "14", name: "port_uart0_tx", desc: "Connect port tx from port group uart0 to this pad." }
+                  ]
+              }
+          ]
+      }
+
+    ]
+}

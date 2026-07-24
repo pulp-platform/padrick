@@ -14,7 +14,7 @@ Contents
    CLI Reference <cli_doc>
    License <license>
    Authors <authors>
-   Changelog <changelog.md>
+   Changelog <changelog>
    Module Reference <api/modules>
 
 

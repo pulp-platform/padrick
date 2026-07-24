@@ -1,34 +1,34 @@
-## Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-##
-## Copyright (C) 2021-2022 ETH Zürich
-## 
-## Licensed under the Apache License, Version 2.0 (the "License");
-## you may not use this file except in compliance with the License.
-## You may obtain a copy of the License at
-##
-##     http://www.apache.org/licenses/LICENSE-2.0
-##
-## Unless required by applicable law or agreed to in writing, software
-## distributed under the License is distributed on an "AS IS" BASIS,
-## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-## See the License for the specific language governing permissions and
-## limitations under the License.
+## Copyright 2021-2022 ETH Zurich.
+## Licensed under the Apache License, Version 2.0, see LICENSE for details.
+## SPDX-License-Identifier: Apache-2.0
+## Author: Manuel Eggimann, ETH Zurich
 
 <%
   import math
   from natsort import natsorted
+  topology = padframe.config_port_topology.value
 %>
 #ifndef ${padframe.name.upper()}_H
 #define ${padframe.name.upper()}_H
 #include <stdint.h>
 
+% if topology == "shared":
 #ifndef ${padframe.name.upper()}_BASE_ADDRESS
 #error "${padframe.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of your padframe before you include this header file."
 #endif
+% else:
+% for pad_domain in padframe.pad_domains:
+#ifndef ${padframe.name.upper()}_${pad_domain.name.upper()}_BASE_ADDRESS
+#error "${padframe.name.upper()}_${pad_domain.name.upper()}_BASE_ADDRESS is not defined. Set this token to the configuration base address of the ${pad_domain.name} pad domain before you include this header file."
+#endif
+% endfor
+% endif
 
 
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
+## Hardwired quasi-static pads have no config/mux_sel registers and thus no accessors.
+% if not pad.is_hardwired:
 % for ps in pad.dynamic_pad_signals_soc2pad:
 <%
   # Determine appropriate type for field value
@@ -86,6 +86,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${
  ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get();
 
 
+% endif
 % endif
 % endfor
 % endfor

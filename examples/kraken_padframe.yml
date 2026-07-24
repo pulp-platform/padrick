@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../padrick_schema.json
 # This is another sample padframe configuration that was used for a real
 # tapeout. However, this config file does not showcase all of the available
 # features of padrick and might implement things in a way that have been made

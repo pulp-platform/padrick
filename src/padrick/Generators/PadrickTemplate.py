@@ -1,18 +1,7 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
 import logging
 from dataclasses import dataclass
@@ -37,7 +26,7 @@ class PadrickTemplate(BaseModel):
     name: str
     target_file_name: str
     template: Union[TemplatePackageResource, Path]
-    skip_generation = False
+    skip_generation: bool = False
 
     def render(self, output_dir: Path, logger: logging.Logger, padframe: Padframe, debug_render=False, **kwargs):
         if self.skip_generation:
@@ -47,7 +36,7 @@ class PadrickTemplate(BaseModel):
             output_file_path = output_dir / self.target_file_name.format(padframe=padframe, **kwargs)
             with output_file_path.open(mode='w') as f:
                 if isinstance(self.template, TemplatePackageResource):
-                    tp = Template(resources.read_text(self.template.package, self.template.resource))
+                    tp = Template(resources.files(self.template.package).joinpath(self.template.resource).read_text())
                 else:
                     tp = Template(filename=str(self.template))
                 try:

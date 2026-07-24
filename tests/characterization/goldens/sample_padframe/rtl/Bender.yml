@@ -1,0 +1,23 @@
+
+package:
+  name: low_power_padframe
+  authors:
+    - "Padrick"
+
+dependencies:
+  register_interface:     { git: "https://github.com/pulp-platform/register_interface.git", version: 0.3.1 }
+  common_cells:           { git: "https://github.com/pulp-platform/common_cells.git", version: 1.21.0 }
+
+export_include_dirs:
+- include
+
+sources:
+  - src/pkg_low_power_padframe.sv
+  - src/pkg_internal_low_power_padframe_always_on_pads.sv
+  - src/low_power_padframe_always_on_pads_config_reg_pkg.sv
+  - src/low_power_padframe_always_on_pads_config_reg_top.sv
+  - src/low_power_padframe_always_on_pads_pads.sv
+  - src/low_power_padframe_always_on_pads_muxer.sv
+  - src/low_power_padframe_always_on_pads.sv
+  - src/low_power_padframe.sv
+

@@ -1,24 +1,12 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
 import itertools
 import logging
 from typing import List, Optional, Set, Mapping, Iterable, Dict, Union
 
-import click_log
 from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.PadSignal import Signal, SignalDirection
@@ -26,39 +14,54 @@ from padrick.Model.PadType import PadType
 from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.Port import Port
 from padrick.Model.PortGroup import PortGroup
-from pydantic import BaseModel, constr, conlist, root_validator, validator
+from pydantic import BaseModel, Field, StringConstraints, ValidationInfo, field_validator, model_validator
 from natsort import natsorted
 
 from padrick.Model.SignalExpressionType import SignalExpressionType
 from padrick.Model.Utilities import sort_signals, sort_ports, sort_pads
+from typing_extensions import Annotated
+
+from padrick.Logging import configure_logging
 
 logger = logging.getLogger("padrick.Configparser")
-click_log.basic_config(logger)
+configure_logging()
 
 class PadDomain(BaseModel):
     """
     A pad_domain contains the configuration about one collection of pads and ports that can connected with each other.
     """
-    name: constr(regex=SYSTEM_VERILOG_IDENTIFIER)
-    description: Optional[str]
-    pad_types: conlist(PadType, min_items=1)
-    pad_list: conlist(PadInstance, min_items=1)
-    port_groups: List[PortGroup] = []
-    user_attr: Optional[Dict[str, Union[str, int, bool]]]
+    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER), Field(description="Name of "
+        "the pad domain. Must be a legal SystemVerilog identifier.")]
+    description: Optional[str] = Field(default=None, description="Optional short description of the pad "
+        "domain.")
+    pad_types: Annotated[List[PadType], Field(min_length=1, description="List of the IO cell types "
+        "(technology specific) available in this pad domain.")]
+    pad_list: Annotated[List[PadInstance], Field(min_length=1, description="List of concrete pad instances "
+        "in this pad domain, defining how many pads exist and which pad type each one uses.")]
+    port_groups: List[PortGroup] = Field(default=[], description="List of port groups whose ports can be "
+        "muxed onto the dynamic pads of this domain. Required if the domain declares any dynamic (non-static) "
+        "pads, and must be empty if all pads are static.")
+    user_attr: Optional[Dict[str, Union[str, int, bool]]] = Field(default=None, description="Optional "
+        "custom key-value pairs that are also exposed during template rendering.")
 
 
-    def __init__(self, *args, **kwargs):
-        PARSE_CONTEXT.set_context(self)
-        super().__init__(*args, **kwargs)
+    @model_validator(mode='before')
+    @classmethod
+    def _reset_parse_context(cls, values):
+        # A custom __init__ would make pydantic validate the model twice.
+        PARSE_CONTEXT.set_context(None)
+        return values
 
-    @validator('port_groups')
+    @field_validator('port_groups')
+    @classmethod
     def expand_multi_port_groups(cls, port_groups: List[PortGroup]):
         expanded_port_groups = []
         for port_group in port_groups:
             expanded_port_groups.extend(port_group.expand_port_group())
         return expanded_port_groups
 
-    @validator('port_groups')
+    @field_validator('port_groups')
+    @classmethod
     def check_port_group_names_are_unique(cls, port_groups: List[PortGroup]):
         port_groups_seen = set()
         for port_group in port_groups:
@@ -68,27 +71,29 @@ class PadDomain(BaseModel):
                 port_groups_seen.add(port_group.name)
         return port_groups
 
-    @root_validator(skip_on_failure=True)
-    def check_padsignal_with_same_name_have_same_size_and_direction(cls, values):
+    @model_validator(mode='after')
+    def check_padsignal_with_same_name_have_same_size_and_direction(self):
         pad_signal_names_seen = set()
         pad_signals_seen : Set[Signal] = set()
-        for pad_type in values['pad_types']:
+        for pad_type in self.pad_types:
             for pad_signal in pad_type.pad_signals:
                 if pad_signal.name in pad_signal_names_seen and pad_signal not in pad_signals_seen:
-                    raise ValueError(f"Duplicate pad signal {pad_signal.name} for pad {values['name']}")
+                    raise ValueError(f"Duplicate pad signal {pad_signal.name} for pad {self.name}")
                 else:
                     pad_signal_names_seen.add(pad_signal.name)
                     pad_signals_seen.add(pad_signal)
-        return values
+        return self
 
-    @validator('pad_list')
+    @field_validator('pad_list')
+    @classmethod
     def expand_multi_pads(cls, pads: List[PadInstance]):
         expanded_pads = []
         for pad in pads:
             expanded_pads.extend(pad.expand_padinstance())
         return expanded_pads
 
-    @validator("pad_list")
+    @field_validator("pad_list")
+    @classmethod
     def normalize_pad_mux_groups (cls, pads: List[PadInstance]):
         expanded_pads = []
         for pad in pads:
@@ -97,25 +102,28 @@ class PadDomain(BaseModel):
                 pad.mux_groups.add(pad.name.lower().strip())
         return pads
 
-    @validator('port_groups')
-    def override_port_mux_group(cls, port_groups: List[PortGroup], values):
+    @field_validator('port_groups')
+    @classmethod
+    def override_port_mux_group(cls, port_groups: List[PortGroup], info: ValidationInfo):
         for port_group in port_groups:
             for port in port_group.ports:
                 if not port_group.mux_groups is None:
                     port.mux_groups = port_group.mux_groups
         return port_groups
 
-    @validator('port_groups')
-    def normalize_port_mux_groups(cls, port_groups: List[PortGroup], values):
+    @field_validator('port_groups')
+    @classmethod
+    def normalize_port_mux_groups(cls, port_groups: List[PortGroup], info: ValidationInfo):
         for port_group in port_groups:
             for port in port_group.ports:
                 if "self" in port.mux_groups:
                     port.mux_groups.discard("self")
-                    port.mux_groups.add(f"{values['name']}_{port.name}")
+                    port.mux_groups.add(f"{info.data['name']}_{port.name}")
         return port_groups
 
 
-    @validator('pad_list')
+    @field_validator('pad_list')
+    @classmethod
     def check_static_connection_signals_are_not_bidirectional(cls, v):
         static_connection_signal = set()
         for pad in v:
@@ -135,7 +143,8 @@ class PadDomain(BaseModel):
                 seen[signal.name] = signal
         return v
 
-    @validator('pad_list')
+    @field_validator('pad_list')
+    @classmethod
     def check_each_pad_instance_name_is_unique(cls, pads: List[PadInstance]):
         pad_names_seen = set()
         for pad in pads:
@@ -145,11 +154,46 @@ class PadDomain(BaseModel):
                 pad_names_seen.add(pad.name)
         return pads
 
-    @root_validator(skip_on_failure=True)
-    def validate_and_link_default_ports(cls, values):
+
+    @model_validator(mode='after')
+    def validate_and_set_quasi_static_pad_instances(self):
+        pad: PadInstance
+        # Generate list of all port to pad connections and pad to port connections,
+        # the check if there is a 1:1 mux correlation for all the quasi-static pads.
+        port2mux_groups = {}
+        if self.port_groups:
+            for port_group in self.port_groups:
+                port2mux_groups.update({f"{port_group.name}.{port.name}": port.mux_groups for port in port_group.ports})
+
+        pad2mux_groups = {pad.name: pad.mux_groups for pad in self.pad_list if not pad.is_static}
+        port2pads = {}
+        pad2ports = {pad.name: [] for pad in self.pad_list}
+        for port, port_mux_groups in port2mux_groups.items():
+            pads = [pad for pad, pad_mux_groups in pad2mux_groups.items() if port_mux_groups.intersection(pad_mux_groups)]
+            port2pads[port] = pads
+            for pad in pads:
+                pad2ports[pad].append(port)
+
+        # Now iterate over all quasi_static pads
+        for pad in self.pad_list:
+            if pad.quasi_static:
+                if len(pad2ports[pad.name]) != 1:
+                    raise ValueError(f"Illegal mux configuration. Pad instance {pad.name} which has the 'quasi_static' flag set has more than one muxed port connection. Connectable ports are: {pad2ports[pad.name]}")
+                port = pad2ports[pad.name][0]
+                if len(port2pads[port]) > 1:
+                    raise ValueError(f"Illegal mux configuration. Pad instance {pad.name} has the 'quasi_static' flag set but its associated port {port} is connectable to several pads: {port2pads[port]}")
+                else:
+                    # We verified that there is indeed a 1:1 correlation between this pad and one port. We now set this as the default_port
+                    # to force the fixed association.
+                    pad.default_port = port
+                    logger.debug(f"Pad {pad.name} is marked as a quasi static pad. Setting default role for pad to {port}")
+        return self
+
+    @model_validator(mode='after')
+    def validate_and_link_default_ports(self):
         pad: PadInstance
         default_port2pad = {}
-        for pad in values['pad_list']:
+        for pad in self.pad_list:
             # Try to find the port in the port in the list of muxable ports for this pad_instance
             if isinstance(pad.default_port, str):
                 if not pad.default_port in default_port2pad:
@@ -158,7 +202,7 @@ class PadDomain(BaseModel):
                     default_port2pad[pad.default_port].append(pad)
                 (default_port_group_name, default_port_name) = pad.default_port.split(".", maxsplit=1)
                 linked_default_port = None
-                for port_group in values['port_groups']:
+                for port_group in self.port_groups:
                     if port_group.name == default_port_group_name:
                         for port in port_group.ports:
                             if port.mux_groups.intersection(pad.mux_groups) and port.name == default_port_name:
@@ -174,33 +218,34 @@ class PadDomain(BaseModel):
             if len(pads) > 1:
                 logger.warning(f"Found duplicate usage of default_port '{default_port}' for pads:"
                                +", ".join([f"'{pad.name}'" for pad in pads]))
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def error_on_empty_port_groups_but_existing_dynamic_pads(cls, values):
-        if not values['port_groups']:
-            if any(not pad.is_static for pad in values['pad_list']):
-                raise ValueError(f"The pad configuration of pad domain {values['name']} declares dynamic pads but "
+
+    @model_validator(mode='after')
+    def error_on_empty_port_groups_but_existing_dynamic_pads(self):
+        if not self.port_groups:
+            if any(not pad.is_static for pad in self.pad_list):
+                raise ValueError(f"The pad configuration of pad domain {self.name} declares dynamic pads but "
                                  f"declares no port groups. Please specify port groups and corresponding port signals to connect "
                                  f"to the dynamic pads.")
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def error_on_nonempty_port_groups_but_without_any_dynamic_pads(cls, values):
-        if values['port_groups']:
-            if all(pad.is_static for pad in values['pad_list']):
-                raise ValueError(f"The pad configuration of pad domain {values['name']} declares port groups but no "
+    @model_validator(mode='after')
+    def error_on_nonempty_port_groups_but_without_any_dynamic_pads(self):
+        if self.port_groups:
+            if all(pad.is_static for pad in self.pad_list):
+                raise ValueError(f"The pad configuration of pad domain {self.name} declares port groups but no "
                                  f"dynamic pads. Please declare some dynamic pads to which the ports shall be connected.")
-        return values
+        return self
 
-    @root_validator(skip_on_failure=True)
-    def warn_about_orphan_pads_and_ports(cls, values):
-        if values['port_groups']:
-            port_mux_groups = set.union(*[port.mux_groups for port_group in values['port_groups'] for port in
+    @model_validator(mode='after')
+    def warn_about_orphan_pads_and_ports(self):
+        if self.port_groups:
+            port_mux_groups = set().union(*[port.mux_groups for port_group in self.port_groups for port in
                                           port_group.ports])
             # We need to handle pads differently since they do not expand the 'self' keyword
             pad_mux_groups = set()
-            for pad in values['pad_list']:
+            for pad in self.pad_list:
                 if pad.dynamic_pad_signals:
                     expanded_mux_groups = set()
                     for mux_group in pad.mux_groups:
@@ -211,13 +256,13 @@ class PadDomain(BaseModel):
                             f"Found pad {pad.name} with mux_groups {str(pad.mux_groups)} but no port specifies any of these mux groups.")
                     pad_mux_groups.update(expanded_mux_groups)
 
-            for port_group in values['port_groups']:
+            for port_group in self.port_groups:
                 for port in port_group.ports:
                     if not port.mux_groups.intersection(pad_mux_groups):
                         logger.warning(
                             f"Found port {port.name} in port group {port_group.name} with mux_groups"
                             f" {str(port.mux_groups)} but no pad specifies any of these mux groups.")
-        return values
+        return self
 
     @property
     def override_signals(self) -> List[Signal]:
@@ -281,7 +326,7 @@ class PadDomain(BaseModel):
         ports_in_mux_groups = list(itertools.chain(*[port_group.get_ports_in_mux_groups(mux_groups) for port_group in self.port_groups]))
         return ports_in_mux_groups
 
-    def get_dynamic_pads_in_mux_groups(self, mux_groups: Set[str]) -> List[Port]:
+    def get_dynamic_pads_in_mux_groups(self, mux_groups: Set[str]) -> List[PadInstance]:
         pads_in_mux_groups = [pad for pad in self.pad_list if mux_groups.intersection(pad.mux_groups) and pad.dynamic_pad_signals]
         return sort_pads(pads_in_mux_groups)
 

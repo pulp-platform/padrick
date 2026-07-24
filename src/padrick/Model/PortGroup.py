@@ -1,18 +1,7 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-# 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 
 from typing import Optional, List, Set, Mapping, Union, Dict
 
@@ -20,44 +9,57 @@ from padrick.Model.Constants import SYSTEM_VERILOG_IDENTIFIER
 from padrick.Model.PadSignal import Signal, SignalDirection
 from padrick.Model.Port import Port
 from padrick.Model.SignalExpressionType import SignalExpressionType
-from pydantic import BaseModel, constr, conint, validator, root_validator, Extra, conset
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, constr, field_validator, model_validator
 
 from padrick.Model.TemplatedIdentifier import TemplatedIdentifierType
 from padrick.Model.TemplatedString import TemplatedStringType
 from padrick.Model.UserAttrs import UserAttrs
 from padrick.Model.Utilities import sort_signals, sort_ports, cached_property
+from typing_extensions import Annotated
 
 
 class PortGroup(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType]
-    mux_groups: Optional[conset(TemplatedIdentifierType, min_items=1)]
-    ports: List[Port]
-    output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
-    multiple: conint(ge=1) = 1
-    user_attr: Optional[UserAttrs]
+    """A port group logically groups related ports (e.g. all ports of one peripheral) and defines the
+    peripheral-signal namespace shared amongst them."""
+    name: TemplatedIdentifierType = Field(description="Name of the port group. May contain {i} index "
+        "templates which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the port group. May contain {i} index templates when multiple > 1.")
+    mux_groups: Optional[Annotated[Set[TemplatedIdentifierType], Field(min_length=1)]] = Field(default=None,
+        description="Optional default set of mux-group labels applied to every port in this group that does "
+        "not specify its own mux_groups.")
+    ports: List[Port] = Field(description="List of ports belonging to this port group.")
+    output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = Field(
+        default={}, description="Default value driven onto each pad-to-SoC (pad2chip) port signal when no pad "
+        "is connected to it. Provide either a single expression applied to all such signals or a mapping from "
+        "port signal name to a constant expression. Every pad2chip port signal in the group must have a "
+        "default.")
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this port group to generate. When "
+        "greater than 1, {i} templates in name, description and mux_groups are replaced with the group index "
+        "starting from 0.")] = 1
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     _method_cache = {}
+    model_config = ConfigDict(extra="forbid")
 
-    class Config:
-        extra = Extra.forbid
-        underscore_attrs_are_private = True
-
-    @validator('output_defaults')
-    def expand_default_value_for_connection_defaults(cls, output_defaults, values):
+    @field_validator('output_defaults')
+    @classmethod
+    def expand_default_value_for_connection_defaults(cls, output_defaults, info: ValidationInfo):
         if isinstance(output_defaults, SignalExpressionType):
             port_signals_pad2soc = set()
-            for port in values.get('ports', []):
+            for port in info.data.get('ports', []):
                 port_signals_pad2soc.update(port.port_signals_pad2chip)
             output_defaults = {port_signal.name: output_defaults for port_signal in port_signals_pad2soc}
         return output_defaults
 
-    @validator('output_defaults')
-    def validate_and_link_output_defaults(cls, v: Mapping[str, SignalExpressionType], values):
+    @field_validator('output_defaults')
+    @classmethod
+    def validate_and_link_output_defaults(cls, v: Mapping[str, SignalExpressionType], info: ValidationInfo):
         """Make sure the signals specified in connection_defaults are actually pad2chip port signals and make sure
         the associated expression is static."""
         linked_connection_defaults: Mapping[Signal, SignalExpressionType] = {}
         for signal_name, expression in v.items():
-            port_signals = set.union(*[set(port.port_signals) for port in values.get('ports', [])])
+            port_signals = set().union(*[set(port.port_signals) for port in info.data.get('ports', [])])
             # Try to find the port signal in the implicitly declared port signal list (a name used in the connections
             # section declares a new port signal)
             signal_found = False
@@ -85,18 +87,19 @@ class PortGroup(BaseModel):
 
         return linked_connection_defaults
 
-    @root_validator(skip_on_failure=True)
-    def check_all_pad2soc_ports_have_default(cls, values):
+    @model_validator(mode='after')
+    def check_all_pad2soc_ports_have_default(self):
         port_signals_pad2soc = set()
-        for port in values['ports']:
+        for port in self.ports:
             port_signals_pad2soc.update(port.port_signals_pad2chip)
         for port in port_signals_pad2soc:
-            if port not in values['output_defaults'] and port.name not in values['output_defaults']:
+            if port not in self.output_defaults and port.name not in self.output_defaults:
                 raise ValueError(f"Found port signal {port.name} with direction pad2soc that does not specify a connection default.")
-        return values
+        return self
 
 
-    @validator('ports')
+    @field_validator('ports')
+    @classmethod
     def expand_multi_ports(cls, ports):
         """
         Expand ports with muliple>1 into individual port objects replacing the '<>' token in name, description and signalexpression with the array index.
@@ -106,7 +109,8 @@ class PortGroup(BaseModel):
             expanded_ports.extend(port.expand_port())
         return expanded_ports
 
-    @validator('ports')
+    @field_validator('ports')
+    @classmethod
     def check_ports_are_unique(cls, ports):
         port_names_seen = set()
         for port in ports:
@@ -116,7 +120,8 @@ class PortGroup(BaseModel):
                 port_names_seen.add(port.name)
         return ports
 
-    @validator('ports')
+    @field_validator('ports')
+    @classmethod
     def check_port_signals_are_not_bidirectional(cls, v):
         port_signals = set()
         for port in v:
@@ -133,7 +138,8 @@ class PortGroup(BaseModel):
                 seen[signal.name] = signal
         return v
 
-    @validator('ports')
+    @field_validator('ports')
+    @classmethod
     def check_pad2soc_ports_are_not_multiple_connected(cls, v):
         port_signals = set()
         for port in v:
@@ -148,7 +154,7 @@ class PortGroup(BaseModel):
 
     @cached_property
     def port_signals(self) -> List[Signal]:
-        return sort_signals(set.union(*[set(port.port_signals) for port in self.ports]))
+        return sort_signals(set().union(*[set(port.port_signals) for port in self.ports]))
 
     @cached_property
     def port_signals_soc2pads(self) -> List[Signal]:
@@ -167,7 +173,7 @@ class PortGroup(BaseModel):
     def expand_port_group(self) -> List['PortGroup']:
         expanded_port_groups = []
         for i in range(self.multiple):
-            expanded_port_group: PortGroup = self.copy()
+            expanded_port_group: PortGroup = self.model_copy()
             expanded_port_group.name = expanded_port_group.name.evaluate_template(i)
             expanded_port_group.description = expanded_port_group.description.evaluate_template(i) if expanded_port_group.description else None
             expanded_port_group.user_attr = expanded_port_group.user_attr.expand_user_attrs(i) if expanded_port_group.user_attr else None

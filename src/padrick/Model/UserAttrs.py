@@ -1,42 +1,31 @@
-# Manuel Eggimann <meggimann@iis.ee.ethz.ch>
-#
-# Copyright (C) 2021-2022 ETH Zürich
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Copyright 2021-2022 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Manuel Eggimann, ETH Zurich
 from typing import Dict, Union, Optional, Mapping
 
-from pydantic import BaseModel
+from pydantic import RootModel
 
 from padrick.Model.TemplatedString import TemplatedStringType
 
 
-class UserAttrs(BaseModel):
-    __root__: Mapping[TemplatedStringType, Union['UserAttrs', int, bool, TemplatedStringType]]
+class UserAttrs(RootModel):
+    root: Mapping[TemplatedStringType, Union['UserAttrs', int, bool, TemplatedStringType]]
 
     def __iter__(self):
-        return iter(self.__root__)
+        return iter(self.root)
 
     def __getitem__(self, item):
-        return self.__root__[item]
+        return self.root[item]
 
     def items(self):
-        return self.__root__.items()
+        return self.root.items()
 
     def values(self):
-        return self.__root__.values()
+        return self.root.values()
 
     def keys(self):
-        return self.__root__.keys()
+        return self.root.keys()
 
     def expand_user_attrs(self, i: int) -> Dict[str, Union[str, int, bool]]:
         rendered_attrs = {}

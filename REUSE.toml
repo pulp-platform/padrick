@@ -1,0 +1,25 @@
+version = 1
+SPDX-PackageName = "padrick"
+SPDX-PackageDownloadLocation = "https://github.com/pulp-platform/padrick"
+
+# Blanket annotation; files with their own header add to it.
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2021-2026 ETH Zürich"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Real-chip test collateral from pulp-platform/astral
+[[annotations]]
+path = ["tests/characterization/configs/astral_padframe.yml",
+        "tests/characterization/configs/astral_reference/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "ETH Zurich and University of Bologna"
+SPDX-License-Identifier = "SHL-0.51"
+
+# Vendored from lowRISC OpenTitan (see util/vendor.py)
+[[annotations]]
+path = ["src/reggen/**", "src/topgen/**", "vendor/lowrisc_opentitan/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "lowRISC contributors"
+SPDX-License-Identifier = "Apache-2.0"

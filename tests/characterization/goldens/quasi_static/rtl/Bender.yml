@@ -1,0 +1,23 @@
+
+package:
+  name: quasi_static_padframe
+  authors:
+    - "Padrick"
+
+dependencies:
+  register_interface:     { git: "https://github.com/pulp-platform/register_interface.git", version: 0.3.1 }
+  common_cells:           { git: "https://github.com/pulp-platform/common_cells.git", version: 1.21.0 }
+
+export_include_dirs:
+- include
+
+sources:
+  - src/pkg_quasi_static_padframe.sv
+  - src/pkg_internal_quasi_static_padframe_aon.sv
+  - src/quasi_static_padframe_aon_config_reg_pkg.sv
+  - src/quasi_static_padframe_aon_config_reg_top.sv
+  - src/quasi_static_padframe_aon_pads.sv
+  - src/quasi_static_padframe_aon_muxer.sv
+  - src/quasi_static_padframe_aon.sv
+  - src/quasi_static_padframe.sv
+

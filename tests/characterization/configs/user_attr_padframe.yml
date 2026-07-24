@@ -1,0 +1,47 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+
+# Minimal padframe exercising user_attr on a pad, including a templated key and
+# value ({i}) that get expanded per instance via `multiple`.
+name: user_attr_padframe
+manifest_version: 4
+pad_domains:
+  - name: aon
+    pad_types:
+      - name: simple_pad
+        template: |
+          SIMPLE_PAD ${instance_name} (
+            .PAD(${conn["pad"]}),
+            .I(${conn["chip2pad"]}),
+            .O(${conn["pad2chip"]})
+          );
+        pad_signals:
+          - name: pad
+            size: 1
+            kind: pad
+          - name: chip2pad
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pad2chip
+            size: 1
+            kind: output
+            conn_type: dynamic
+    pad_list:
+      - name: pad_gpio{i}
+        mux_groups: [self]
+        multiple: 2
+        pad_type: simple_pad
+        is_static: true
+        connections:
+          chip2pad: 1'b0
+        user_attr:
+          loc_index_{i}: "gpio number {i}"
+          bank: north
+          count: 4
+          nested:
+            inner_{i}: "value {i}"
