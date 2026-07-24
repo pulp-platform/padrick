@@ -10,7 +10,8 @@ from typing_extensions import Annotated, Literal
 from pydantic import field_validator, Field, StringConstraints, BaseModel, root_validator
 from typing import List, Union, Optional, Tuple, Mapping
 
-from padrick.Model.Constants import MANIFEST_VERSION, OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
+from padrick.Model.Constants import MANIFEST_VERSION, MANIFEST_VERSION_COMPATIBILITY, \
+    OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE
 from padrick.Model.PadDomain import PadDomain
 from padrick.Model.PadInstance import PadInstance
 from padrick.Model.PadSignal import PadSignal
@@ -125,10 +126,11 @@ class ConstraintsSpec(BaseModel):
     @classmethod
     def check_manifest_version(cls, version):
         """ Verifies that the configuration file has the right version number for the current version of padrick."""
-        if version != MANIFEST_VERSION:
-            raise ValueError(
-                f"Manifest version {version} of the padframe config file is incompatible with the current version of padrick ({padrick.__version__}.\n"
-                f"Please use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead.")
+        if version not in MANIFEST_VERSION_COMPATIBILITY:
+            msg = f"Manifest version {version} of the constraints spec file is incompatible with this version of padrick."
+            if version in OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE:
+                msg += f"\nPlease use Padrick version {OLD_MANIFEST_VERSION_COMPATIBILITY_TABLE[version]} instead."
+            raise ValueError(msg)
         return version
 
     def link_with_pad_domain(self, padframe: Padframe):
