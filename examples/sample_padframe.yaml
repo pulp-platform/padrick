@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../padrick_schema.json
 # This is an example padframe config file that showcases most of Padricks
 # features. It is not the cleanest and most readable example but contains
 # extensive documentation of the features in action. Have a look at some of the

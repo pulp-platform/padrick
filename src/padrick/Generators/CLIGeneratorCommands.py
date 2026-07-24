@@ -10,7 +10,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Tuple
 
-import click
+import rich_click as click
 from ruamel.yaml import YAMLError, YAML
 from mako import exceptions
 from mako.template import Template

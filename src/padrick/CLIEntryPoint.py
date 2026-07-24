@@ -13,7 +13,7 @@ from pathlib import Path
 from mako.template import Template
 
 import padrick.Generators.CLIGeneratorCommands
-import click
+import rich_click as click
 import json
 
 from padrick.Generators.FuseSoCGenerator.FuseSoCGenerator import generate_core
@@ -21,7 +21,7 @@ from padrick.Generators.GeneratorSettings import RTLTemplates
 from padrick.Generators.RTLGenerator.RTLGenerator import generate_rtl
 from padrick.Generators import CLIGeneratorCommands
 from padrick.ConfigParser import parse_config
-from padrick.Logging import configure_logging, verbosity_option
+from padrick.Logging import configure_logging, reserve_stdout_for_data, verbosity_option
 from padrick.Model.Padframe import Padframe
 from padrick.Model.PadSignal import Signal
 from padrick.Model.SignalExpressionType import SignalExpressionType
@@ -71,16 +71,43 @@ def install_completions(shell):
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))
+@click.option('--format', 'output_format', type=click.Choice(['text', 'json']), default='text',
+              show_default=True, help="Output format; json prints a machine-readable result to stdout.")
 @verbosity_option
-def validate(file):
+def validate(file, output_format):
     """ Parse and validate the given config file
     """
-    model = parse_config(Padframe, Path(file))
-    if model != None:
+    if output_format == 'json':
+        reserve_stdout_for_data()
+    errors = []
+    model = parse_config(Padframe, Path(file), errors_out=errors)
+    if output_format == 'json':
+        click.echo(json.dumps({"valid": model is not None, "errors": errors}, indent=2))
+        if model is None:
+            sys.exit(1)
+    elif model != None:
         click.echo(f"Successfully parsed configuration file.")
     else:
         click.echo(f"Error while parsing configuration file {file}")
         sys.exit(1)
+
+
+@cli.command()
+@click.option('-o', '--output', type=click.Path(dir_okay=False, writable=True),
+              help="Write the schema to this file instead of stdout.")
+def schema(output):
+    """Print the JSON Schema of the padframe configuration file format.
+
+    Reference it from a config file via a yaml-language-server directive to get
+    completion and validation while editing:
+
+    # yaml-language-server: $schema=padrick_schema.json"""
+    text = json.dumps(Padframe.model_json_schema(), indent=2)
+    if output:
+        Path(output).write_text(text + "\n")
+        click.echo(f"Schema written to {output}")
+    else:
+        click.echo(text)
 
 @cli.command()
 @click.argument('file', type=click.Path(dir_okay=False, file_okay=True, exists=True, readable=True))

@@ -1,0 +1,614 @@
+{
+  "$defs": {
+    "ConnectionType": {
+      "enum": [
+        "static",
+        "dynamic"
+      ],
+      "title": "ConnectionType",
+      "type": "string"
+    },
+    "PadDomain": {
+      "description": "A pad_domain contains the configuration about one collection of pads and ports that can connected with each other.",
+      "properties": {
+        "name": {
+          "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "pad_types": {
+          "items": {
+            "$ref": "#/$defs/PadType"
+          },
+          "minItems": 1,
+          "title": "Pad Types",
+          "type": "array"
+        },
+        "pad_list": {
+          "items": {
+            "$ref": "#/$defs/PadInstance"
+          },
+          "minItems": 1,
+          "title": "Pad List",
+          "type": "array"
+        },
+        "port_groups": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PortGroup"
+          },
+          "title": "Port Groups",
+          "type": "array"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User Attr"
+        }
+      },
+      "required": [
+        "name",
+        "pad_types",
+        "pad_list"
+      ],
+      "title": "PadDomain",
+      "type": "object"
+    },
+    "PadInstance": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "multiple": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Multiple",
+          "type": "integer"
+        },
+        "pad_type": {
+          "anyOf": [
+            {
+              "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/PadType"
+            }
+          ],
+          "title": "Pad Type"
+        },
+        "is_static": {
+          "default": false,
+          "title": "Is Static",
+          "type": "boolean"
+        },
+        "quasi_static": {
+          "default": false,
+          "title": "Quasi Static",
+          "type": "boolean"
+        },
+        "mux_groups": {
+          "default": [
+            "all",
+            "self"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Mux Groups",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "connections": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connections"
+        },
+        "default_port": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "$ref": "#/$defs/PortGroup"
+                },
+                {
+                  "$ref": "#/$defs/Port"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Port"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserAttrs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "pad_type"
+      ],
+      "title": "PadInstance",
+      "type": "object"
+    },
+    "PadSignal": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "size": {
+          "default": 1,
+          "maximum": 32,
+          "minimum": 1,
+          "title": "Size",
+          "type": "integer"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "kind": {
+          "$ref": "#/$defs/PadSignalKind"
+        },
+        "conn_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ConnectionType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "and_override_signal": {
+          "default": "",
+          "title": "And Override Signal",
+          "type": "string"
+        },
+        "or_override_signal": {
+          "default": "",
+          "title": "Or Override Signal",
+          "type": "string"
+        },
+        "default_reset_value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Reset Value"
+        },
+        "default_static_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Static Value"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserAttrs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "title": "PadSignal",
+      "type": "object"
+    },
+    "PadSignalKind": {
+      "enum": [
+        "input",
+        "output",
+        "pad"
+      ],
+      "title": "PadSignalKind",
+      "type": "string"
+    },
+    "PadType": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "template": {
+          "title": "Template",
+          "type": "string"
+        },
+        "pad_signals": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PadSignal"
+          },
+          "title": "Pad Signals",
+          "type": "array"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserAttrs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "template"
+      ],
+      "title": "PadType",
+      "type": "object"
+    },
+    "Port": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "connections": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connections"
+        },
+        "mux_groups": {
+          "default": [
+            "all",
+            "self"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Mux Groups",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "multiple": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Multiple",
+          "type": "integer"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserAttrs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Port",
+      "type": "object"
+    },
+    "PortGroup": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "mux_groups": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mux Groups"
+        },
+        "ports": {
+          "items": {
+            "$ref": "#/$defs/Port"
+          },
+          "title": "Ports",
+          "type": "array"
+        },
+        "output_defaults": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            }
+          ],
+          "default": {},
+          "title": "Output Defaults"
+        },
+        "multiple": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Multiple",
+          "type": "integer"
+        },
+        "user_attr": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UserAttrs"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "ports"
+      ],
+      "title": "PortGroup",
+      "type": "object"
+    },
+    "UserAttrs": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/UserAttrs"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "title": "UserAttrs",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Padframe class that represents the padframe configuration parsed from the configuration file.\n\nAttributes:\n    manifest_version (int): The manifest version used by the parsed configuration file.\n    name (str): Name of the pad_frame module.\n    description (str): An optional short description of the padframes.\n    pad_domains (List[PadDomain): A list of PadDomains within this padframe.",
+  "properties": {
+    "manifest_version": {
+      "title": "Manifest Version",
+      "type": "integer"
+    },
+    "name": {
+      "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "pad_domains": {
+      "items": {
+        "$ref": "#/$defs/PadDomain"
+      },
+      "minItems": 1,
+      "title": "Pad Domains",
+      "type": "array"
+    },
+    "user_attr": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UserAttrs"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "manifest_version",
+    "name",
+    "pad_domains"
+  ],
+  "title": "Padframe Config",
+  "type": "object"
+}

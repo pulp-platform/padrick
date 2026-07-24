@@ -132,7 +132,10 @@ class TemplatedIdentifierType(str):
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type, handler):
-        return core_schema.no_info_plain_validator_function(cls.validate)
+        return core_schema.no_info_plain_validator_function(
+            cls.validate,
+            json_schema_input_schema=core_schema.str_schema(),
+        )
 
     @classmethod
     def validate(cls, v):

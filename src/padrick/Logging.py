@@ -17,12 +17,19 @@ _LEVELS = ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"]
 class _ClickHandler(logging.Handler):
     """Logging handler routing records to stdout (info/debug) or stderr (warnings and above)."""
 
+    force_stderr = False
+
     def emit(self, record: logging.LogRecord) -> None:
         try:
             message = self.format(record)
-            click.echo(message, err=record.levelno >= logging.WARNING)
+            click.echo(message, err=self.force_stderr or record.levelno >= logging.WARNING)
         except Exception:
             self.handleError(record)
+
+
+def reserve_stdout_for_data() -> None:
+    """Route all log output to stderr so stdout carries machine-readable data only."""
+    _ClickHandler.force_stderr = True
 
 
 class _LevelPrefixFormatter(logging.Formatter):

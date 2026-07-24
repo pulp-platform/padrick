@@ -125,3 +125,37 @@ def test_include_glob_expands_to_list(tmp_path: Path) -> None:
     yaml.register_class(YamlIncludeConstructor(base_dir=str(tmp_path)))
     data = yaml.load("parts: !include part_*.yml\n")
     assert list(map(list, data["parts"])) == [["alpha"], ["beta"]]
+
+
+def test_schema_command_emits_json_schema(tmp_path: Path) -> None:
+    """`padrick schema` prints the JSON Schema of the config file format."""
+    import json
+    result = run_padrick(["schema"])
+    assert result.returncode == 0, result.stderr
+    schema = json.loads(result.stdout)
+    assert schema["title"] == "Padframe Config"
+    assert "pad_domains" in schema["properties"]
+
+
+def test_validate_json_format(tmp_path: Path) -> None:
+    """`validate --format json` reports a machine-readable verdict and exit code."""
+    import json
+    ok = run_padrick(["validate", "--format", "json", str(SAMPLE_PADFRAME)])
+    assert ok.returncode == 0
+    assert json.loads(ok.stdout) == {"valid": True, "errors": []}
+
+    bad = run_padrick(["validate", "--format", "json", "tests/rtl_tests/testpadframe.yaml"])
+    assert bad.returncode == 1
+    verdict = json.loads(bad.stdout)
+    assert verdict["valid"] is False
+    assert verdict["errors"], "expected at least one structured error"
+    assert {"type", "msg", "loc", "line", "column"} <= set(verdict["errors"][0])
+
+
+def test_committed_schema_is_current() -> None:
+    """padrick_schema.json at the repo root matches the generated schema."""
+    result = run_padrick(["schema"])
+    committed = (REPO_ROOT / "padrick_schema.json").read_text()
+    assert result.stdout.strip() == committed.strip(), (
+        "padrick_schema.json is stale; regenerate with: padrick schema -o padrick_schema.json"
+    )
