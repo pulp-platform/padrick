@@ -42,6 +42,34 @@ jobs:
           cat /tmp/pytest-coverage.txt >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+  sim:
+    # ubuntu-24.04's apt verilator is 5.020, matching the local SEPP install
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install Verilator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator
+          verilator --version
+      - name: Install bender
+        env:
+          BENDER_VERSION: 0.28.1
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://pulp-platform.github.io/bender/init \
+            | bash -s -- "$BENDER_VERSION"
+          sudo mv bender /usr/local/bin/
+          bender --version
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+          enable-cache: true
+      - run: uv sync --locked --group sim
+      - name: Run RTL simulation tests
+        run: uv run pytest tests/rtl_sim -q
+
   license:
     runs-on: ubuntu-latest
     steps:
