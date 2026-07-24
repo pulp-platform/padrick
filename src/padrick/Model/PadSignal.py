@@ -16,6 +16,8 @@ from typing_extensions import Annotated
 
 
 class PadSignalKind(str, Enum):
+    """Role of a pad signal: an input driven by the chip into the pad, an output driven by the pad
+    back to the chip, or the bonding-pad signal exposed at the padframe toplevel."""
     input = "input"
     output = "output"
     pad = "pad"
@@ -26,12 +28,18 @@ class SignalDirection(str, Enum):
     bidir = "bidir"
 
 class ConnectionType(str, Enum):
+    """Whether a pad signal is controlled statically (tied to a fixed expression or single external
+    signal) or dynamically (through an auto-generated configuration register that connected ports can
+    take over)."""
     static = "static"
     dynamic = "dynamic"
 
 class Signal(BaseModel):
-    name: TemplatedIdentifierType
-    size: Annotated[int, Field(ge=1, le=32)] = 1
+    name: Annotated[TemplatedIdentifierType, Field(description="Identifier of the signal. Must be a legal "
+        "SystemVerilog identifier and may contain {i} index templates that are expanded when the enclosing "
+        "entity uses multiple > 1.")]
+    size: Annotated[int, Field(ge=1, le=32, description="Width of the signal in bits, from 1 to 32. "
+        "Defaults to 1.")] = 1
     _direction: Optional[SignalDirection] = PrivateAttr(None)
 
     def __init__(self, direction=None, *values, **kwargs):
@@ -51,15 +59,33 @@ class Signal(BaseModel):
         return hash((self.name, self.size, self.direction))
 
 class PadSignal(Signal):
-    description: Optional[str] = None
-    kind: PadSignalKind
-    conn_type: Optional[ConnectionType] = None
-    and_override_signal: SignalExpressionType = SignalExpressionType("")
-    or_override_signal: SignalExpressionType = SignalExpressionType("")
-    default_reset_value: Optional[int] = None
-    default_static_value: Optional[SignalExpressionType] = None
+    description: Optional[str] = Field(default=None, description="Optional human-readable description of "
+        "the pad signal's function.")
+    kind: PadSignalKind = Field(description="Role of the pad signal. Use 'input' for signals driven by "
+        "the chip into the pad (e.g. chip2pad, driving_strength), 'output' for signals driven by the pad "
+        "back to the chip (e.g. pad2chip), or 'pad' for the bonding-pad signal exposed at the padframe "
+        "toplevel. Each pad type must declare at least one signal of kind 'pad'.")
+    conn_type: Optional[ConnectionType] = Field(default=None, description="Whether the signal is "
+        "controlled statically or dynamically. Required for every pad signal except those of kind 'pad'. "
+        "'dynamic' signals get an auto-generated configuration register per pad instance and can be driven "
+        "by connected ports; 'static' signals are tied to a fixed expression or single external signal and "
+        "cannot be muxed to ports.")
+    and_override_signal: SignalExpressionType = Field(default=SignalExpressionType(""), description="Optional "
+        "expression that is AND-gated with the signal's regular value. Not allowed for pad signals of kind "
+        "'output'.")
+    or_override_signal: SignalExpressionType = Field(default=SignalExpressionType(""), description="Optional "
+        "expression that is OR-gated with the signal's regular value. Not allowed for pad signals of kind "
+        "'output'.")
+    default_reset_value: Optional[int] = Field(default=None, description="Reset value of the auto-generated "
+        "configuration register when this signal is not overridden in a pad instance's connections. Required "
+        "for signals of kind 'input'; forbidden for signals of kind 'output' or 'pad'.")
+    default_static_value: Optional[SignalExpressionType] = Field(default=None, description="Static expression "
+        "connected to the signal when it is not overridden in a pad instance's connections. Required for "
+        "signals of kind 'input'; for kind 'output' only a single signal identifier or the empty expression "
+        "is allowed; forbidden for kind 'pad'.")
     _static_signals: Set[Signal] = PrivateAttr(default=set())
-    user_attr: Optional[UserAttrs] = None
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
 
     @property
     def direction(self):

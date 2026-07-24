@@ -10,18 +10,26 @@ from padrick.Model.ParseContext import PARSE_CONTEXT
 from padrick.Model.PadSignal import PadSignal, PadSignalKind
 from mako import exceptions
 from mako.template import Template
-from pydantic import field_validator, StringConstraints, ConfigDict, BaseModel, conlist
+from pydantic import field_validator, StringConstraints, ConfigDict, BaseModel, conlist, Field
 
 from padrick.Model.UserAttrs import UserAttrs
 from typing_extensions import Annotated
 
 
 class PadType(BaseModel):
-    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)]
-    description: Optional[str] = None
-    template: str
-    pad_signals: List[PadSignal] = []
-    user_attr: Optional[UserAttrs] = None
+    """A pad type describes one IO cell flavor from your library, characterized by its instantiation
+    template and the set of pad signals used to control it."""
+    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER), Field(description="Name of "
+        "the pad type. Referenced by pad instances via their pad_type key and must be unique.")]
+    description: Optional[str] = Field(default=None, description="Optional short description of the pad type.")
+    template: str = Field(description="Mako template that describes how to instantiate this pad cell in the "
+        "generated RTL. The variables 'instance_name' and the 'conn' dictionary (keyed by pad signal name) "
+        "are available during rendering.")
+    pad_signals: List[PadSignal] = Field(default=[], description="List of all pad signals used to control "
+        "this pad type, including the chip-to-pad and pad-to-chip signals, the bonding-pad signal and any "
+        "configuration signals. Must contain at least one signal of kind 'pad'.")
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     model_config = ConfigDict(extra="forbid")
 
     def __init__(self, *args, **kwargs):

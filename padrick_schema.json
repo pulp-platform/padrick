@@ -1,6 +1,7 @@
 {
   "$defs": {
     "ConnectionType": {
+      "description": "Whether a pad signal is controlled statically (tied to a fixed expression or single external\nsignal) or dynamically (through an auto-generated configuration register that connected ports can\ntake over).",
       "enum": [
         "static",
         "dynamic"
@@ -12,6 +13,7 @@
       "description": "A pad_domain contains the configuration about one collection of pads and ports that can connected with each other.",
       "properties": {
         "name": {
+          "description": "Name of the pad domain. Must be a legal SystemVerilog identifier.",
           "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
           "title": "Name",
           "type": "string"
@@ -26,9 +28,11 @@
             }
           ],
           "default": null,
+          "description": "Optional short description of the pad domain.",
           "title": "Description"
         },
         "pad_types": {
+          "description": "List of the IO cell types (technology specific) available in this pad domain.",
           "items": {
             "$ref": "#/$defs/PadType"
           },
@@ -37,6 +41,7 @@
           "type": "array"
         },
         "pad_list": {
+          "description": "List of concrete pad instances in this pad domain, defining how many pads exist and which pad type each one uses.",
           "items": {
             "$ref": "#/$defs/PadInstance"
           },
@@ -46,6 +51,7 @@
         },
         "port_groups": {
           "default": [],
+          "description": "List of port groups whose ports can be muxed onto the dynamic pads of this domain. Required if the domain declares any dynamic (non-static) pads, and must be empty if all pads are static.",
           "items": {
             "$ref": "#/$defs/PortGroup"
           },
@@ -75,6 +81,7 @@
             }
           ],
           "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering.",
           "title": "User Attr"
         }
       },
@@ -90,6 +97,7 @@
       "additionalProperties": false,
       "properties": {
         "name": {
+          "description": "Instance name of the pad. May contain {i} index templates which are expanded when multiple > 1.",
           "title": "Name",
           "type": "string"
         },
@@ -103,10 +111,12 @@
             }
           ],
           "default": null,
+          "description": "Optional description of the pad's function. May contain {i} index templates when multiple > 1.",
           "title": "Description"
         },
         "multiple": {
           "default": 1,
+          "description": "Number of copies of this pad to generate. When greater than 1, {i} templates in name, description, mux_groups and connections are replaced with the instance index starting from 0.",
           "minimum": 1,
           "title": "Multiple",
           "type": "integer"
@@ -121,15 +131,18 @@
               "$ref": "#/$defs/PadType"
             }
           ],
+          "description": "Name of the pad type (declared in pad_types) that this instance uses.",
           "title": "Pad Type"
         },
         "is_static": {
           "default": false,
+          "description": "If true, forces every pad signal of this instance to conn_type 'static' so the pad is controlled solely by its connections and cannot be muxed to ports. Mutually exclusive with quasi_static.",
           "title": "Is Static",
           "type": "boolean"
         },
         "quasi_static": {
           "default": false,
+          "description": "If true, treat this otherwise-dynamic pad as fixed to a single port: padrick enforces that exactly one port is muxable to it and sets that port as the default_port. Experimental; mutually exclusive with is_static.",
           "title": "Quasi Static",
           "type": "boolean"
         },
@@ -138,6 +151,7 @@
             "all",
             "self"
           ],
+          "description": "Set of mux-group labels controlling connectivity. A port can be routed to this pad if their mux-group sets intersect. Defaults to 'all' and 'self'; 'self' expands to the pad instance name (with index).",
           "items": {
             "type": "string"
           },
@@ -166,6 +180,7 @@
             }
           ],
           "default": null,
+          "description": "Mapping of pad signal name to expression that overrides static signal connections or sets the reset value of the config register for dynamic signals. Signals of kind 'pad' must not appear here; only kind 'output' signals may be left unconnected (~).",
           "title": "Connections"
         },
         "default_port": {
@@ -197,6 +212,7 @@
             }
           ],
           "default": null,
+          "description": "Port to connect to this pad by default after reset, given as '<port_group>.<port>'. For multi-pads you can instead provide an ordered mapping from expanded pad name (or '*' wildcard) to port specifier; later entries override earlier ones.",
           "title": "Default Port"
         },
         "user_attr": {
@@ -208,7 +224,8 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering."
         }
       },
       "required": [
@@ -222,11 +239,13 @@
       "additionalProperties": false,
       "properties": {
         "name": {
+          "description": "Identifier of the signal. Must be a legal SystemVerilog identifier and may contain {i} index templates that are expanded when the enclosing entity uses multiple > 1.",
           "title": "Name",
           "type": "string"
         },
         "size": {
           "default": 1,
+          "description": "Width of the signal in bits, from 1 to 32. Defaults to 1.",
           "maximum": 32,
           "minimum": 1,
           "title": "Size",
@@ -242,10 +261,12 @@
             }
           ],
           "default": null,
+          "description": "Optional human-readable description of the pad signal's function.",
           "title": "Description"
         },
         "kind": {
-          "$ref": "#/$defs/PadSignalKind"
+          "$ref": "#/$defs/PadSignalKind",
+          "description": "Role of the pad signal. Use 'input' for signals driven by the chip into the pad (e.g. chip2pad, driving_strength), 'output' for signals driven by the pad back to the chip (e.g. pad2chip), or 'pad' for the bonding-pad signal exposed at the padframe toplevel. Each pad type must declare at least one signal of kind 'pad'."
         },
         "conn_type": {
           "anyOf": [
@@ -256,15 +277,18 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Whether the signal is controlled statically or dynamically. Required for every pad signal except those of kind 'pad'. 'dynamic' signals get an auto-generated configuration register per pad instance and can be driven by connected ports; 'static' signals are tied to a fixed expression or single external signal and cannot be muxed to ports."
         },
         "and_override_signal": {
           "default": "",
+          "description": "Optional expression that is AND-gated with the signal's regular value. Not allowed for pad signals of kind 'output'.",
           "title": "And Override Signal",
           "type": "string"
         },
         "or_override_signal": {
           "default": "",
+          "description": "Optional expression that is OR-gated with the signal's regular value. Not allowed for pad signals of kind 'output'.",
           "title": "Or Override Signal",
           "type": "string"
         },
@@ -278,6 +302,7 @@
             }
           ],
           "default": null,
+          "description": "Reset value of the auto-generated configuration register when this signal is not overridden in a pad instance's connections. Required for signals of kind 'input'; forbidden for signals of kind 'output' or 'pad'.",
           "title": "Default Reset Value"
         },
         "default_static_value": {
@@ -290,6 +315,7 @@
             }
           ],
           "default": null,
+          "description": "Static expression connected to the signal when it is not overridden in a pad instance's connections. Required for signals of kind 'input'; for kind 'output' only a single signal identifier or the empty expression is allowed; forbidden for kind 'pad'.",
           "title": "Default Static Value"
         },
         "user_attr": {
@@ -301,7 +327,8 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering."
         }
       },
       "required": [
@@ -312,6 +339,7 @@
       "type": "object"
     },
     "PadSignalKind": {
+      "description": "Role of a pad signal: an input driven by the chip into the pad, an output driven by the pad\nback to the chip, or the bonding-pad signal exposed at the padframe toplevel.",
       "enum": [
         "input",
         "output",
@@ -322,8 +350,10 @@
     },
     "PadType": {
       "additionalProperties": false,
+      "description": "A pad type describes one IO cell flavor from your library, characterized by its instantiation\ntemplate and the set of pad signals used to control it.",
       "properties": {
         "name": {
+          "description": "Name of the pad type. Referenced by pad instances via their pad_type key and must be unique.",
           "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
           "title": "Name",
           "type": "string"
@@ -338,14 +368,17 @@
             }
           ],
           "default": null,
+          "description": "Optional short description of the pad type.",
           "title": "Description"
         },
         "template": {
+          "description": "Mako template that describes how to instantiate this pad cell in the generated RTL. The variables 'instance_name' and the 'conn' dictionary (keyed by pad signal name) are available during rendering.",
           "title": "Template",
           "type": "string"
         },
         "pad_signals": {
           "default": [],
+          "description": "List of all pad signals used to control this pad type, including the chip-to-pad and pad-to-chip signals, the bonding-pad signal and any configuration signals. Must contain at least one signal of kind 'pad'.",
           "items": {
             "$ref": "#/$defs/PadSignal"
           },
@@ -361,7 +394,8 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering."
         }
       },
       "required": [
@@ -373,8 +407,10 @@
     },
     "Port": {
       "additionalProperties": false,
+      "description": "A port is the set of peripheral signals that get connected to a single pad when the port is muxed\nonto it. It maps peripheral signals to the pad signals of the target pad.",
       "properties": {
         "name": {
+          "description": "Name of the port. May contain {i} index templates which are expanded when multiple > 1.",
           "title": "Name",
           "type": "string"
         },
@@ -388,6 +424,7 @@
             }
           ],
           "default": null,
+          "description": "Optional description of the port. May contain {i} index templates when multiple > 1.",
           "title": "Description"
         },
         "connections": {
@@ -410,6 +447,7 @@
             }
           ],
           "default": null,
+          "description": "Mapping that wires this port's peripheral signals to the target pad's dynamic pad signals when the port is connected. Keys are pad signal names, values are expressions over (implicitly declared) peripheral signals or literals. Peripheral signals are shared across ports of the same port group.",
           "title": "Connections"
         },
         "mux_groups": {
@@ -417,6 +455,7 @@
             "all",
             "self"
           ],
+          "description": "Set of mux-group labels controlling which pads this port can be routed to. A pad is connectable if their mux-group sets intersect. Overridden by the port group's mux_groups if that is set.",
           "items": {
             "type": "string"
           },
@@ -427,6 +466,7 @@
         },
         "multiple": {
           "default": 1,
+          "description": "Number of copies of this port to generate. When greater than 1, {i} templates in name, description, mux_groups and connections are replaced with the port index starting from 0.",
           "minimum": 1,
           "title": "Multiple",
           "type": "integer"
@@ -440,7 +480,8 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering."
         }
       },
       "required": [
@@ -451,8 +492,10 @@
     },
     "PortGroup": {
       "additionalProperties": false,
+      "description": "A port group logically groups related ports (e.g. all ports of one peripheral) and defines the\nperipheral-signal namespace shared amongst them.",
       "properties": {
         "name": {
+          "description": "Name of the port group. May contain {i} index templates which are expanded when multiple > 1.",
           "title": "Name",
           "type": "string"
         },
@@ -466,6 +509,7 @@
             }
           ],
           "default": null,
+          "description": "Optional description of the port group. May contain {i} index templates when multiple > 1.",
           "title": "Description"
         },
         "mux_groups": {
@@ -483,9 +527,11 @@
             }
           ],
           "default": null,
+          "description": "Optional default set of mux-group labels applied to every port in this group that does not specify its own mux_groups.",
           "title": "Mux Groups"
         },
         "ports": {
+          "description": "List of ports belonging to this port group.",
           "items": {
             "$ref": "#/$defs/Port"
           },
@@ -512,10 +558,12 @@
             }
           ],
           "default": {},
+          "description": "Default value driven onto each pad-to-SoC (pad2chip) port signal when no pad is connected to it. Provide either a single expression applied to all such signals or a mapping from port signal name to a constant expression. Every pad2chip port signal in the group must have a default.",
           "title": "Output Defaults"
         },
         "multiple": {
           "default": 1,
+          "description": "Number of copies of this port group to generate. When greater than 1, {i} templates in name, description and mux_groups are replaced with the group index starting from 0.",
           "minimum": 1,
           "title": "Multiple",
           "type": "integer"
@@ -529,7 +577,8 @@
               "type": "null"
             }
           ],
-          "default": null
+          "default": null,
+          "description": "Optional custom key-value pairs that are also exposed during template rendering."
         }
       },
       "required": [
@@ -564,10 +613,12 @@
   "description": "Padframe class that represents the padframe configuration parsed from the configuration file.\n\nAttributes:\n    manifest_version (int): The manifest version used by the parsed configuration file.\n    name (str): Name of the pad_frame module.\n    description (str): An optional short description of the padframes.\n    pad_domains (List[PadDomain): A list of PadDomains within this padframe.",
   "properties": {
     "manifest_version": {
+      "description": "Configuration file syntax version. Must match the manifest version supported by the padrick version you are using.",
       "title": "Manifest Version",
       "type": "integer"
     },
     "name": {
+      "description": "Name of the generated padframe module. Used as the prefix for all auto-generated modules to avoid naming collisions when several padframes are generated.",
       "pattern": "^[_a-zA-Z](?:[_a-zA-Z0-9])*",
       "title": "Name",
       "type": "string"
@@ -582,9 +633,11 @@
         }
       ],
       "default": null,
+      "description": "Optional short description of the padframe.",
       "title": "Description"
     },
     "pad_domains": {
+      "description": "List of pad domains that make up this padframe. Pad domains do not interact with each other and are generated as separate RTL modules, which simplifies power intent for power-gated IO.",
       "items": {
         "$ref": "#/$defs/PadDomain"
       },
@@ -601,7 +654,8 @@
           "type": "null"
         }
       ],
-      "default": null
+      "default": null,
+      "description": "Optional custom key-value pairs that are also exposed during template rendering; handy for parametrizing the config with YAML anchors."
     }
   },
   "required": [

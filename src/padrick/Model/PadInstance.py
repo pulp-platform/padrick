@@ -26,16 +26,34 @@ from padrick.Model.Utilities import sort_signals, cached_property
 logger = logging.getLogger("padrick.Configparser")
 
 class PadInstance(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType] = None
-    multiple: Annotated[int, Field(ge=1)] = 1
-    pad_type: Union[Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)], PadType]
-    is_static: bool = False
-    quasi_static: bool = False
-    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1)] = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
-    connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]] = None
-    default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]] = None
-    user_attr: Optional[UserAttrs] = None
+    name: TemplatedIdentifierType = Field(description="Instance name of the pad. May contain {i} index "
+        "templates which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the pad's function. May contain {i} index templates when multiple > 1.")
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this pad to generate. When "
+        "greater than 1, {i} templates in name, description, mux_groups and connections are replaced with "
+        "the instance index starting from 0.")] = 1
+    pad_type: Union[Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)], PadType] = Field(
+        description="Name of the pad type (declared in pad_types) that this instance uses.")
+    is_static: bool = Field(default=False, description="If true, forces every pad signal of this instance to "
+        "conn_type 'static' so the pad is controlled solely by its connections and cannot be muxed to ports. "
+        "Mutually exclusive with quasi_static.")
+    quasi_static: bool = Field(default=False, description="If true, treat this otherwise-dynamic pad as fixed "
+        "to a single port: padrick enforces that exactly one port is muxable to it and sets that port as the "
+        "default_port. Experimental; mutually exclusive with is_static.")
+    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1, description="Set of mux-group "
+        "labels controlling connectivity. A port can be routed to this pad if their mux-group sets intersect. "
+        "Defaults to 'all' and 'self'; 'self' expands to the pad instance name (with index).")] = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
+    connections: Optional[Mapping[Union[PadSignal, str], Optional[SignalExpressionType]]] = Field(default=None,
+        description="Mapping of pad signal name to expression that overrides static signal connections or "
+        "sets the reset value of the config register for dynamic signals. Signals of kind 'pad' must not "
+        "appear here; only kind 'output' signals may be left unconnected (~).")
+    default_port: Optional[Union[Mapping[Union[Literal['*'], TemplatedIdentifierType], TemplatedPortIdentifierType], TemplatedPortIdentifierType, Tuple[PortGroup, Port]]] = Field(default=None,
+        description="Port to connect to this pad by default after reset, given as "
+        "'<port_group>.<port>'. For multi-pads you can instead provide an ordered mapping from expanded pad "
+        "name (or '*' wildcard) to port specifier; later entries override earlier ones.")
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     _method_cache: Mapping = {}
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
 

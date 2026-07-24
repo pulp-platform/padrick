@@ -30,12 +30,19 @@ class PadDomain(BaseModel):
     """
     A pad_domain contains the configuration about one collection of pads and ports that can connected with each other.
     """
-    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)]
-    description: Optional[str] = None
-    pad_types: Annotated[List[PadType], Field(min_length=1)]
-    pad_list: Annotated[List[PadInstance], Field(min_length=1)]
-    port_groups: List[PortGroup] = []
-    user_attr: Optional[Dict[str, Union[str, int, bool]]] = None
+    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER), Field(description="Name of "
+        "the pad domain. Must be a legal SystemVerilog identifier.")]
+    description: Optional[str] = Field(default=None, description="Optional short description of the pad "
+        "domain.")
+    pad_types: Annotated[List[PadType], Field(min_length=1, description="List of the IO cell types "
+        "(technology specific) available in this pad domain.")]
+    pad_list: Annotated[List[PadInstance], Field(min_length=1, description="List of concrete pad instances "
+        "in this pad domain, defining how many pads exist and which pad type each one uses.")]
+    port_groups: List[PortGroup] = Field(default=[], description="List of port groups whose ports can be "
+        "muxed onto the dynamic pads of this domain. Required if the domain declares any dynamic (non-static) "
+        "pads, and must be empty if all pads are static.")
+    user_attr: Optional[Dict[str, Union[str, int, bool]]] = Field(default=None, description="Optional "
+        "custom key-value pairs that are also exposed during template rendering.")
 
 
     @model_validator(mode='before')

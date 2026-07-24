@@ -22,13 +22,26 @@ from typing_extensions import Annotated
 
 
 class Port(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType] = None
-    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = None
-    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1)] = \
+    """A port is the set of peripheral signals that get connected to a single pad when the port is muxed
+    onto it. It maps peripheral signals to the pad signals of the target pad."""
+    name: TemplatedIdentifierType = Field(description="Name of the port. May contain {i} index templates "
+        "which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the port. May contain {i} index templates when multiple > 1.")
+    connections: Optional[Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = Field(default=None,
+        description="Mapping that wires this port's peripheral signals to the target pad's dynamic pad "
+        "signals when the port is connected. Keys are pad signal names, values are expressions over "
+        "(implicitly declared) peripheral signals or literals. Peripheral signals are shared across ports "
+        "of the same port group.")
+    mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1, description="Set of mux-group "
+        "labels controlling which pads this port can be routed to. A pad is connectable if their mux-group "
+        "sets intersect. Overridden by the port group's mux_groups if that is set.")] = \
         {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
-    multiple: Annotated[int, Field(ge=1)] = 1
-    user_attr: Optional[UserAttrs] = None
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this port to generate. When "
+        "greater than 1, {i} templates in name, description, mux_groups and connections are replaced with "
+        "the port index starting from 0.")] = 1
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     model_config = ConfigDict(extra="forbid", validate_assignment=True)
 
     @field_validator('connections')

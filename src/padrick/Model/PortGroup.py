@@ -19,13 +19,26 @@ from typing_extensions import Annotated
 
 
 class PortGroup(BaseModel):
-    name: TemplatedIdentifierType
-    description: Optional[TemplatedStringType] = None
-    mux_groups: Optional[Annotated[Set[TemplatedIdentifierType], Field(min_length=1)]] = None
-    ports: List[Port]
-    output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = {}
-    multiple: Annotated[int, Field(ge=1)] = 1
-    user_attr: Optional[UserAttrs] = None
+    """A port group logically groups related ports (e.g. all ports of one peripheral) and defines the
+    peripheral-signal namespace shared amongst them."""
+    name: TemplatedIdentifierType = Field(description="Name of the port group. May contain {i} index "
+        "templates which are expanded when multiple > 1.")
+    description: Optional[TemplatedStringType] = Field(default=None, description="Optional description of "
+        "the port group. May contain {i} index templates when multiple > 1.")
+    mux_groups: Optional[Annotated[Set[TemplatedIdentifierType], Field(min_length=1)]] = Field(default=None,
+        description="Optional default set of mux-group labels applied to every port in this group that does "
+        "not specify its own mux_groups.")
+    ports: List[Port] = Field(description="List of ports belonging to this port group.")
+    output_defaults: Union[SignalExpressionType, Mapping[Union[Signal, str], Optional[SignalExpressionType]]] = Field(
+        default={}, description="Default value driven onto each pad-to-SoC (pad2chip) port signal when no pad "
+        "is connected to it. Provide either a single expression applied to all such signals or a mapping from "
+        "port signal name to a constant expression. Every pad2chip port signal in the group must have a "
+        "default.")
+    multiple: Annotated[int, Field(ge=1, description="Number of copies of this port group to generate. When "
+        "greater than 1, {i} templates in name, description and mux_groups are replaced with the group index "
+        "starting from 0.")] = 1
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering.")
     _method_cache = {}
     model_config = ConfigDict(extra="forbid")
 

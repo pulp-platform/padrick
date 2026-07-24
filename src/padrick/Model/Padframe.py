@@ -27,11 +27,17 @@ class Padframe(BaseModel):
         description (str): An optional short description of the padframes.
         pad_domains (List[PadDomain): A list of PadDomains within this padframe.
     """
-    manifest_version: int
-    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER)]
-    description: Optional[str] = None
-    pad_domains: Annotated[List[PadDomain], Field(min_length=1)]
-    user_attr: Optional[UserAttrs] = None
+    manifest_version: int = Field(description="Configuration file syntax version. Must match the manifest "
+        "version supported by the padrick version you are using.")
+    name: Annotated[str, StringConstraints(pattern=SYSTEM_VERILOG_IDENTIFIER), Field(description="Name of "
+        "the generated padframe module. Used as the prefix for all auto-generated modules to avoid naming "
+        "collisions when several padframes are generated.")]
+    description: Optional[str] = Field(default=None, description="Optional short description of the padframe.")
+    pad_domains: Annotated[List[PadDomain], Field(min_length=1, description="List of pad domains that make "
+        "up this padframe. Pad domains do not interact with each other and are generated as separate RTL "
+        "modules, which simplifies power intent for power-gated IO.")]
+    user_attr: Optional[UserAttrs] = Field(default=None, description="Optional custom key-value pairs that "
+        "are also exposed during template rendering; handy for parametrizing the config with YAML anchors.")
     model_config = ConfigDict(title="Padframe Config", extra="forbid")
 
 
