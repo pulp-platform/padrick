@@ -97,10 +97,19 @@ pad_domains:
   `{i*2+1}` is allowed. `default_port` maps support wildcards:
   `default_port: {'*': gpio.GPIO{i:2d}, pad_gpio0: spi.mosi}` (later entries override).
 - A domain with dynamic pads must declare port groups; all-static domains must not.
+- A `kind: pad` signal produces the toplevel landing-pad port; it is OPTIONAL.
+  `pad_signals: []` (or omitted) declares a physical-only cell (supply, corner, tie)
+  whose template is emitted verbatim. Padless cells with signals (e.g. PVSENSE supply
+  sense) wire those signals to the SoC without exposing a pad.
+- Physical-only templates that declare shared wires (e.g. a tie cell declaring
+  `wire io_pads_rto;`) must appear in pad_list order BEFORE templates referencing those
+  wires — some simulators (Questa vlog-2388) reject the implicit-net redeclaration.
 - Unknown/misspelled keys are rejected at every level (`extra=forbid`).
 - Padframe-level options: `config_interface: {regbus|apb|axilite|obi}` and
   `config_port_topology: {shared|per_domain}` (both optional; defaults preserve the
-  classic single regbus port). Non-regbus frontends require the reggen register backend.
+  classic single regbus port). The reggen backend supports ONLY the defaults
+  (regbus/shared); non-regbus frontends and per_domain require `--register-backend
+  peakrdl`, which conversely does not support regbus.
 
 ## Reuse mechanisms
 
