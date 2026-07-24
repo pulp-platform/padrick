@@ -1,0 +1,247 @@
+
+
+{
+    name: "quasi_static_padframe_aon_config"
+    clock_primary: "clk_i"
+    reset_primary: "rst_ni"
+    bus_interfaces: [
+        { protocol: "reg_iface", direction: "device"}
+    ]
+    regwidth: 32,
+    registers: [
+        {skipto: "0x0"},
+        {
+            name: INFO
+            desc: "Read-only IP Information register"
+            swaccess: "ro"
+            hwaccess: "hro"
+            fields: [
+              {
+                bits: "15:0"
+                name: HW_VERSION
+                desc: "Hardware version ID."
+                resval: 2
+              },
+              {
+                  bits:"31:16"
+                  name: PADCOUNT
+                  desc: "The number of muxable pads in this IP."
+                  resval: "3"
+              }
+            ]
+        }
+
+      {
+          name: PAD_QS_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2:1"
+                name: driving_strength
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "2"
+            },
+            {
+                bits: "3"
+                name: output_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "4"
+                name: pull_up_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+          ]
+      }
+
+       {
+          name: PAD_QS_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_qs. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 1
+          fields: [
+              {
+                  bits: "0:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_uart_rx", desc: "Connect port rx from port group uart to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO0_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2:1"
+                name: driving_strength
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "2"
+            },
+            {
+                bits: "3"
+                name: output_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "4"
+                name: pull_up_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO0_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io0. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_io0", desc: "Connect port io0 from port group gpio to this pad." }
+                      { value: "2", name: "port_gpio_io1", desc: "Connect port io1 from port group gpio to this pad." }
+                  ]
+              }
+          ]
+      }
+
+      {
+          name: PAD_IO1_CFG
+          desc: '''
+            Pad signal configuration.
+          '''
+          swaccess: "rw"
+          fields: [
+            {
+                bits: "0"
+                name: chip2pad
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "2:1"
+                name: driving_strength
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "2"
+            },
+            {
+                bits: "3"
+                name: output_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "0"
+            },
+            {
+                bits: "4"
+                name: pull_up_en
+                desc: '''
+                     
+                '''
+                swaccess: "rw"
+                hwaccess: "hro"
+                resval: "1"
+            },
+          ]
+      }
+
+       {
+          name: PAD_IO1_MUX_SEL
+          desc: '''
+              Pad signal port multiplex selection for pad pad_io1. The programmed value defines which port
+              is connected to the pad.
+          '''
+          swaccess: "rw"
+          hwaccess: "hro"
+          resval: 0
+          fields: [
+              {
+                  bits: "1:0"
+                  enum: [
+                      { value: "0", name: "register", desc: "Connects the Pad to the internal configuration register."}
+                      { value: "1", name: "port_gpio_io0", desc: "Connect port io0 from port group gpio to this pad." }
+                      { value: "2", name: "port_gpio_io1", desc: "Connect port io1 from port group gpio to this pad." }
+                  ]
+              }
+          ]
+      }
+
+    ]
+}

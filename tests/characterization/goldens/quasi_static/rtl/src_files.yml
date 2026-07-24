@@ -1,0 +1,13 @@
+
+quasi_static_padframe:
+  files:
+    - src/pkg_quasi_static_padframe.sv
+    - src/pkg_internal_quasi_static_padframe_aon.sv
+    - src/quasi_static_padframe_aon_config_reg_pkg.sv
+    - src/quasi_static_padframe_aon_config_reg_top.sv
+    - src/quasi_static_padframe_aon_pads.sv
+    - src/quasi_static_padframe_aon_muxer.sv
+    - src/quasi_static_padframe_aon.sv
+    - src/quasi_static_padframe.sv
+  vlog_opts:
+    - -L axi_lib

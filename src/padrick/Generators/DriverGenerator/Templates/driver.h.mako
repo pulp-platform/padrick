@@ -18,6 +18,8 @@
 
 % for pad_domain in padframe.pad_domains:
 % for pad in pad_domain.pad_list:
+## Hardwired quasi-static pads have no config/mux_sel registers and thus no accessors.
+% if not pad.is_hardwired:
 % for ps in pad.dynamic_pad_signals_soc2pad:
 <%
   # Determine appropriate type for field value
@@ -75,6 +77,7 @@ void ${padframe.name}_${pad_domain.name}_${pad.name}_mux_set(${padframe.name}_${
  ${padframe.name}_${pad_domain.name}_${pad.name}_mux_sel_t ${padframe.name}_${pad_domain.name}_${pad.name}_mux_get();
 
 
+% endif
 % endif
 % endfor
 % endfor

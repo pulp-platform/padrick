@@ -33,7 +33,12 @@ module ${padframe.name}_${pad_domain.name}_muxer
   output resp_t config_rsp_o
 );
    // Connections between register file and pads
-% if pad_domain.dynamic_pad_signals_soc2pad:
+<%
+## Hardwired quasi-static pads have neither config nor mux_sel registers so they do not
+## contribute to the reg2hw struct of the register file.
+has_reg2hw = any([pad.dynamic_pad_signals_soc2pad and not pad.is_hardwired for pad in pad_domain.pad_list])
+%>\
+% if has_reg2hw:
      ${padframe.name}_${pad_domain.name}_config_reg2hw_t s_reg2hw;
 % endif
 
@@ -44,7 +49,7 @@ module ${padframe.name}_${pad_domain.name}_muxer
     ) i_regfile (
     .clk_i,
     .rst_ni,
-% if pad_domain.dynamic_pad_signals_soc2pad:
+% if has_reg2hw:
     .reg2hw(s_reg2hw),
 % endif
     .reg_req_i(config_req_i),
@@ -59,6 +64,15 @@ all_ports = [port for port_group in pad_domain.port_groups for port in port_grou
 signal_name_remap = {}
 for port_group in pad_domain.port_groups:
     signal_name_remap[port_group.name] = {port_signal.name : f"port_signals_soc2pad_i.{port_group.name}.{port_signal.name}" for port_signal in port_group.port_signals_soc2pads}
+
+def hardwired_tieoff(pad, pad_signal):
+    # Tie unmapped pad signals of a hardwired pad to the same value the config
+    # register of a muxed pad would assume out of reset (connections override or
+    # the pad signal's default_reset_value).
+    resval = pad.connections.get(pad_signal, pad_signal.default_reset_value) if pad.connections else pad_signal.default_reset_value
+    if isinstance(resval, int):
+        return f"{pad_signal.size}'d{resval}"
+    return str(resval)
 %>
    // SoC -> Pad Multiplex Logic
 % for pad in pad_domain.pad_list:
@@ -66,7 +80,20 @@ for port_group in pad_domain.port_groups:
    import math
    sel_bitwidth = round(math.log2(len(all_ports)+1))
 %>\
-% if pad.dynamic_pad_signals_soc2pad:
+% if pad.dynamic_pad_signals_soc2pad and pad.is_hardwired:
+<%
+   hw_port_group, hw_port = pad.default_port
+%>\
+   // Pad ${pad.name} (hardwired to port ${hw_port_group.name}.${hw_port.name})
+% for pad_signal in pad.dynamic_pad_signals_soc2pad:
+% if pad_signal in hw_port.connections and not hw_port.connections[pad_signal].is_empty:
+   assign mux_to_pads_o.${pad.name}.${pad_signal.name} = ${hw_port.connections[pad_signal].get_mapped_expr(signal_name_remap[hw_port_group.name])};
+% else:
+   assign mux_to_pads_o.${pad.name}.${pad_signal.name} = ${hardwired_tieoff(pad, pad_signal)};
+% endif
+% endfor
+
+% elif pad.dynamic_pad_signals_soc2pad:
    // Pad ${pad.name}
    always_comb begin
      unique case (s_reg2hw.${pad.name}_mux_sel.q)
@@ -108,6 +135,23 @@ for port_group in pad_domain.port_groups:
 <%
 dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
 %>
+% if dynamic_pads and dynamic_pads[0].is_hardwired:
+<%
+## Quasi-static validation guarantees a hardwired pad is the only pad connectable
+## to its port, so the whole arbitration logic collapses to a direct connection.
+hw_pad = dynamic_pads[0]
+hw_pad_signal_remapping = {pad_signal.name : f"pads_to_mux_i.{hw_pad.name}.{pad_signal.name}" for pad_signal in hw_pad.dynamic_pad_signals_pad2soc}
+%>\
+% for port_signal in port.port_signals_pad2chip:
+  // Port Signal ${port_signal.name} (hardwired to pad ${hw_pad.name})
+% if port_signal in port.connections:
+  assign port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port.connections[port_signal].get_mapped_expr(hw_pad_signal_remapping)};
+% else:
+  assign port_signals_pad2soc_o.${port_group.name}.${port_signal.name} = ${port_group.output_defaults[port_signal].expression};
+% endif
+
+% endfor
+% else:
 % for port_signal in port.port_signals_pad2chip:
   // Port Signal ${port_signal.name}
   logic [${len(dynamic_pads)-1}:0] port_mux_sel_${port_group.name}_${port_signal.name}_req;
@@ -152,6 +196,7 @@ dynamic_pads = pad_domain.get_dynamic_pads_in_mux_groups(port.mux_groups)
    end
 
 % endfor
+% endif
 % endfor
 % endif
 % endfor

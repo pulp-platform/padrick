@@ -141,10 +141,21 @@
           "type": "boolean"
         },
         "quasi_static": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "enum": [
+                "muxed",
+                "hardwired"
+              ],
+              "type": "string"
+            }
+          ],
           "default": false,
-          "description": "If true, treat this otherwise-dynamic pad as fixed to a single port: padrick enforces that exactly one port is muxable to it and sets that port as the default_port. Experimental; mutually exclusive with is_static.",
-          "title": "Quasi Static",
-          "type": "boolean"
+          "description": "If set, treat this otherwise-dynamic pad as fixed to a single port: padrick enforces that exactly one port is muxable to it and sets that port as the default_port. 'muxed' (equivalent to true) keeps the 1-bit mux and its config registers so software can still fall back to register-controlled GPIO mode. 'hardwired' removes the mux and the pad's config/mux_sel registers entirely: port-mapped pad signals are directly connected to the port and all other pad signals are tied to their reset values. Experimental; mutually exclusive with is_static.",
+          "title": "Quasi Static"
         },
         "mux_groups": {
           "default": [

@@ -1,0 +1,113 @@
+# Copyright 2026 ETH Zurich.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+# Author: Kai Berszin, ETH Zurich
+
+# Padframe exercising the quasi_static pad modes side by side:
+#   * pad_hw:  quasi_static: hardwired -> no mux, no config/mux_sel registers,
+#              port-mapped signals directly assigned, the rest tied to their
+#              reset values (pull_up_en overridden via connections).
+#   * pad_qs:  quasi_static: muxed     -> legacy behavior, 1-bit mux with
+#              register-mode fallback.
+#   * pad_io0/pad_io1: regular dynamic pads muxable to two GPIO ports.
+name: quasi_static_padframe
+manifest_version: 5
+pad_domains:
+  - name: aon
+    pad_types:
+      - name: pull_pad
+        description: Pad with output enable and pull-up control
+        template: |
+          PULL_PAD ${instance_name} (
+            .PAD(${conn["pad"]}),
+            .OE(${conn["output_en"]}),
+            .PEN(${conn["pull_up_en"]}),
+            .DS(${conn["driving_strength"]}),
+            .I(${conn["chip2pad"]}),
+            .O(${conn["pad2chip"]})
+          );
+        pad_signals:
+          - name: pad
+            size: 1
+            kind: pad
+          - name: chip2pad
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: output_en
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 0
+            default_static_value: 1'b0
+          - name: pull_up_en
+            size: 1
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 1
+            default_static_value: 1'b1
+          - name: driving_strength
+            size: 2
+            kind: input
+            conn_type: dynamic
+            default_reset_value: 2
+            default_static_value: 2'd2
+          - name: pad2chip
+            size: 1
+            kind: output
+            conn_type: dynamic
+    pad_list:
+      - name: pad_hw
+        description: Hardwired quasi-static pad (UART TX)
+        mux_groups: [self]
+        pad_type: pull_pad
+        quasi_static: hardwired
+        connections:
+          pull_up_en: 1'b0 # Overrides the tie-off value of the unmapped pull_up_en signal
+      - name: pad_qs
+        description: Muxed quasi-static pad (UART RX)
+        mux_groups: [self]
+        pad_type: pull_pad
+        quasi_static: muxed
+      - name: pad_io{i}
+        description: General purpose IO pad {i}
+        mux_groups: [gpio]
+        multiple: 2
+        pad_type: pull_pad
+    port_groups:
+      - name: uart
+        output_defaults:
+          rx_i: 1'b1
+          tx_lb_i: 1'b1
+        ports:
+          - name: tx
+            description: UART transmit output with loopback readback
+            mux_groups: [pad_hw]
+            connections:
+              chip2pad: tx_o
+              output_en: 1'b1
+              tx_lb_i: pad2chip
+          - name: rx
+            description: UART receive input
+            mux_groups: [pad_qs]
+            connections:
+              rx_i: pad2chip
+              output_en: 1'b0
+      - name: gpio
+        mux_groups: [gpio]
+        output_defaults:
+          in0: 1'b0
+          in1: 1'b0
+        ports:
+          - name: io0
+            connections:
+              chip2pad: out0
+              output_en: dir0
+              in0: pad2chip
+          - name: io1
+            connections:
+              chip2pad: out1
+              output_en: dir1
+              in1: pad2chip

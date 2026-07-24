@@ -38,9 +38,13 @@ class PadInstance(BaseModel):
     is_static: bool = Field(default=False, description="If true, forces every pad signal of this instance to "
         "conn_type 'static' so the pad is controlled solely by its connections and cannot be muxed to ports. "
         "Mutually exclusive with quasi_static.")
-    quasi_static: bool = Field(default=False, description="If true, treat this otherwise-dynamic pad as fixed "
-        "to a single port: padrick enforces that exactly one port is muxable to it and sets that port as the "
-        "default_port. Experimental; mutually exclusive with is_static.")
+    quasi_static: Union[bool, Literal["muxed", "hardwired"]] = Field(default=False, description="If set, treat "
+        "this otherwise-dynamic pad as fixed to a single port: padrick enforces that exactly one port is "
+        "muxable to it and sets that port as the default_port. 'muxed' (equivalent to true) keeps the 1-bit "
+        "mux and its config registers so software can still fall back to register-controlled GPIO mode. "
+        "'hardwired' removes the mux and the pad's config/mux_sel registers entirely: port-mapped pad signals "
+        "are directly connected to the port and all other pad signals are tied to their reset values. "
+        "Experimental; mutually exclusive with is_static.")
     mux_groups: Annotated[Set[TemplatedIdentifierType], Field(min_length=1, description="Set of mux-group "
         "labels controlling connectivity. A port can be routed to this pad if their mux-group sets intersect. "
         "Defaults to 'all' and 'self'; 'self' expands to the pad instance name (with index).")] = {TemplatedIdentifierType("all"), TemplatedIdentifierType("self")}
@@ -68,6 +72,17 @@ class PadInstance(BaseModel):
             raise ValueError(f"Unknown pad_type {v}. Did you mispell the pad_type or forgot to declare it?")
         else:
             return pad_type
+
+    @field_validator('quasi_static')
+    @classmethod
+    def normalize_quasi_static(cls, v: Union[bool, str]) -> Union[bool, str]:
+        """Normalize the legacy boolean 'true' to the equivalent 'muxed' mode."""
+        return "muxed" if v is True else v
+
+    @property
+    def is_hardwired(self) -> bool:
+        """True if this quasi-static pad is hardwired to its port without a mux."""
+        return self.quasi_static == "hardwired"
 
     @field_validator('mux_groups')
     @classmethod

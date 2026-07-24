@@ -42,12 +42,14 @@
                   bits:"31:16"
                   name: PADCOUNT
                   desc: "The number of muxable pads in this IP."
-                  resval: "${len([pad for pad in pad_domain.pad_list if not pad.is_static])}"
+                  resval: "${len([pad for pad in pad_domain.pad_list if not pad.is_static and not pad.is_hardwired])}"
               }
             ]
         }
 % for pad in pad_domain.pad_list:
-% if pad.dynamic_pad_signals_soc2pad:
+## Hardwired quasi-static pads are directly connected to their port and thus have
+## neither config nor mux_sel registers.
+% if pad.dynamic_pad_signals_soc2pad and not pad.is_hardwired:
 <%
   # Calculate how many config registers we need to accomodate all dynamic
   # pad signals that need a register.
@@ -104,7 +106,7 @@
       }
 % endfor
 % endif
-% if pad.dynamic_pad_signals:
+% if pad.dynamic_pad_signals and not pad.is_hardwired:
 <%
     # The reset value depends on whether the dynamic pad has a default_port or not. If it doesn't the resvalue is
     # zero (connect to register file value). If it has one, we need to find the right select value that corresponds
