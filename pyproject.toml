@@ -73,6 +73,9 @@ norecursedirs = ["dist", "build", ".tox"]
 
 [dependency-groups]
 dev = ["pytest", "pytest-cov"]
+# RTL simulation suite (tests/rtl_sim): cocotb <2 because cocotb 2.x needs
+# Verilator >=5.022, newer than the pinned SEPP/CI verilator 5.020.
+sim = ["cocotb>=1.9,<2"]
 
 [tool.coverage.run]
 branch = true

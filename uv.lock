@@ -246,6 +246,42 @@ wheels = [
 ]
 
 [[package]]
+name = "cocotb"
+version = "1.9.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "find-libpython" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5c/dc/4bd01e86f7ad85dfc6eec681a94db1a856aa35c58777a297e271100ac24c/cocotb-1.9.2.tar.gz", hash = "sha256:e4cdeaf51ec1b14e5430083ac56edc0b48ad05184f0307d90de44ff7bfdb1652", size = 300696, upload-time = "2024-10-26T19:11:30.247Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2d/48/b90db9fc14e829bfdca797f1a0cc656950d63a438ab311207d6882caf934/cocotb-1.9.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:25396c1650eb9002dbebe013f8c3fad64b1646e4b2ff06f953cf2f8aac51b7d2", size = 620027, upload-time = "2024-10-26T19:10:14.491Z" },
+    { url = "https://files.pythonhosted.org/packages/38/43/b7c3ab67e8f789e629ee9090dde89df1fd6ba9b2589f2c8ff183332cf4ab/cocotb-1.9.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:47f82e32c2485ae953f482d1e19f227c7c95b05bb5542eee2b4c4250d787df64", size = 4209565, upload-time = "2024-10-26T19:10:16.598Z" },
+    { url = "https://files.pythonhosted.org/packages/82/b9/9f3aaa7677ddce0feffe6bd4f12382574794aaa26c5a79d259d339ac7a7a/cocotb-1.9.2-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:940ca22d386962bc538e4aa2c94d50a23e83758f6d0b721aabb67760d37dedea", size = 4092830, upload-time = "2024-10-26T19:10:18.38Z" },
+    { url = "https://files.pythonhosted.org/packages/68/4b/50f20f8990c12e9714da2f23eb694deb0bef9c6dc2f7206355697eeda16d/cocotb-1.9.2-cp310-cp310-win32.whl", hash = "sha256:4ee9f6a3cdebf88ecec9a69789111559260898dcbebffff11593076f4cbf29c9", size = 491952, upload-time = "2024-10-26T19:10:20.466Z" },
+    { url = "https://files.pythonhosted.org/packages/85/8c/a7ef7e479cdda84680d14c123d3f93508b801a58c92ad3d50d6f96a07348/cocotb-1.9.2-cp310-cp310-win_amd64.whl", hash = "sha256:6901bb667ad3ffd0233558c496691062c72f30f0cb9686e86ca05bf3019d0ee0", size = 523350, upload-time = "2024-10-26T19:10:22.366Z" },
+    { url = "https://files.pythonhosted.org/packages/04/4f/64e2e6338a4c0666d2a53fdc160832bf1dd29d758fd8d6e7c72c98d22f26/cocotb-1.9.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:ac8cef8162a01369cbb6428b5d252274fe8a6bcae360fb68ba12dcda344b468a", size = 620030, upload-time = "2024-10-26T19:10:24.346Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/49/591bbe8961cfb540b3b17fda8e07b19d7e0203a2e272706c71aba37426c0/cocotb-1.9.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:57fb05bc1bf79f92964d3a633153056bd885538dac9c2f5d3a724e83cdc65d51", size = 4211516, upload-time = "2024-10-26T19:10:26.556Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/d6/560c22b3b8cad20f159ba93b076483dd9db101e3823f795f07b26cfa3f30/cocotb-1.9.2-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:08c6dc004324b36015975b14aa24dca3cf1ac771d0ddd9ccacdcf4af7c77c3e1", size = 4094459, upload-time = "2024-10-26T19:10:28.775Z" },
+    { url = "https://files.pythonhosted.org/packages/07/e7/24ef11f4854ae82758a73a4ce0cfd3a6c5ed459c923891d10d44adb6c586/cocotb-1.9.2-cp311-cp311-win32.whl", hash = "sha256:d2b28fb592586cf210243bacf3c53be5c5ca383555aafc8619605f34529bfae0", size = 491943, upload-time = "2024-10-26T19:10:30.833Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/f9/55036ca2bab83c27519b6497dce6f78d8ef74ff1a166ad17d59bba4ad48b/cocotb-1.9.2-cp311-cp311-win_amd64.whl", hash = "sha256:7f171a4eb095b45556275fba414785eaf7b41937690a93dc0dfa8f568e699687", size = 523342, upload-time = "2024-10-26T19:10:32.628Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/86/39f5f75366e46c665b86a46ab7acb5149994c55f4ad6f89057e99acc7400/cocotb-1.9.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:17c19553dbc5442f079495a2fd6e8fc7924cd9c527ae0d5c92d864f12d3ed865", size = 620182, upload-time = "2024-10-26T19:10:34.619Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/50/4e6c84dc1d2002e0cc4587a4516feb12c47e2953f43f8f2f136941e7c0bb/cocotb-1.9.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ff2460fb60444bfbe28a8119aad7f7297a97b53356426f03d0cdee2b90d3bc1a", size = 4213411, upload-time = "2024-10-26T19:10:36.63Z" },
+    { url = "https://files.pythonhosted.org/packages/ad/1a/8875eecc17f681e6fd7bfff5e75a9338c156b3530c5559fe77753174e19a/cocotb-1.9.2-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:5a2333ee6e5f2316c425e501ea9a116439cf8f08ceb8816c762842fe88ea9748", size = 4094531, upload-time = "2024-10-26T19:10:39.036Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/ae/2a536de0f747bd5756e62165a429c9249c6e0715cc77c9a5fdd851821adb/cocotb-1.9.2-cp312-cp312-win32.whl", hash = "sha256:85d175f6e6054f3d046903790fe61ccf454e1a5e39392682c728a3418be935cf", size = 492077, upload-time = "2024-10-26T19:10:40.942Z" },
+    { url = "https://files.pythonhosted.org/packages/05/b3/5026f529ffd707dcb6cf58d68d0b1b7d47fc6afecf009a4158bf7e2141b4/cocotb-1.9.2-cp312-cp312-win_amd64.whl", hash = "sha256:42fde03b858cd84e0284d9cee6bf34cc0892167921bd1da100abf181ac5e2ea4", size = 523524, upload-time = "2024-10-26T19:10:42.776Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/9b/68332cd317d449c32e5ed8318343805f59e73481d6c5dcb01b8060ac412e/cocotb-1.9.2-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:a60f6b3c4e4f5e9265a18c86927af1d773fb79b32edf577ce2ba8d59d74acafc", size = 611792, upload-time = "2024-10-26T19:10:44.426Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/79/dadc212d62e57bc381ab403bae8a442b8903f84c4807075bd236071092ce/cocotb-1.9.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9cc00e5ddf5fea392a8a3406869396c7e5a736a08afc8e0fe45ad159151438ba", size = 4213277, upload-time = "2024-10-26T19:10:46.308Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/22/4578c0f67443ae00e63f6d9987bd48287b1ad141941780277a9bd8faa4ce/cocotb-1.9.2-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:6264826ee4dd6acc678dd2572f3cd683da6a48013af82de81bf8a45b5e064b8e", size = 4094427, upload-time = "2024-10-26T19:10:48.472Z" },
+    { url = "https://files.pythonhosted.org/packages/29/71/6b77f173866dd64f3b898ec15ec1103eee43fb7b212108e51fea9b866a67/cocotb-1.9.2-cp313-cp313-win32.whl", hash = "sha256:7cdb25ca9dd2483d96f30b1cf3c070e4a6527d43e0af2d66660de29727c81cd4", size = 492087, upload-time = "2024-10-26T19:10:50.255Z" },
+    { url = "https://files.pythonhosted.org/packages/01/f0/71d15e3735df2135f600cac25e2174c7fee55d250e46a00fe800417c1aab/cocotb-1.9.2-cp313-cp313-win_amd64.whl", hash = "sha256:c816972ec4b3360372075fb0563cf98e8ad7d0f158e8dfe3165824936383a888", size = 523541, upload-time = "2024-10-26T19:10:51.78Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/f4/37d2edfc26b0298612f03690c9981dbe557154c1b83fd42909cfefbddce2/cocotb-1.9.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:504a0926cf07f59dfce3141d58ce0d20bc4ecafdd7adc3153b6b4ba2e62ed52a", size = 620028, upload-time = "2024-10-26T19:11:22.294Z" },
+    { url = "https://files.pythonhosted.org/packages/44/55/b95e7883d3514d27b071276cdb81c8a5bf14bf943ef40d88f1c5a79941da/cocotb-1.9.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:df0aef26de38326440395edf5f2dddd11254a0cfa121151e89095cc5c75c9564", size = 4208720, upload-time = "2024-10-26T19:11:23.882Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/e7/577168b65b57c065c4eff1668a3b2520296f706cdad49ef20d8688dd1850/cocotb-1.9.2-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:349ff4ac56e3d07c49f1b38426461c2e0239e603c5a3e6bc1221d01774c97656", size = 4092032, upload-time = "2024-10-26T19:11:25.716Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/c4/5d17391e8acdc03f0ac9feda7fadface8ac91ac0c05a61aab9c1e63aaa5c/cocotb-1.9.2-cp39-cp39-win32.whl", hash = "sha256:bcaa79fc55e68f1769c381f494b5c35fce7a597aa660c420a1e9015acf95b263", size = 491947, upload-time = "2024-10-26T19:11:27.343Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/0c/3bfa1d6d65199b12d1ba685b4bec3c07b9c2b9a8014821c3064035edeb47/cocotb-1.9.2-cp39-cp39-win_amd64.whl", hash = "sha256:58bf87c7c71ba8c8e8f217aaf41841951aea10efe57d824eb32596b8fb47d18e", size = 523357, upload-time = "2024-10-26T19:11:28.636Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -517,6 +553,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/50/79/66800aadf48771f6b62f7eb014e352e5d06856655206165d775e675a02c9/exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219", size = 30371, upload-time = "2025-11-21T23:01:54.787Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8a/0e/97c33bf5009bdbac74fd2beace167cab3f978feb69cc36f1ef79360d6c4e/exceptiongroup-1.3.1-py3-none-any.whl", hash = "sha256:a7a39a3bd276781e98394987d3a5701d0c4edffb633bb7a5144577f82c773598", size = 16740, upload-time = "2025-11-21T23:01:53.443Z" },
+]
+
+[[package]]
+name = "find-libpython"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/70/60/951b7ca316ab3ec928ed788de5fcb30b4a0292704e50b872c8edf24c11fe/find_libpython-0.5.1.tar.gz", hash = "sha256:12a0fb39ff8dcc64ad0fd554b1bd142ea4a8c4c18e5da6043a547ce7b25559fe", size = 9402, upload-time = "2026-02-11T03:18:04.844Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/34/1f/1d6079f4f0540aaa368aa20d89d98eda42f081c397a822c547340e32d1e3/find_libpython-0.5.1-py3-none-any.whl", hash = "sha256:723a8cfe6fed255a1f58b53c62ed556fb340ec0d456e9863ebc01a5cc047607d", size = 9201, upload-time = "2026-02-11T03:18:03.263Z" },
 ]
 
 [[package]]
@@ -878,6 +923,9 @@ dev = [
     { name = "pytest", version = "9.1.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest-cov" },
 ]
+sim = [
+    { name = "cocotb" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -909,6 +957,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
 ]
+sim = [{ name = "cocotb", specifier = ">=1.9,<2" }]
 
 [[package]]
 name = "peakrdl-cheader"
