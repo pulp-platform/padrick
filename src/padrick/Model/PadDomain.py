@@ -179,7 +179,7 @@ class PadDomain(BaseModel):
                     # We verified that there is indeed a 1:1 correlation between this pad and one port. We now set this as the default_port
                     # to force the fixed association.
                     pad.default_port = port
-                    logger.info(f"Pad {pad.name} is marked as a quasi static pad. Setting default role for pad to {port}")
+                    logger.debug(f"Pad {pad.name} is marked as a quasi static pad. Setting default role for pad to {port}")
         return self
 
     @model_validator(mode='after')
